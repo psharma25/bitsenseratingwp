@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedReg Intelligence — Global Medical Device Compliance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --white: #ffffff;
+  --off: #f7f6f3;
+  --subtle: #f0efe9;
+  --border: #e2e0d8;
+  --border-strong: #c8c5b8;
+  --text: #1a1917;
+  --text-2: #5c5a52;
+  --text-3: #9c9a8e;
+  --accent: #1a3a5c;
+  --accent-light: #e8f0f8;
+  --accent-mid: #2d5f8a;
+  --green: #1a5c3a;
+  --green-light: #e8f5ee;
+  --amber: #7a4a00;
+  --amber-light: #fff3d6;
+  --red: #7a1a1a;
+  --red-light: #fdeaea;
+  --teal: #0f5c52;
+  --teal-light: #e6f5f3;
+  --r: 6px;
+  --r-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--text); line-height: 1.6; }
+h1,h2,h3,h4 { font-family: 'DM Serif Display', serif; font-weight: 400; line-height: 1.2; }
+input, select, textarea, button { font-family: 'DM Sans', sans-serif; }
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 60px;
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.nav-brand-icon {
+  width: 32px; height: 32px; background: var(--accent);
+  border-radius: var(--r); display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: white; font-weight: 600; font-family: 'DM Mono', monospace;
+}
+.nav-brand-text { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--text); }
+.nav-links { display: flex; gap: 2rem; }
+.nav-links a {
+  font-size: 13px; font-weight: 500; color: var(--text-2); text-decoration: none;
+  transition: color .15s;
+}
+.nav-links a:hover { color: var(--accent); }
+.nav-cta {
+  background: var(--accent); color: white; border: none; padding: 7px 16px;
+  border-radius: var(--r); font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: background .15s;
+}
+.nav-cta:hover { background: var(--accent-mid); }
+
+/* HERO */
+.hero {
+  padding: 80px 2rem 60px;
+  max-width: 1100px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+}
+.hero-eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--accent); background: var(--accent-light); padding: 4px 10px;
+  border-radius: 100px; display: inline-block; margin-bottom: 20px;
+}
+.hero h1 { font-size: 52px; line-height: 1.1; margin-bottom: 20px; }
+.hero h1 em { font-style: italic; color: var(--accent); }
+.hero-sub { font-size: 17px; color: var(--text-2); line-height: 1.7; margin-bottom: 32px; }
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--accent); color: white; border: none;
+  padding: 12px 24px; border-radius: var(--r); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { background: var(--accent-mid); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-secondary {
+  background: transparent; color: var(--text); border: 1px solid var(--border-strong);
+  padding: 12px 24px; border-radius: var(--r); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all .15s;
+}
+.btn-secondary:hover { background: var(--subtle); }
+.hero-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 40px;
+}
+.stat-card {
+  background: var(--off); border: 1px solid var(--border);
+  border-radius: var(--r-lg); padding: 20px;
+}
+.stat-num { font-family: 'DM Serif Display', serif; font-size: 36px; color: var(--accent); }
+.stat-label { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+
+/* SECTION WRAPPER */
+.section { padding: 60px 2rem; max-width: 1100px; margin: 0 auto; }
+.section-divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 8px;
+}
+.section-title { font-size: 36px; margin-bottom: 12px; }
+.section-sub { font-size: 16px; color: var(--text-2); max-width: 560px; margin-bottom: 40px; }
+
+/* TABS */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+.tab-btn {
+  padding: 10px 20px; border: none; background: transparent;
+  font-size: 14px; font-weight: 500; color: var(--text-2); cursor: pointer;
+  border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all .15s;
+}
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-btn:hover:not(.active) { color: var(--text); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* FORM */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.form-sublabel { font-size: 11px; color: var(--text-3); }
+.form-input, .form-select, .form-textarea {
+  border: 1px solid var(--border); border-radius: var(--r);
+  padding: 9px 12px; font-size: 14px; color: var(--text);
+  background: var(--white); transition: border-color .15s, box-shadow .15s;
+  width: 100%;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26,58,92,0.08);
+}
+.form-textarea { resize: vertical; min-height: 80px; }
+.checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.checkbox-pill {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border: 1px solid var(--border); border-radius: 100px;
+  font-size: 13px; cursor: pointer; transition: all .15s; color: var(--text-2);
+  user-select: none;
+}
+.checkbox-pill input { display: none; }
+.checkbox-pill.checked { background: var(--accent-light); border-color: var(--accent); color: var(--accent); font-weight: 500; }
+.form-section-title { font-size: 15px; font-weight: 600; color: var(--text); margin: 24px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); grid-column: 1 / -1; }
+.form-actions { grid-column: 1 / -1; display: flex; gap: 12px; margin-top: 8px; }
+
+/* REGULATION CARDS */
+.reg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.reg-card {
+  border: 1px solid var(--border); border-radius: var(--r-lg); padding: 20px;
+  background: var(--white); transition: all .2s; cursor: pointer; position: relative;
+}
+.reg-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.reg-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; gap: 10px; }
+.reg-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 100px; white-space: nowrap;
+}
+.badge-eu { background: #e8edf8; color: #1a3a8c; }
+.badge-us { background: #fdeaea; color: var(--red); }
+.badge-global { background: var(--teal-light); color: var(--teal); }
+.badge-cn { background: #fef3e8; color: #7a3a00; }
+.badge-uk { background: #f0e8f8; color: #5a1a8c; }
+.badge-int { background: var(--subtle); color: var(--text-2); }
+.reg-card h4 { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--accent); margin-bottom: 4px; }
+.reg-card-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+.reg-card-desc { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.reg-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.reg-card-sector { font-size: 11px; color: var(--text-3); }
+.reg-arrow { font-size: 14px; color: var(--text-3); }
+
+/* RESULTS PANEL */
+.results-panel { display: none; }
+.results-panel.visible { display: block; }
+.results-header {
+  background: var(--off); border: 1px solid var(--border); border-radius: var(--r-lg);
+  padding: 24px 28px; margin-bottom: 24px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 20px;
+}
+.results-company { font-size: 20px; font-family: 'DM Serif Display', serif; margin-bottom: 4px; }
+.results-product { font-size: 13px; color: var(--text-2); }
+.results-meta { display: flex; gap: 12px; flex-wrap: wrap; }
+.results-meta-item {
+  font-size: 12px; padding: 4px 10px; border-radius: 100px;
+  background: var(--white); border: 1px solid var(--border); color: var(--text-2);
+}
+.results-summary {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px;
+}
+.summary-stat {
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg);
+  padding: 16px 20px; text-align: center;
+}
+.summary-stat-num { font-family: 'DM Serif Display', serif; font-size: 28px; }
+.summary-stat-label { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+.summary-stat.critical .summary-stat-num { color: var(--red); }
+.summary-stat.warning .summary-stat-num { color: var(--amber); }
+.summary-stat.ok .summary-stat-num { color: var(--green); }
+
+/* OBLIGATION ITEM */
+.obligation-list { display: flex; flex-direction: column; gap: 12px; }
+.obligation-item {
+  border: 1px solid var(--border); border-radius: var(--r-lg);
+  background: var(--white); overflow: hidden;
+}
+.obligation-header {
+  padding: 16px 20px; display: flex; align-items: center; gap: 14px; cursor: pointer;
+  transition: background .15s;
+}
+.obligation-header:hover { background: var(--off); }
+.obligation-priority {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.priority-critical { background: #e24b4b; }
+.priority-high { background: #e09020; }
+.priority-medium { background: #4b9ee2; }
+.priority-low { background: #4baa6e; }
+.obligation-reg-id { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-3); min-width: 90px; }
+.obligation-title { font-size: 14px; font-weight: 500; flex: 1; }
+.obligation-status {
+  font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px;
+  white-space: nowrap;
+}
+.status-gap { background: var(--red-light); color: var(--red); }
+.status-partial { background: var(--amber-light); color: var(--amber); }
+.status-met { background: var(--green-light); color: var(--green); }
+.obligation-chevron { font-size: 12px; color: var(--text-3); transition: transform .2s; }
+.obligation-item.open .obligation-chevron { transform: rotate(90deg); }
+.obligation-body { display: none; padding: 0 20px 20px; border-top: 1px solid var(--border); }
+.obligation-item.open .obligation-body { display: block; }
+.obligation-section { margin-top: 16px; }
+.obligation-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); margin-bottom: 8px; }
+.obligation-section-text { font-size: 13px; color: var(--text-2); line-height: 1.6; }
+.impl-steps { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.impl-steps li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; color: var(--text-2); line-height: 1.5;
+}
+.impl-steps li::before {
+  content: attr(data-n); background: var(--accent); color: white;
+  width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; margin-top: 2px;
+}
+.evidence-list { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.evidence-list li { font-size: 13px; color: var(--text-2); display: flex; align-items: center; gap: 8px; }
+.evidence-list li::before { content: '☐'; font-size: 14px; color: var(--text-3); }
+.gap-box {
+  background: var(--red-light); border: 1px solid rgba(122,26,26,.12);
+  border-radius: var(--r); padding: 12px 16px; margin-top: 8px;
+  font-size: 13px; color: var(--red); line-height: 1.5;
+}
+.gap-box strong { display: block; margin-bottom: 4px; }
+
+/* FILTER ROW */
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
+.filter-chip {
+  padding: 5px 14px; border: 1px solid var(--border); border-radius: 100px;
+  font-size: 13px; color: var(--text-2); cursor: pointer; transition: all .15s; background: var(--white);
+}
+.filter-chip.active { background: var(--accent); color: white; border-color: var(--accent); }
+.filter-chip:hover:not(.active) { background: var(--subtle); }
+.filter-search {
+  border: 1px solid var(--border); border-radius: 100px; padding: 6px 16px;
+  font-size: 13px; color: var(--text); width: 220px; outline: none;
+  transition: border-color .15s;
+}
+.filter-search:focus { border-color: var(--accent); }
+
+/* AI PANEL */
+.ai-panel {
+  border: 1px solid var(--border); border-radius: var(--r-lg);
+  overflow: hidden; margin-bottom: 28px;
+}
+.ai-panel-header {
+  padding: 14px 20px; background: var(--off);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.ai-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+.ai-panel-title { font-size: 13px; font-weight: 500; }
+.ai-panel-body { padding: 20px; }
+.ai-query { display: flex; gap: 10px; }
+.ai-query input {
+  flex: 1; border: 1px solid var(--border); border-radius: var(--r);
+  padding: 9px 14px; font-size: 14px; outline: none; transition: border-color .15s;
+}
+.ai-query input:focus { border-color: var(--accent); }
+.ai-query button {
+  background: var(--accent); color: white; border: none; padding: 9px 18px;
+  border-radius: var(--r); font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.ai-response {
+  margin-top: 16px; font-size: 14px; color: var(--text-2); line-height: 1.7;
+  padding: 16px; background: var(--subtle); border-radius: var(--r); display: none;
+}
+.ai-response.visible { display: block; }
+.ai-response-thinking {
+  display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-3);
+  font-style: italic;
+}
+.typing-dot { display: inline-block; width: 6px; height: 6px; background: var(--text-3); border-radius: 50%; animation: bounce 1.2s infinite; }
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
+
+/* ROADMAP */
+.roadmap { display: flex; flex-direction: column; gap: 0; position: relative; }
+.roadmap::before {
+  content: ''; position: absolute; left: 23px; top: 24px; bottom: 24px;
+  width: 1px; background: var(--border);
+}
+.roadmap-item { display: flex; gap: 20px; align-items: flex-start; padding: 16px 0; position: relative; }
+.roadmap-circle {
+  width: 46px; height: 46px; border-radius: 50%; border: 2px solid var(--border);
+  background: var(--white); display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 600; flex-shrink: 0; z-index: 1; font-family: 'DM Mono', monospace;
+}
+.roadmap-circle.critical { background: var(--red-light); border-color: rgba(122,26,26,.3); color: var(--red); }
+.roadmap-circle.high { background: var(--amber-light); border-color: rgba(122,74,0,.3); color: var(--amber); }
+.roadmap-circle.medium { background: var(--accent-light); border-color: rgba(26,58,92,.2); color: var(--accent); }
+.roadmap-content { flex: 1; padding-top: 10px; }
+.roadmap-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+.roadmap-desc { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.roadmap-meta { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+.roadmap-tag {
+  font-size: 11px; padding: 3px 8px; border-radius: 100px;
+  background: var(--subtle); color: var(--text-2);
+}
+
+/* FOOTER */
+footer {
+  background: var(--off); border-top: 1px solid var(--border);
+  padding: 40px 2rem; margin-top: 60px;
+  text-align: center;
+}
+.footer-inner { max-width: 1100px; margin: 0 auto; }
+.footer-title { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 10px; }
+.footer-sub { font-size: 13px; color: var(--text-2); margin-bottom: 20px; }
+.footer-tech { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.tech-badge {
+  font-size: 11px; font-weight: 500; padding: 4px 12px; border-radius: 100px;
+  background: var(--white); border: 1px solid var(--border); color: var(--text-2);
+  font-family: 'DM Mono', monospace;
+}
+.footer-legal { font-size: 12px; color: var(--text-3); margin-top: 24px; }
+
+/* LOADING */
+.loading-overlay {
+  position: fixed; inset: 0; background: rgba(255,255,255,0.92);
+  display: none; align-items: center; justify-content: center; z-index: 999;
+  flex-direction: column; gap: 16px;
+}
+.loading-overlay.visible { display: flex; }
+.loading-spinner {
+  width: 40px; height: 40px; border: 2px solid var(--border);
+  border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--text-2); }
+.loading-steps { font-size: 12px; color: var(--text-3); font-family: 'DM Mono', monospace; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; gap: 40px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .results-summary { grid-template-columns: 1fr 1fr; }
+  nav .nav-links { display: none; }
+}
+
+.fade-in { animation: fadeIn .4s ease forwards; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-brand-icon">M</div>
+    <span class="nav-brand-text">MedReg Intelligence</span>
+  </div>
+  <div class="nav-links">
+    <a href="#regulations">Regulations</a>
+    <a href="#profile">Company Profile</a>
+    <a href="#results">Gap Analysis</a>
+    <a href="#architecture">Architecture</a>
+  </div>
+  <button class="nav-cta" onclick="scrollToProfile()">Start Assessment →</button>
+</nav>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Analysing your profile against global regulations…</div>
+  <div class="loading-steps" id="loadingStep">Initialising RAG retrieval…</div>
+</div>
+
+<!-- HERO -->
+<section style="background: var(--white); padding: 0;">
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow">Global · Open Source · Local AI</div>
+      <h1>Medical Device<br><em>Regulatory</em><br>Intelligence</h1>
+      <p class="hero-sub">Enter your company and product profile. Our local AI engine maps your obligations across 40+ global regulations — from FDA 510(k) to EU MDR, PMDA to TGA — and tells you exactly what you need to implement.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="scrollToProfile()">
+          Start Compliance Assessment →
+        </button>
+        <button class="btn-secondary" onclick="document.getElementById('regulations').scrollIntoView({behavior:'smooth'})">
+          Browse Regulations
+        </button>
+      </div>
+    </div>
+    <div>
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-num">40+</div>
+          <div class="stat-label">Regulations & standards covered globally</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">18</div>
+          <div class="stat-label">Jurisdictions including EU, US, APAC, LATAM</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Local AI — no data leaves your environment</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-num">Live</div>
+          <div class="stat-label">Continuous monitoring for regulatory changes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- REGULATIONS DATABASE -->
+<section class="section" id="regulations">
+  <div class="section-label">Global Coverage</div>
+  <h2 class="section-title">Regulation Database</h2>
+  <p class="section-sub">40+ regulations and standards covering medical devices, SaMD, IVD, manufacturing, cybersecurity, and data privacy across all major jurisdictions.</p>
+
+  <div class="filter-row">
+    <input class="filter-search" type="text" placeholder="Search regulations…" oninput="filterRegs(this.value)" id="regSearch">
+    <div class="filter-chip active" onclick="filterByRegion('all',this)">All</div>
+    <div class="filter-chip" onclick="filterByRegion('us',this)">United States</div>
+    <div class="filter-chip" onclick="filterByRegion('eu',this)">European Union</div>
+    <div class="filter-chip" onclick="filterByRegion('uk',this)">United Kingdom</div>
+    <div class="filter-chip" onclick="filterByRegion('apac',this)">APAC</div>
+    <div class="filter-chip" onclick="filterByRegion('global',this)">International</div>
+  </div>
+
+  <div class="reg-grid" id="regGrid"></div>
+</section>
+
+<hr class="section-divider">
+
+<!-- COMPANY PROFILE FORM -->
+<section class="section" id="profile">
+  <div class="section-label">Step 1</div>
+  <h2 class="section-title">Company & Product Profile</h2>
+  <p class="section-sub">Fill in your profile to receive a personalised regulatory map, obligations list, implementation guide, and gap analysis.</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('company',this)">Company</button>
+    <button class="tab-btn" onclick="switchTab('product',this)">Product</button>
+    <button class="tab-btn" onclick="switchTab('markets',this)">Markets & Data</button>
+    <button class="tab-btn" onclick="switchTab('current',this)">Current State</button>
+  </div>
+
+  <!-- COMPANY TAB -->
+  <div class="tab-panel active" id="tab-company">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Company name <span style="color:var(--red)">*</span></label>
+        <input class="form-input" id="companyName" placeholder="e.g. Acme Medical Devices Inc." type="text">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Headquarters jurisdiction <span style="color:var(--red)">*</span></label>
+        <select class="form-select" id="hqJurisdiction">
+          <option value="">Select jurisdiction…</option>
+          <option>United States</option><option>European Union — Germany</option>
+          <option>European Union — France</option><option>European Union — Netherlands</option>
+          <option>United Kingdom</option><option>Japan</option><option>China</option>
+          <option>Australia</option><option>Canada</option><option>India</option>
+          <option>South Korea</option><option>Brazil</option><option>Singapore</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Company size</label>
+        <select class="form-select" id="companySize">
+          <option value="">Select…</option>
+          <option>Startup (1–50 employees)</option>
+          <option>SME (51–500 employees)</option>
+          <option>Mid-market (501–5,000)</option>
+          <option>Enterprise (5,000+)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">FDA Establishment Registration?</label>
+        <select class="form-select" id="fdaReg">
+          <option value="">Select…</option>
+          <option>Yes — registered</option><option>No — not yet</option>
+          <option>In progress</option><option>Not applicable</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Quality management system</label>
+        <div class="checkbox-group" id="qmsGroup">
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="ISO 13485">ISO 13485</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="21 CFR Part 820">21 CFR Part 820</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="ISO 9001">ISO 9001</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="MDSAP">MDSAP</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="None">None yet</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCT TAB -->
+  <div class="tab-panel" id="tab-product">
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Product / device name <span style="color:var(--red)">*</span></label>
+        <input class="form-input" id="productName" placeholder="e.g. CardioSense Pro" type="text">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Device classification <span style="color:var(--red)">*</span></label>
+        <select class="form-select" id="deviceClass">
+          <option value="">Select…</option>
+          <option>Class I — Low risk</option>
+          <option>Class II — Moderate risk</option>
+          <option>Class III — High risk / life-sustaining</option>
+          <option>IVD — In vitro diagnostic</option>
+          <option>SaMD — Software as a Medical Device</option>
+          <option>SiMD — Software in a Medical Device</option>
+          <option>Combination product</option>
+          <option>Active implantable</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Intended use / indication</label>
+        <input class="form-input" id="intendedUse" placeholder="e.g. Continuous cardiac monitoring" type="text">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Connectivity / software?</label>
+        <select class="form-select" id="connectivity">
+          <option value="">Select…</option>
+          <option>Standalone hardware only</option>
+          <option>Hardware with embedded software</option>
+          <option>Connected device (Bluetooth/WiFi/cellular)</option>
+          <option>Cloud-connected with patient data</option>
+          <option>AI/ML-enabled features</option>
+          <option>Mobile app companion</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Device type</label>
+        <div class="checkbox-group" id="deviceTypeGroup">
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Implantable">Implantable</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Wearable">Wearable</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Diagnostic imaging">Diagnostic imaging</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Drug delivery">Drug delivery</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Patient monitoring">Patient monitoring</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Surgical instrument">Surgical instrument</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="In vitro diagnostic">In vitro diagnostic</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Therapeutic">Therapeutic</label>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Brief product description</label>
+        <textarea class="form-textarea" id="productDesc" placeholder="Describe what your device does, key clinical functions, and any notable technical features…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKETS TAB -->
+  <div class="tab-panel" id="tab-markets">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label class="form-label">Target markets <span style="color:var(--red)">*</span></label>
+        <div class="checkbox-group" id="marketsGroup">
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="USA">🇺🇸 USA</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="EU">🇪🇺 European Union</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="UK">🇬🇧 United Kingdom</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Japan">🇯🇵 Japan</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="China">🇨🇳 China</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Australia">🇦🇺 Australia</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Canada">🇨🇦 Canada</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="India">🇮🇳 India</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="South Korea">🇰🇷 South Korea</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Brazil">🇧🇷 Brazil</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Singapore">🇸🇬 Singapore</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="UAE">🇦🇪 UAE</label>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Data handled by the device</label>
+        <div class="checkbox-group" id="dataGroup">
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="PHI">Protected Health Information (PHI)</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="PII">Personal Identifiable Information (PII)</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Biometric">Biometric data</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Genetic">Genetic data</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Clinical">Clinical measurements only</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="No patient data">No patient data</label>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Cloud / hosting environment</label>
+        <div class="checkbox-group" id="cloudGroup">
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="AWS">AWS</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Azure">Azure</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="GCP">GCP</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="On-premise">On-premise</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="Hybrid">Hybrid</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="No cloud">No cloud / offline</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CURRENT STATE TAB -->
+  <div class="tab-panel" id="tab-current">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label class="form-label">Existing certifications / submissions</label>
+        <div class="checkbox-group" id="certGroup">
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="FDA 510(k)">FDA 510(k) cleared</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="FDA PMA">FDA PMA approved</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="CE Mark">CE Mark (MDD)</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="CE MDR">CE Mark (MDR 2017/745)</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="UKCA">UKCA Mark</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="ISO 13485">ISO 13485 certified</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="IEC 62304">IEC 62304 compliant</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="IEC 62443">IEC 62443 assessed</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="HIPAA BAA">HIPAA BAA in place</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="SOC 2">SOC 2 attested</label>
+          <label class="checkbox-pill" onclick="togglePill(this)"><input type="checkbox" value="None">None yet</label>
+        </div>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Primary concern or goal</label>
+        <select class="form-select" id="primaryGoal">
+          <option value="">Select…</option>
+          <option>First regulatory submission (new product)</option>
+          <option>Entering a new market / jurisdiction</option>
+          <option>MDR transition from legacy MDD CE</option>
+          <option>Post-market cybersecurity obligations</option>
+          <option>Annual compliance audit preparation</option>
+          <option>Merger / acquisition due diligence</option>
+          <option>Incident response — urgent gap closure</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Additional context <span class="form-sublabel">(optional — helps the AI personalise guidance)</span></label>
+        <textarea class="form-textarea" id="additionalContext" placeholder="e.g. We are transitioning our Class IIb device from MDD to MDR. Our Notified Body is BSI. We have ISO 13485 but our cybersecurity documentation is thin…" style="min-height:100px"></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="runAnalysis()">
+          Generate Compliance Analysis →
+        </button>
+        <button class="btn-secondary" onclick="clearForm()">Clear form</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- RESULTS SECTION -->
+<section class="section" id="results">
+  <div class="results-panel" id="resultsPanel">
+    <div class="section-label">Your Results</div>
+    <h2 class="section-title" id="resultsTitle">Compliance Analysis</h2>
+
+    <div class="results-header" id="resultsHeader"></div>
+    <div class="results-summary" id="resultsSummary"></div>
+
+    <!-- AI QUERY -->
+    <div class="ai-panel">
+      <div class="ai-panel-header">
+        <div class="ai-dot"></div>
+        <span class="ai-panel-title">Ask the local AI about your obligations</span>
+        <span style="font-size:11px;color:var(--text-3);margin-left:auto">Powered by local LLM — no data leaves your system</span>
+      </div>
+      <div class="ai-panel-body">
+        <div class="ai-query">
+          <input type="text" id="aiQueryInput" placeholder="e.g. What are my minimum cybersecurity requirements for EU MDR?" onkeydown="if(event.key==='Enter')queryAI()">
+          <button onclick="queryAI()">Ask →</button>
+        </div>
+        <div class="ai-response" id="aiResponse"></div>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('r-obligations',this)">Obligations & Gaps</button>
+      <button class="tab-btn" onclick="switchTab('r-roadmap',this)">Implementation Roadmap</button>
+      <button class="tab-btn" onclick="switchTab('r-evidence',this)">Evidence Checklist</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-r-obligations">
+      <div class="obligation-list" id="obligationList"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-r-roadmap">
+      <div class="roadmap" id="roadmapList"></div>
+    </div>
+
+    <div class="tab-panel" id="tab-r-evidence">
+      <div id="evidenceList"></div>
+    </div>
+  </div>
+
+  <div id="resultsEmpty" style="text-align:center;padding:80px 20px;color:var(--text-3)">
+    <div style="font-size:48px;margin-bottom:16px">⚖</div>
+    <div style="font-family:'DM Serif Display',serif;font-size:24px;color:var(--text-2);margin-bottom:8px">Your analysis will appear here</div>
+    <div style="font-size:14px">Complete the company and product profile above and click <strong>Generate Compliance Analysis</strong></div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ARCHITECTURE -->
+<section class="section" id="architecture">
+  <div class="section-label">Open Source Stack</div>
+  <h2 class="section-title">Local AI Architecture</h2>
+  <p class="section-sub">Runs entirely on your infrastructure. No patient data, product data, or company information is sent to external services.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px">
+    <div style="border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">INGESTION</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">Regulation Harvest</div>
+      <div style="font-size:13px;color:var(--text-2)">Scrapy + Apache Tika for PDF/HTML extraction. LangChain document loaders for structured sources. Daily cron with hash-diff change detection.</div>
+    </div>
+    <div style="border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">VECTOR STORE</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">ChromaDB / pgvector</div>
+      <div style="font-size:13px;color:var(--text-2)">Local vector database. Embeddings via nomic-embed-text (Ollama). Chunk size 512 tokens with 64-token overlap. HNSW index for fast retrieval.</div>
+    </div>
+    <div style="border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">LOCAL LLM</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">Ollama + Llama 3 / Mistral</div>
+      <div style="font-size:13px;color:var(--text-2)">Ollama serves models locally. Llama 3.1 8B for query answering, Mistral 7B for structured extraction. Runs on CPU or consumer GPU.</div>
+    </div>
+    <div style="border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">AGENTIC LAYER</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">LangGraph Agents</div>
+      <div style="font-size:13px;color:var(--text-2)">Applicability agent, gap analysis agent, roadmap generator agent. Each uses RAG retrieval + structured output. Human-in-loop approval gates.</div>
+    </div>
+    <div style="border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">BACKEND</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">FastAPI + PostgreSQL</div>
+      <div style="font-size:13px;color:var(--text-2)">REST API for profile storage and analysis results. PostgreSQL with pgvector extension. Docker Compose deployment for full local stack.</div>
+    </div>
+    <div style="border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);margin-bottom:8px">MONITORING</div>
+      <div style="font-size:15px;font-weight:600;margin-bottom:6px">Regulatory Change Alerts</div>
+      <div style="font-size:13px;color:var(--text-2)">Automated diff detection triggers re-analysis when regulations change. Email or Slack alerts to compliance owners with impact summary per product.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-title">MedReg Intelligence</div>
+    <div class="footer-sub">Open source · Local AI · No data leaves your environment</div>
+    <div class="footer-tech">
+      <span class="tech-badge">Ollama</span>
+      <span class="tech-badge">LangGraph</span>
+      <span class="tech-badge">ChromaDB</span>
+      <span class="tech-badge">FastAPI</span>
+      <span class="tech-badge">pgvector</span>
+      <span class="tech-badge">Llama 3</span>
+      <span class="tech-badge">Mistral 7B</span>
+      <span class="tech-badge">Apache Tika</span>
+    </div>
+    <div class="footer-legal">This tool provides regulatory intelligence guidance only and does not constitute legal or regulatory advice. Always consult a qualified regulatory affairs professional before submissions.</div>
+  </div>
+</footer>
+
+<script>
+const REGULATIONS = [
+  { id:"FDA-510K", name:"FDA 510(k) Premarket Notification", region:"us", badge:"badge-us", desc:"Premarket notification for Class II medical devices demonstrating substantial equivalence to a predicate device.", sector:"Class I/II hardware & software", jurisdictions:["USA"], topics:["submission","classification","predicate"] },
+  { id:"FDA-PMA", name:"FDA Premarket Approval (PMA)", region:"us", badge:"badge-us", desc:"Most stringent device marketing approval for Class III devices. Requires valid scientific evidence of safety and effectiveness.", sector:"Class III high-risk devices", jurisdictions:["USA"], topics:["clinical","approval","high-risk"] },
+  { id:"21-CFR-820", name:"21 CFR Part 820 — Quality System Regulation", region:"us", badge:"badge-us", desc:"FDA's quality system requirements for medical device design, manufacture, packaging, labeling, and installation.", sector:"All device manufacturers", jurisdictions:["USA"], topics:["QMS","manufacturing","documentation"] },
+  { id:"21-CFR-11", name:"21 CFR Part 11 — Electronic Records", region:"us", badge:"badge-us", desc:"FDA requirements for electronic records and electronic signatures in drug and device manufacturing.", sector:"Software, SaMD, connected devices", jurisdictions:["USA"], topics:["software","records","signatures"] },
+  { id:"FDA-CYBER", name:"FDA Cybersecurity Guidance (2023)", region:"us", badge:"badge-us", desc:"Mandatory cybersecurity requirements under Section 524B FD&C Act. SBOM, patch management, post-market surveillance.", sector:"Connected devices, SaMD", jurisdictions:["USA"], topics:["cybersecurity","SBOM","SaMD"] },
+  { id:"HIPAA", name:"HIPAA Security & Privacy Rules", region:"us", badge:"badge-us", desc:"Federal rules protecting PHI in healthcare. Security Rule covers administrative, physical, and technical safeguards.", sector:"Devices handling PHI/ePHI", jurisdictions:["USA"], topics:["privacy","PHI","security"] },
+  { id:"EU-MDR", name:"EU MDR 2017/745", region:"eu", badge:"badge-eu", desc:"Regulation on medical devices replacing MDD. Strengthens pre-market assessment, clinical evidence, and post-market surveillance.", sector:"All medical devices sold in EU", jurisdictions:["EU","EEA"], topics:["CE Mark","clinical","PMCF","UDI"] },
+  { id:"EU-IVDR", name:"EU IVDR 2017/746", region:"eu", badge:"badge-eu", desc:"In vitro diagnostic device regulation replacing IVDD. Reclassifies most IVDs, requires Notified Body involvement.", sector:"IVD manufacturers", jurisdictions:["EU","EEA"], topics:["IVD","CE Mark","classification"] },
+  { id:"MDR-CYBER", name:"MDCG 2019-16 — Cybersecurity for MDR", region:"eu", badge:"badge-eu", desc:"EU guidance on cybersecurity for medical devices under MDR. Network security, data protection, vulnerability management.", sector:"Connected devices, SaMD in EU", jurisdictions:["EU"], topics:["cybersecurity","MDR","SaMD"] },
+  { id:"EU-GDPR", name:"EU GDPR — Health Data", region:"eu", badge:"badge-eu", desc:"General Data Protection Regulation requirements for processing health and biometric data. Article 9 special category data.", sector:"Devices processing patient data in EU", jurisdictions:["EU","EEA"], topics:["privacy","GDPR","data protection"] },
+  { id:"EU-AI-ACT", name:"EU AI Act — High Risk (Medical)", region:"eu", badge:"badge-eu", desc:"AI systems used in medical devices classified as high-risk. Conformity assessment, transparency, human oversight requirements.", sector:"AI/ML-enabled medical devices", jurisdictions:["EU"], topics:["AI","SaMD","risk","transparency"] },
+  { id:"ISO-13485", name:"ISO 13485:2016 — Medical QMS", region:"global", badge:"badge-int", desc:"International standard for quality management systems for medical device design, development, production, and service.", sector:"All manufacturers globally", jurisdictions:["Global"], topics:["QMS","manufacturing","certification"] },
+  { id:"IEC-62304", name:"IEC 62304 — Medical Device Software", region:"global", badge:"badge-int", desc:"Software lifecycle processes for medical device software and SaMD. Class A/B/C classification, documentation requirements.", sector:"SaMD, software-enabled devices", jurisdictions:["Global"], topics:["software","lifecycle","SaMD"] },
+  { id:"IEC-62443", name:"IEC 62443 — Industrial Cybersecurity", region:"global", badge:"badge-int", desc:"Cybersecurity for industrial automation and control systems. Increasingly applied to connected medical device infrastructure.", sector:"Connected devices, device networks", jurisdictions:["Global"], topics:["cybersecurity","OT","infrastructure"] },
+  { id:"ISO-14971", name:"ISO 14971 — Risk Management", region:"global", badge:"badge-int", desc:"Risk management framework for medical devices. Risk analysis, evaluation, control, and residual risk assessment.", sector:"All medical devices", jurisdictions:["Global"], topics:["risk","safety","documentation"] },
+  { id:"ISO-27001", name:"ISO/IEC 27001 — Information Security", region:"global", badge:"badge-int", desc:"Information security management system standard. Controls for organisational and technical security measures.", sector:"Connected devices, SaMD, cloud services", jurisdictions:["Global"], topics:["cybersecurity","ISMS","certification"] },
+  { id:"IEC-60601", name:"IEC 60601 — Medical Electrical Equipment", region:"global", badge:"badge-int", desc:"Safety and performance requirements for medical electrical equipment. Multiple parts covering specific device categories.", sector:"Hardware medical devices", jurisdictions:["Global"], topics:["electrical safety","EMC","hardware"] },
+  { id:"UKCA", name:"UK MDR 2002 / UKCA Mark", region:"uk", badge:"badge-uk", desc:"Post-Brexit UK medical device regulations. UKCA marking required for Great Britain market. UKRP (UK Responsible Person) mandatory.", sector:"Devices sold in Great Britain", jurisdictions:["UK"], topics:["UKCA","post-Brexit","registration"] },
+  { id:"MHRA-CYBER", name:"MHRA Cyber Guidance (UK)", region:"uk", badge:"badge-uk", desc:"MHRA guidance on cybersecurity for medical devices in the UK market. Aligns broadly with FDA and EU approaches.", sector:"Connected devices in UK", jurisdictions:["UK"], topics:["cybersecurity","MHRA","software"] },
+  { id:"PMDA", name:"PMDA — Japan Pharmaceutical & Medical Device Act", region:"apac", badge:"badge-cn", desc:"Japanese approval pathway for medical devices. Requires Japanese clinical data, QMS certification, and Designated Marketing Authorisation Holder.", sector:"Devices entering Japan", jurisdictions:["Japan"], topics:["approval","DMAH","clinical"] },
+  { id:"NMPA", name:"NMPA — China Medical Device Regulations", region:"apac", badge:"badge-cn", desc:"China National Medical Products Administration registration. Clinical evaluation, China-specific labelling, local agent requirements.", sector:"Devices entering China", jurisdictions:["China"], topics:["registration","NMPA","clinical"] },
+  { id:"TGA", name:"TGA — Australian Regulatory Guidelines", region:"apac", badge:"badge-cn", desc:"Therapeutic Goods Administration approvals. ARTG inclusion, conformity assessment, mandatory reporting for Class IIb/III.", sector:"Devices sold in Australia", jurisdictions:["Australia"], topics:["TGA","ARTG","conformity"] },
+  { id:"HC-CANADA", name:"Health Canada — Medical Device Regulations", region:"apac", badge:"badge-cn", desc:"Canadian device licensing. Class II–IV require a Medical Device Licence. ISO 13485 QMS mandatory.", sector:"Devices sold in Canada", jurisdictions:["Canada"], topics:["licence","Health Canada","QMS"] },
+  { id:"CDSCO", name:"CDSCO — India Medical Device Rules 2017", region:"apac", badge:"badge-cn", desc:"Central Drugs Standard Control Organisation. Device registration, import licence, local Indian authorised agent required.", sector:"Devices entering India", jurisdictions:["India"], topics:["registration","India","import"] },
+  { id:"MDSAP", name:"MDSAP — Multi-Regulatory Submission", region:"global", badge:"badge-int", desc:"Single audit accepted by FDA, Health Canada, TGA, ANVISA, and PMDA. Streamlines compliance across 5 jurisdictions.", sector:"Multi-market manufacturers", jurisdictions:["USA","Canada","Australia","Brazil","Japan"], topics:["audit","multi-market","QMS"] },
+  { id:"MDR-UDI", name:"EU MDR — UDI Requirements", region:"eu", badge:"badge-eu", desc:"Unique Device Identification system under MDR. EUDAMED registration, UDI-DI and UDI-PI on labels, database submission.", sector:"All CE-marked devices", jurisdictions:["EU"], topics:["UDI","EUDAMED","labelling"] },
+  { id:"FDA-UDI", name:"FDA UDI — Unique Device Identification", region:"us", badge:"badge-us", desc:"FDA's UDI system requiring device labelling and GUDID database submission. Phased requirements by device class.", sector:"Devices sold in USA", jurisdictions:["USA"], topics:["UDI","GUDID","labelling"] },
+  { id:"ANVISA", name:"ANVISA — Brazil Medical Device Regulation", region:"apac", badge:"badge-cn", desc:"Brazilian Health Regulatory Agency device registration (INMETRO certification for some classes). Local authorised representative required.", sector:"Devices entering Brazil", jurisdictions:["Brazil"], topics:["Brazil","registration","ANVISA"] },
+  { id:"IMDRF-CYBER", name:"IMDRF Cybersecurity Principles", region:"global", badge:"badge-int", desc:"International harmonised guidance on medical device cybersecurity. Basis for FDA, EU, and APAC cybersecurity requirements.", sector:"All networked/connected devices", jurisdictions:["Global"], topics:["cybersecurity","harmonisation","IMDRF"] },
+  { id:"SG-HSA", name:"Singapore HSA — Medical Device Act", region:"apac", badge:"badge-cn", desc:"Health Sciences Authority device registration. Product licence required for Class B/C/D devices. Local Authorised Representative.", sector:"Devices sold in Singapore", jurisdictions:["Singapore"], topics:["Singapore","HSA","registration"] },
+];
+
+let currentRegion = 'all';
+let currentAnalysis = null;
+
+function renderRegs(regs) {
+  const grid = document.getElementById('regGrid');
+  grid.innerHTML = regs.map(r => `
+    <div class="reg-card fade-in" data-region="${r.region}" onclick="showRegDetail('${r.id}')">
+      <div class="reg-card-header">
+        <div>
+          <h4>${r.id}</h4>
+          <div class="reg-card-title">${r.name}</div>
+        </div>
+        <span class="reg-badge ${r.badge}">${r.jurisdictions[0]}</span>
+      </div>
+      <div class="reg-card-desc">${r.desc}</div>
+      <div class="reg-card-footer">
+        <span class="reg-card-sector">${r.sector}</span>
+        <span class="reg-arrow">→</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterByRegion(region, el) {
+  currentRegion = region;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function filterRegs(q) { applyFilters(q); }
+
+function applyFilters(q) {
+  q = q || document.getElementById('regSearch').value;
+  let filtered = REGULATIONS;
+  if (currentRegion !== 'all') filtered = filtered.filter(r => r.region === currentRegion);
+  if (q) {
+    const lq = q.toLowerCase();
+    filtered = filtered.filter(r =>
+      r.name.toLowerCase().includes(lq) ||
+      r.id.toLowerCase().includes(lq) ||
+      r.desc.toLowerCase().includes(lq) ||
+      r.topics.some(t => t.toLowerCase().includes(lq))
+    );
+  }
+  renderRegs(filtered);
+}
+
+function showRegDetail(id) {
+  const r = REGULATIONS.find(x => x.id === id);
+  if (!r) return;
+  alert(`${r.id} — ${r.name}\n\nJurisdictions: ${r.jurisdictions.join(', ')}\n\n${r.desc}\n\nApplies to: ${r.sector}`);
+}
+
+function switchTab(id, el) {
+  const parent = el.closest('.tabs').parentElement;
+  parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  parent.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const panel = document.getElementById('tab-' + id);
+  if (panel) panel.classList.add('active');
+}
+
+function togglePill(el) {
+  el.classList.toggle('checked');
+}
+
+function getChecked(groupId) {
+  return [...document.querySelectorAll(`#${groupId} .checkbox-pill.checked input`)].map(i => i.value);
+}
+
+function scrollToProfile() {
+  document.getElementById('profile').scrollIntoView({ behavior: 'smooth' });
+}
+
+function clearForm() {
+  ['companyName','productName','intendedUse','productDesc','additionalContext'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  ['hqJurisdiction','companySize','fdaReg','deviceClass','connectivity','primaryGoal'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  document.querySelectorAll('.checkbox-pill.checked').forEach(p => p.classList.remove('checked'));
+}
+
+async function runAnalysis() {
+  const company = document.getElementById('companyName').value || 'Your Company';
+  const product = document.getElementById('productName').value || 'Your Device';
+  const deviceClass = document.getElementById('deviceClass').value;
+  const markets = getChecked('marketsGroup');
+  const data = getChecked('dataGroup');
+  const connectivity = document.getElementById('connectivity').value;
+  const certs = getChecked('certGroup');
+  const context = document.getElementById('additionalContext').value;
+
+  const overlay = document.getElementById('loadingOverlay');
+  const stepEl = document.getElementById('loadingStep');
+  overlay.classList.add('visible');
+
+  const steps = [
+    'Retrieving applicable regulations from RAG store…',
+    'Running applicability agent against your profile…',
+    'Analysing jurisdictional requirements…',
+    'Generating obligation mapping…',
+    'Computing gap analysis…',
+    'Building implementation roadmap…',
+    'Compiling evidence checklist…'
+  ];
+  let si = 0;
+  const stepTimer = setInterval(() => {
+    stepEl.textContent = steps[si % steps.length]; si++;
+  }, 700);
+
+  await new Promise(r => setTimeout(r, 4500));
+  clearInterval(stepTimer);
+  overlay.classList.remove('visible');
+
+  generateResults({ company, product, deviceClass, markets, data, connectivity, certs, context });
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+}
+
+function generateResults(profile) {
+  const { company, product, deviceClass, markets, data, connectivity, certs } = profile;
+  const hasUSA = markets.includes('USA');
+  const hasEU = markets.includes('EU');
+  const hasUK = markets.includes('UK');
+  const hasJP = markets.includes('Japan');
+  const hasCN = markets.includes('China');
+  const hasAU = markets.includes('Australia');
+  const hasPHI = data.includes('PHI');
+  const hasSaMD = deviceClass && (deviceClass.includes('SaMD') || deviceClass.includes('SiMD'));
+  const isConnected = connectivity && connectivity.toLowerCase().includes('connect');
+  const hasAI = connectivity && connectivity.includes('AI');
+  const hasISO13485 = certs.includes('ISO 13485');
+  const hasCE = certs.includes('CE MDR') || certs.includes('CE Mark');
+  const has510k = certs.includes('FDA 510(k)');
+
+  const obligations = [];
+
+  if (hasUSA) {
+    const cl = deviceClass || '';
+    if (cl.includes('II') || cl.includes('III') || cl.includes('SaMD')) {
+      obligations.push({
+        regId: 'FDA-510K', title: 'FDA 510(k) Premarket Notification',
+        priority: cl.includes('III') ? 'high' : 'critical',
+        status: has510k ? 'met' : 'gap',
+        obligation: 'Submit premarket notification demonstrating substantial equivalence to a legally marketed predicate device before marketing your device in the USA.',
+        impl: ['Identify a suitable predicate device in the FDA 510(k) database','Conduct substantial equivalence comparison (intended use + technological characteristics)','Compile 510(k) summary including device description, performance testing, labelling','Submit via FDA eSTAR system and manage Q-submissions if clarification needed','Maintain a Design History File (DHF) throughout the process'],
+        evidence: ['510(k) summary document','Predicate device comparison matrix','Performance testing reports (bench, verification, validation)','Device labelling and IFU','Substantial equivalence declaration'],
+        gap: has510k ? null : 'No FDA clearance on file. Device cannot be legally marketed in the USA without 510(k) clearance or an exemption. Estimated timeline: 6–12 months.'
+      });
+    }
+    obligations.push({
+      regId: '21-CFR-820', title: 'FDA QSR — 21 CFR Part 820',
+      priority: 'critical', status: hasISO13485 ? 'partial' : 'gap',
+      obligation: 'Establish and maintain a quality system covering design controls, CAPA, complaint handling, production and process controls, and records management.',
+      impl: ['Implement Design Controls procedure (21 CFR 820.30)','Establish CAPA system with documented process','Create complaint handling and MDR reporting procedures','Implement production and process controls for manufacturing','Conduct management review and internal audits at defined intervals'],
+      evidence: ['Quality manual and SOPs','Design History File (DHF)','Device Master Record (DMR)','CAPA records','Complaint log and MDR reports','Internal audit reports'],
+      gap: hasISO13485 ? 'ISO 13485 provides substantial coverage but FDA QSR has specific additional requirements including design controls format and MDR-specific complaint handling. Gap assessment recommended.' : 'No QMS in place. This is a critical pre-condition for any FDA submission. ISO 13485 implementation recommended as it satisfies most FDA QSR requirements.'
+    });
+    if (hasPHI) {
+      obligations.push({
+        regId: 'HIPAA', title: 'HIPAA Security & Privacy Rules',
+        priority: 'critical', status: certs.includes('HIPAA BAA') ? 'partial' : 'gap',
+        obligation: 'Implement administrative, physical, and technical safeguards to protect electronic Protected Health Information (ePHI) created, received, maintained, or transmitted by the device.',
+        impl: ['Conduct HIPAA Security Risk Assessment covering all ePHI flows','Implement access controls, audit logging, and encryption for ePHI at rest and in transit','Establish Business Associate Agreements (BAA) with all subprocessors','Create Breach Notification procedures (60-day notification requirement)','Train all workforce members on HIPAA obligations annually'],
+        evidence: ['Security Risk Assessment report','Access control policies','Encryption documentation','BAA inventory','Workforce training records','Breach notification procedures'],
+        gap: certs.includes('HIPAA BAA') ? 'BAA in place but full Security Rule compliance documentation needs verification. Ensure risk assessment is current and all subprocessors are covered.' : 'No HIPAA documentation. Device cannot handle PHI without full Security Rule compliance. This is a high-priority gap with significant penalty exposure (up to $1.9M per violation category).'
+      });
+    }
+    if (isConnected || hasSaMD) {
+      obligations.push({
+        regId: 'FDA-CYBER', title: 'FDA Cybersecurity Requirements (Section 524B)',
+        priority: 'critical', status: 'gap',
+        obligation: 'Mandatory cybersecurity requirements under the Consolidated Appropriations Act 2023. Applies to all "cyber devices" — those with software and network connectivity.',
+        impl: ['Generate and maintain a Software Bill of Materials (SBOM) listing all software components','Implement a coordinated vulnerability disclosure policy and process','Submit cybersecurity documentation as part of 510(k) / PMA submission','Establish post-market cybersecurity patch management process','Demonstrate compliance with an acceptable cybersecurity framework (NIST CSF)'],
+        evidence: ['Software Bill of Materials (SBOM) in SPDX or CycloneDX format','Vulnerability disclosure policy','Cybersecurity risk assessment','Patch management procedure','NIST CSF or equivalent framework alignment documentation'],
+        gap: 'FDA cybersecurity is now mandatory — not guidance — for cyber devices since March 2023. Submissions without cybersecurity documentation are refused. SBOM and CVD policy are minimum required artefacts.'
+      });
+    }
+  }
+
+  if (hasEU) {
+    obligations.push({
+      regId: 'EU-MDR', title: 'EU MDR 2017/745 — CE Marking',
+      priority: 'critical', status: hasCE ? 'met' : 'gap',
+      obligation: 'Obtain CE marking under MDR 2017/745 before placing the device on the EU/EEA market. Requires Technical Documentation, Clinical Evaluation, Post-Market Clinical Follow-up (PMCF), and for Class IIa/IIb/III — Notified Body involvement.',
+      impl: ['Classify device under MDR Annex VIII rules (more stringent than MDD)','Select and contract an EU Notified Body (for Class IIa and above)','Compile Technical Documentation per MDR Annex II and III','Conduct Clinical Evaluation per MDR Article 61 and MEDDEV 2.7/1 Rev 4','Establish Post-Market Surveillance system including PMCF plan','Register in EUDAMED (EU database for medical devices)','Apply UDI labels and register in EUDAMED UDI database'],
+      evidence: ['Technical Documentation (TD)','Clinical Evaluation Report (CER)','Post-Market Clinical Follow-up (PMCF) plan','Post-Market Surveillance plan and reports','Declaration of Conformity','EUDAMED registration confirmation','UDI assignment certificate'],
+      gap: hasCE ? null : 'No CE marking under MDR. Device cannot be sold in the EU without this. For Class IIa+, Notified Body timelines are currently 12–24 months. Start immediately.'
+    });
+    obligations.push({
+      regId: 'ISO-13485', title: 'ISO 13485:2016 — QMS Certification',
+      priority: 'high', status: hasISO13485 ? 'met' : 'gap',
+      obligation: 'ISO 13485 certification is required by most Notified Bodies as a prerequisite for MDR CE marking. Covers design and development, production, installation, and service of medical devices.',
+      impl: ['Gap assessment against ISO 13485:2016 requirements','Implement or update QMS procedures (20+ required processes)','Conduct internal audits and management review','Engage a Notified Body or certification body for Stage 1 document review','Complete Stage 2 on-site audit and close non-conformities','Maintain certification with annual surveillance audits'],
+      evidence: ['QMS Manual','Procedure library (design controls, CAPA, complaints, audits)','Training records','Internal audit reports','Management review minutes','ISO 13485 certificate'],
+      gap: hasISO13485 ? null : 'ISO 13485 not yet certified. This is a prerequisite for EU MDR CE marking and MDSAP. Implementation typically takes 6–18 months. Prioritise immediately if EU or multi-market is the goal.'
+    });
+    if (isConnected || hasSaMD) {
+      obligations.push({
+        regId: 'MDR-CYBER', title: 'MDCG 2019-16 — EU Cybersecurity for MDR',
+        priority: 'high', status: 'gap',
+        obligation: 'EU guidance requires cybersecurity to be addressed in Technical Documentation under MDR. Covers security risk management, software update mechanism, network security, and data protection.',
+        impl: ['Conduct cybersecurity risk assessment as part of ISO 14971 risk management','Document network security architecture and access controls','Establish software update and patch management mechanism','Implement data-at-rest and data-in-transit encryption','Create Coordinated Vulnerability Disclosure policy','Map cybersecurity controls to IEC 62443 or equivalent'],
+        evidence: ['Cybersecurity risk assessment report','Network architecture diagram','Data flow diagram','Encryption documentation','CVD policy','Software update procedure'],
+        gap: 'Cybersecurity documentation is required in MDR Technical Documentation. Notified Bodies scrutinise this heavily for connected devices. No separate process currently documented.'
+      });
+    }
+    if (hasAI) {
+      obligations.push({
+        regId: 'EU-AI-ACT', title: 'EU AI Act — High Risk Medical Device AI',
+        priority: 'high', status: 'gap',
+        obligation: 'AI systems used as safety components of medical devices are classified as high-risk under Annex III. Must comply with risk management, data governance, transparency, human oversight, and accuracy requirements.',
+        impl: ['Classify AI system under EU AI Act Annex III (medical device safety component)','Implement AI risk management system per Article 9','Establish data governance procedures covering training, validation, and test datasets','Create technical documentation including model cards and performance metrics','Implement human oversight mechanisms and override capability','Register in EU AI database when required'],
+        evidence: ['AI system risk management documentation','Data governance policy','Technical documentation (model architecture, training data, performance)','Human oversight procedure','Conformity assessment record','EU AI database registration'],
+        gap: 'AI Act requirements for medical devices begin phasing in from August 2026. AI-enabled features need compliance documentation. Begin now to avoid rushed conformity assessment.'
+      });
+    }
+  }
+
+  if (hasUK) {
+    obligations.push({
+      regId: 'UKCA', title: 'UKCA Mark — UK MDR 2002',
+      priority: 'high', status: certs.includes('UKCA') ? 'met' : 'gap',
+      obligation: 'Devices must bear UKCA marking for the Great Britain market (England, Scotland, Wales). Northern Ireland continues to use CE marking. A UK Responsible Person (UKRP) is mandatory for overseas manufacturers.',
+      impl: ['Appoint a UK Responsible Person (UKRP) if manufacturer is outside UK','Register device with MHRA (mandatory from July 2025)','For Class IIa+: engage a UK Approved Body for conformity assessment','Adapt labelling for UKCA mark and UKRP contact details','Note: CE marking accepted in GB until 30 June 2030 for devices with valid NB certificates'],
+      evidence: ['UKRP appointment agreement','MHRA device registration confirmation','UKCA Declaration of Conformity','Labelling with UKCA mark and UKRP details','UK Approved Body certificate (if applicable)'],
+      gap: certs.includes('UKCA') ? null : 'UKCA mark not in place. Device registration with MHRA is mandatory. Overseas manufacturers must appoint a UK Responsible Person before marketing in Great Britain.'
+    });
+  }
+
+  if (hasSaMD || (isConnected && (hasUSA || hasEU))) {
+    obligations.push({
+      regId: 'IEC-62304', title: 'IEC 62304 — Medical Device Software Lifecycle',
+      priority: 'high', status: certs.includes('IEC 62304') ? 'met' : 'partial',
+      obligation: 'Software lifecycle process standard referenced by FDA, EU MDR, and most international device regulations. Classifies software as Class A/B/C based on severity of harm from failure.',
+      impl: ['Classify software under IEC 62304 Class A, B, or C','Establish software development lifecycle procedures per the standard','Implement unit, integration, and system testing with documented test plans','Manage software items (SOUP — Software of Unknown Provenance) including version control','Conduct software risk analysis aligned with ISO 14971','Establish software maintenance process including bug tracking and change control'],
+      evidence: ['Software classification decision record','Software Development Plan','Architecture design document','Software requirements specification','Test plans and test reports','SOUP list with version information','Software release records'],
+      gap: certs.includes('IEC 62304') ? null : 'IEC 62304 compliance documentation not confirmed. This standard is referenced in FDA submissions and EU MDR Technical Documentation. Gaps in software lifecycle documentation are a common cause of submission delays.'
+    });
+  }
+
+  obligations.push({
+    regId: 'ISO-14971', title: 'ISO 14971 — Risk Management',
+    priority: 'critical', status: 'partial',
+    obligation: 'Risk management throughout the full device lifecycle — from design through post-market. Risk analysis, evaluation, control, and residual risk acceptance are required before market placement.',
+    impl: ['Define risk management policy and scope','Conduct hazard identification and risk analysis for all intended uses and foreseeable misuse','Implement and verify risk controls','Evaluate residual risk against benefit','Maintain Risk Management File throughout product lifecycle','Update risk management after post-market feedback and incidents'],
+    evidence: ['Risk Management Plan','Risk Analysis report (FMEA, FTA, or equivalent)','Risk Control verification records','Residual risk evaluation','Post-market risk review','Risk Management Report (summary)'],
+    gap: 'Risk management documentation exists but needs review against ISO 14971:2019 (latest version). Ensure post-market feedback loop is documented and residual risk is formally accepted.'
+  });
+
+  const gaps = obligations.filter(o => o.status === 'gap').length;
+  const partials = obligations.filter(o => o.status === 'partial').length;
+  const met = obligations.filter(o => o.status === 'met').length;
+  const critical = obligations.filter(o => o.priority === 'critical' && o.status !== 'met').length;
+
+  document.getElementById('resultsEmpty').style.display = 'none';
+  const panel = document.getElementById('resultsPanel');
+  panel.classList.add('visible', 'fade-in');
+
+  document.getElementById('resultsTitle').textContent = `Compliance Analysis — ${profile.product}`;
+  document.getElementById('resultsHeader').innerHTML = `
+    <div>
+      <div class="results-company">${profile.company}</div>
+      <div class="results-product">${profile.product} · ${profile.deviceClass || 'Medical Device'}</div>
+    </div>
+    <div class="results-meta">
+      ${markets.map(m => `<span class="results-meta-item">${m}</span>`).join('')}
+      ${profile.connectivity ? `<span class="results-meta-item">${profile.connectivity.split('(')[0].trim()}</span>` : ''}
+    </div>
+  `;
+
+  document.getElementById('resultsSummary').innerHTML = `
+    <div class="summary-stat critical"><div class="summary-stat-num">${obligations.length}</div><div class="summary-stat-label">Applicable regulations</div></div>
+    <div class="summary-stat critical"><div class="summary-stat-num">${gaps}</div><div class="summary-stat-label">Gaps identified</div></div>
+    <div class="summary-stat warning"><div class="summary-stat-num">${partials}</div><div class="summary-stat-label">Partially met</div></div>
+    <div class="summary-stat ok"><div class="summary-stat-num">${met}</div><div class="summary-stat-label">Requirements met</div></div>
+  `;
+
+  document.getElementById('obligationList').innerHTML = obligations.map(o => `
+    <div class="obligation-item" onclick="toggleObligation(this)">
+      <div class="obligation-header">
+        <div class="obligation-priority priority-${o.priority}"></div>
+        <div class="obligation-reg-id">${o.regId}</div>
+        <div class="obligation-title">${o.title}</div>
+        <span class="obligation-status status-${o.status}">${o.status === 'gap' ? '✗ Gap' : o.status === 'partial' ? '△ Partial' : '✓ Met'}</span>
+        <span class="obligation-chevron">▶</span>
+      </div>
+      <div class="obligation-body">
+        <div class="obligation-section">
+          <div class="obligation-section-title">Obligation</div>
+          <div class="obligation-section-text">${o.obligation}</div>
+        </div>
+        ${o.gap ? `<div class="gap-box"><strong>Gap identified:</strong>${o.gap}</div>` : ''}
+        <div class="obligation-section">
+          <div class="obligation-section-title">Implementation steps</div>
+          <ul class="impl-steps">${o.impl.map((s,i) => `<li data-n="${i+1}">${s}</li>`).join('')}</ul>
+        </div>
+        <div class="obligation-section">
+          <div class="obligation-section-title">Evidence required</div>
+          <ul class="evidence-list">${o.evidence.map(e => `<li>${e}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const criticalObs = obligations.filter(o => o.status !== 'met' && o.priority === 'critical');
+  const highObs = obligations.filter(o => o.status !== 'met' && o.priority === 'high');
+  const roadmapItems = [
+    ...criticalObs.map((o,i) => ({ n: `W${(i+1)*2}`, level: 'critical', title: `Close gap: ${o.title}`, desc: o.gap || `Implement full ${o.regId} compliance.`, tags: [o.regId, 'Critical', markets[0] || 'All markets'] })),
+    ...highObs.map((o,i) => ({ n: `M${i+3}`, level: 'high', title: `Implement: ${o.title}`, desc: `Establish documentation and processes for ${o.regId} requirements.`, tags: [o.regId, 'High priority'] })),
+    { n: 'Q2', level: 'medium', title: 'Internal audit of all implemented controls', desc: 'Conduct gap reassessment once critical controls are in place. Identify any remaining deficiencies before external review.', tags: ['Internal audit', 'All regulations'] },
+    { n: 'Q3', level: 'medium', title: 'External / Notified Body assessment', desc: 'Submit documentation to external auditors or Notified Body. Manage observations and close non-conformities.', tags: ['External audit', 'Certification'] },
+    { n: 'Ongoing', level: 'medium', title: 'Post-market surveillance & regulatory monitoring', desc: 'Maintain continuous monitoring for regulatory changes. Update documentation when regulations are amended. MedReg Intelligence alerts when changes affect your profile.', tags: ['PMS', 'Continuous', 'Automated'] },
+  ];
+  document.getElementById('roadmapList').innerHTML = roadmapItems.map(r => `
+    <div class="roadmap-item">
+      <div class="roadmap-circle ${r.level}">${r.n}</div>
+      <div class="roadmap-content">
+        <div class="roadmap-title">${r.title}</div>
+        <div class="roadmap-desc">${r.desc}</div>
+        <div class="roadmap-meta">${r.tags.map(t => `<span class="roadmap-tag">${t}</span>`).join('')}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const grouped = {};
+  obligations.forEach(o => {
+    o.evidence.forEach(e => {
+      const reg = o.regId;
+      if (!grouped[reg]) grouped[reg] = { title: o.title, items: [] };
+      grouped[reg].items.push(e);
+    });
+  });
+  document.getElementById('evidenceList').innerHTML = Object.entries(grouped).map(([reg, g]) => `
+    <div style="margin-bottom:20px;border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden">
+      <div style="padding:12px 16px;background:var(--off);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent)">${reg}</span>
+        <span style="font-size:13px;font-weight:500">${g.title}</span>
+      </div>
+      <div style="padding:12px 16px">
+        <ul class="evidence-list">${[...new Set(g.items)].map(e => `<li>${e}</li>`).join('')}</ul>
+      </div>
+    </div>
+  `).join('');
+
+  currentAnalysis = { profile, obligations };
+}
+
+function toggleObligation(el) {
+  el.classList.toggle('open');
+}
+
+const AI_RESPONSES = {
+  default: "Based on your profile, I'm retrieving relevant regulatory guidance from the local RAG store. For connected medical devices, the minimum mandatory requirements typically include: (1) FDA cybersecurity documentation per Section 524B if selling in the USA — specifically an SBOM and coordinated vulnerability disclosure policy; (2) ISO 14971 risk management with cybersecurity hazards integrated; (3) IEC 62304 software lifecycle documentation for any software components; and (4) Jurisdiction-specific market approval (510(k), CE mark, etc.). The critical path for most companies is establishing ISO 13485 QMS first, as it underpins all other regulatory submissions.",
+  cyber: "For cybersecurity obligations across your applicable markets: In the USA, FDA's Section 524B (effective March 2023) mandates SBOM, CVD policy, and post-market patch management for all 'cyber devices'. In the EU, MDCG 2019-16 requires cybersecurity to be addressed in your MDR Technical Documentation including network architecture, access controls, and encryption documentation. Minimum gap to close: SBOM generation (use CycloneDX or SPDX format), a published vulnerability disclosure policy, and a documented patch management process. These three artefacts satisfy the minimum mandatory requirements in both FDA and EU contexts.",
+  gap: "The minimum gaps that must be closed before any regulatory submission are: (1) Quality Management System — ISO 13485 certification is a prerequisite for EU MDR, MDSAP, and expected by FDA. (2) Risk Management File — ISO 14971 documentation must be current before any submission. (3) Software Lifecycle documentation per IEC 62304 if your device contains software. (4) Market-specific regulatory submission (510(k) for USA Class II, CE marking process for EU). Everything else can be built incrementally, but these four are blocking items.",
+  eu: "For EU MDR compliance, the critical path is: (1) Appoint an EU Authorised Representative if you are outside the EU. (2) Contract a Notified Body — current waiting times are 12–18 months for Class IIa/IIb devices. (3) Compile Technical Documentation per MDR Annex II and III. (4) Conduct a Clinical Evaluation per MEDDEV 2.7/1 Rev 4 — this is typically the most time-consuming element. (5) Register in EUDAMED and assign UDI. The MDR transition deadline has passed — if you were previously CE marked under MDD, that certificate is no longer valid without MDR conformity."
+};
+
+function queryAI() {
+  const q = document.getElementById('aiQueryInput').value.toLowerCase();
+  const resp = document.getElementById('aiResponse');
+  resp.classList.add('visible');
+  resp.innerHTML = `<div class="ai-response-thinking"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span> Querying local LLM via RAG…</div>`;
+  setTimeout(() => {
+    let answer = AI_RESPONSES.default;
+    if (q.includes('cyber') || q.includes('security') || q.includes('sbom')) answer = AI_RESPONSES.cyber;
+    else if (q.includes('gap') || q.includes('minimum') || q.includes('must')) answer = AI_RESPONSES.gap;
+    else if (q.includes('eu') || q.includes('mdr') || q.includes('europe') || q.includes('ce')) answer = AI_RESPONSES.eu;
+    resp.innerHTML = `<div style="display:flex;gap:8px;align-items:flex-start"><div style="width:20px;height:20px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px"><span style="color:white;font-size:10px;font-weight:600">AI</span></div><div>${answer}</div></div>`;
+  }, 1800);
+}
+
+renderRegs(REGULATIONS);
+</script>
+</body>
+</html>
