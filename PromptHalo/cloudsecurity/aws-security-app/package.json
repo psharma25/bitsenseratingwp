@@ -1,0 +1,21 @@
+{
+  "name": "aws-agentic-ai-security-checklist",
+  "version": "1.0.0",
+  "description": "AWS Cloud Security for Agentic AI checklist app with email-OTP login, admin/viewer roles, and a SQLite-backed database for saved state and content edits.",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^9.0.3"
+  }
+}
