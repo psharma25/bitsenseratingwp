@@ -39,6 +39,25 @@
   .btn.dl{text-decoration:none;display:inline-flex;align-items:center;gap:6px}
   .btn.xls{color:#1a7f37;border-color:#bcdb9b;background:var(--soc2-w)} .btn.xls:hover{border-color:#1a7f37}
   .btn.pdf{color:#b3261e;border-color:#f3b9b6;background:#fbe4e3} .btn.pdf:hover{border-color:#b3261e}
+  .edithead{display:inline-flex;align-items:center;gap:8px;margin-left:auto}
+  .lockbadge{font:600 11px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--faint);padding:9px 4px}
+  .lockbadge.on{color:#1a7f37}
+  .btn.save{color:#1a7f37;border-color:#bcdb9b;background:var(--soc2-w)} .btn.save:hover{border-color:#1a7f37}
+  .btn.lockout{color:#b3261e;border-color:#f3b9b6;background:#fbe4e3} .btn.lockout:hover{border-color:#b3261e}
+  .savetoast{font:600 12px/1 var(--mono);color:#1a7f37;opacity:0;transition:opacity .25s;padding:9px 2px}
+  .savetoast.show{opacity:1}
+  [contenteditable="true"]{outline:none;border-radius:4px;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .15s}
+  [contenteditable="true"]:hover{box-shadow:inset 0 0 0 1px var(--hair)}
+  [contenteditable="true"]:focus{box-shadow:inset 0 0 0 1px var(--orange);background:var(--orange-wash)}
+  .tdone:disabled, .tnotes:disabled{opacity:.55;cursor:not-allowed}
+  .pcOverlay{position:fixed;inset:0;background:rgba(31,35,40,.5);display:none;align-items:center;justify-content:center;z-index:50}
+  .pcOverlay.open{display:flex}
+  .pcModal{background:#fff;border-radius:12px;box-shadow:var(--lift-hi);padding:22px 24px;max-width:340px;width:92%}
+  .pcModal h3{margin:0 0 6px;font-size:16px;color:var(--ink)}
+  .pcModal p{margin:0 0 12px;font-size:13px;color:var(--soft)}
+  .pcModal input{width:100%;padding:9px 11px;border:1px solid var(--hair);border-radius:8px;font-size:14px;box-sizing:border-box;margin-bottom:12px}
+  .pcBtns{display:flex;gap:8px;justify-content:flex-end}
+  .pcErr{color:#b3261e!important;font-size:12px!important;margin-top:-4px!important}
   .dllabel{font:600 10.5px/1 var(--mono);color:var(--faint);letter-spacing:.05em;text-transform:uppercase}
   .secdl{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:-4px 0 14px}
   .gaps{padding:8px 4px 2px}
@@ -231,6 +250,13 @@
       <span class="dllabel">Download</span>
       <button class="btn dl xls xlsdl">&#8595; Excel</button>
       <button class="btn dl pdf" id="dlpdf">&#8595; PDF</button>
+      <span class="edithead" id="editHead">
+        <span class="lockbadge" id="lockBadge">&#128274; View only</span>
+        <button class="btn" id="unlockBtn">Unlock to edit</button>
+        <button class="btn save" id="saveBtn" style="display:none">&#128190; Save</button>
+        <button class="btn lockout" id="lockBtn" style="display:none">&#128274; Lock</button>
+        <span class="savetoast" id="saveToast">Saved &#10003;</span>
+      </span>
     </div>
     <div class="chips" id="chipbar">
       <span class="grp">Framework</span>
@@ -466,6 +492,20 @@
   <div class="brand">&copy; 2026 BitSense · thebitsense.com · AWS cloud security · agentic AI · architecture checklist</div>
 </div>
 
+<div class="pcOverlay" id="pcOverlay">
+  <div class="pcModal">
+    <h3>Unlock editing</h3>
+    <p>Enter the shared passcode to edit checklist content and check off items.</p>
+    <input type="password" id="pcInput" placeholder="Passcode" autocomplete="off">
+    <p class="pcErr" id="pcErr" style="display:none">Incorrect passcode.</p>
+    <div class="pcBtns">
+      <button class="btn" id="pcCancel">Cancel</button>
+      <button class="btn save" id="pcSubmit">Unlock</button>
+    </div>
+  </div>
+</div>
+
+
 <script>
   var cards=Array.prototype.slice.call(document.querySelectorAll('.card'));
   var domains=Array.prototype.slice.call(document.querySelectorAll('.domain'));
@@ -502,6 +542,91 @@
   Array.prototype.forEach.call(document.querySelectorAll('.tdone'),function(b){var id=b.getAttribute('data-id');try{if(localStorage.getItem('aws_done_'+id)==='1')b.checked=true;}catch(e){}b.addEventListener('change',function(){try{localStorage.setItem('aws_done_'+id,b.checked?'1':'0');}catch(e){}progress();});});
   Array.prototype.forEach.call(document.querySelectorAll('.tnotes'),function(n){var id=n.getAttribute('data-id');try{var v=localStorage.getItem('aws_notes_'+id);if(v!==null)n.value=v;}catch(e){}n.addEventListener('input',function(){try{localStorage.setItem('aws_notes_'+id,n.value);}catch(e){}});});
   progress();
+
+  /* ============ EDIT MODE: unlock, inline content editing, explicit save ============ */
+  // Change this to set your own shared passcode. Note: since this is a static
+  // single-file HTML page with no backend, this is a soft deterrent (a "don't
+  // casually click into edit mode" gate), not real security — anyone who views
+  // the page source can read this value.
+  var EDIT_PASSCODE = "bitsense2026";
+
+  function getEditableFields(card){
+    var id = card.getAttribute('data-id');
+    var fields = [];
+    var title = card.querySelector('.head-main .title');
+    var summary = card.querySelector('.head-main .summary');
+    if(title) fields.push({key:id+'_title', el:title});
+    if(summary) fields.push({key:id+'_summary', el:summary});
+    Array.prototype.forEach.call(card.querySelectorAll('.triad > .blk > p'),function(p,i){ fields.push({key:id+'_blk'+i, el:p}); });
+    Array.prototype.forEach.call(card.querySelectorAll('.playbody .dq > p'),function(p,i){ fields.push({key:id+'_dq'+i, el:p}); });
+    return fields;
+  }
+  var allEditableFields = [];
+  cards.forEach(function(c){ allEditableFields = allEditableFields.concat(getEditableFields(c)); });
+
+  function loadContentEdits(){
+    allEditableFields.forEach(function(f){
+      try{ var v=localStorage.getItem('aws_edit_'+f.key); if(v!==null) f.el.innerHTML=v; }catch(e){}
+    });
+  }
+  function saveAllContent(){
+    allEditableFields.forEach(function(f){
+      try{ localStorage.setItem('aws_edit_'+f.key, f.el.innerHTML); }catch(e){}
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.tdone'),function(b){var id=b.getAttribute('data-id');try{localStorage.setItem('aws_done_'+id,b.checked?'1':'0');}catch(e){}});
+    Array.prototype.forEach.call(document.querySelectorAll('.tnotes'),function(n){var id=n.getAttribute('data-id');try{localStorage.setItem('aws_notes_'+id,n.value);}catch(e){}});
+  }
+  loadContentEdits();
+
+  var unlocked=false;
+  try{ unlocked = localStorage.getItem('aws_unlocked')==='1'; }catch(e){}
+
+  var lockBadge=document.getElementById('lockBadge'),unlockBtn=document.getElementById('unlockBtn'),
+      saveBtn=document.getElementById('saveBtn'),lockBtn=document.getElementById('lockBtn'),
+      saveToast=document.getElementById('saveToast'),
+      pcOverlay=document.getElementById('pcOverlay'),pcInput=document.getElementById('pcInput'),
+      pcErr=document.getElementById('pcErr'),pcSubmit=document.getElementById('pcSubmit'),pcCancel=document.getElementById('pcCancel');
+
+  function applyLockState(){
+    allEditableFields.forEach(function(f){ f.el.setAttribute('contenteditable', unlocked ? 'true' : 'false'); });
+    Array.prototype.forEach.call(document.querySelectorAll('.tdone'),function(b){ b.disabled = !unlocked; });
+    Array.prototype.forEach.call(document.querySelectorAll('.tnotes'),function(n){ n.disabled = !unlocked; });
+    if(unlocked){
+      lockBadge.textContent="\uD83D\uDD13 Edit mode"; lockBadge.classList.add('on');
+      unlockBtn.style.display='none'; saveBtn.style.display=''; lockBtn.style.display='';
+    } else {
+      lockBadge.textContent="\uD83D\uDD12 View only"; lockBadge.classList.remove('on');
+      unlockBtn.style.display=''; saveBtn.style.display='none'; lockBtn.style.display='none';
+    }
+  }
+  applyLockState();
+
+  function openPcModal(){ pcInput.value=''; pcErr.style.display='none'; pcOverlay.classList.add('open'); pcInput.focus(); }
+  function closePcModal(){ pcOverlay.classList.remove('open'); }
+  unlockBtn.addEventListener('click', openPcModal);
+  pcCancel.addEventListener('click', closePcModal);
+  pcOverlay.addEventListener('click', function(e){ if(e.target===pcOverlay) closePcModal(); });
+  function tryUnlock(){
+    if(pcInput.value === EDIT_PASSCODE){
+      unlocked=true; try{ localStorage.setItem('aws_unlocked','1'); }catch(e){}
+      applyLockState(); closePcModal();
+    } else {
+      pcErr.style.display='block'; pcInput.value=''; pcInput.focus();
+    }
+  }
+  pcSubmit.addEventListener('click', tryUnlock);
+  pcInput.addEventListener('keydown', function(e){ if(e.key==='Enter') tryUnlock(); });
+
+  function showToast(){ saveToast.classList.add('show'); setTimeout(function(){ saveToast.classList.remove('show'); }, 1600); }
+  saveBtn.addEventListener('click', function(){ saveAllContent(); showToast(); });
+  lockBtn.addEventListener('click', function(){
+    saveAllContent(); unlocked=false; try{ localStorage.removeItem('aws_unlocked'); }catch(e){}
+    applyLockState();
+  });
+  // save a field the moment it loses focus, so an edit isn't lost if the user forgets to click Save
+  allEditableFields.forEach(function(f){
+    f.el.addEventListener('blur', function(){ if(unlocked){ try{ localStorage.setItem('aws_edit_'+f.key, f.el.innerHTML); }catch(e){} } });
+  });
 </script>
 </body>
 </html>
