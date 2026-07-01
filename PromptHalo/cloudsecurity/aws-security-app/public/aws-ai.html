@@ -47,6 +47,8 @@
   .userbadge .rolepill.viewer{background:var(--hipaa-w);color:var(--hipaa);border-color:var(--hipaa-b)}
   .btn.save{color:#1a7f37;border-color:#bcdb9b;background:var(--soc2-w)} .btn.save:hover{border-color:#1a7f37}
   .btn.lockout{color:#b3261e;border-color:#f3b9b6;background:#fbe4e3} .btn.lockout:hover{border-color:#b3261e}
+  .btn#loginBtn{background:#123a91;color:#fff;border-color:#123a91;font-weight:700;box-shadow:0 1px 2px rgba(18,58,145,.35),0 4px 10px rgba(18,58,145,.28)}
+  .btn#loginBtn:hover{background:#0d2c70;border-color:#0d2c70;color:#fff}
   .savetoast{font:600 12px/1 var(--mono);color:#1a7f37;opacity:0;transition:opacity .25s;padding:9px 2px}
   .savetoast.show{opacity:1}
   [contenteditable="true"]{outline:none;border-radius:4px;box-shadow:inset 0 0 0 1px transparent;transition:box-shadow .15s}
@@ -621,6 +623,18 @@
     opts.headers = Object.assign({'Content-Type':'application/json'}, opts.headers||{});
     opts.credentials = 'same-origin';
     return fetch(path, opts).then(function(r){
+      var ct = r.headers.get('content-type') || '';
+      if(ct.indexOf('application/json') === -1){
+        // The server didn't return JSON — usually means the request never
+        // reached the app (a host's error page, a proxy timeout, wrong
+        // path, or the server isn't running/crashed). Surface a readable
+        // error instead of a raw JSON-parse crash.
+        return r.text().then(function(text){
+          throw 'Server returned an unexpected (' + r.status + ') non-JSON response instead of the API. ' +
+            'This usually means the app server isn\'t running or reachable — check that it\'s deployed/started, not just that the page loaded. ' +
+            (text ? ('Response started with: ' + text.slice(0,120).replace(/\s+/g,' ')) : '');
+        });
+      }
       return r.json().then(function(body){
         if(!r.ok) throw (body && body.error) || ('Request failed ('+r.status+')');
         return body;
