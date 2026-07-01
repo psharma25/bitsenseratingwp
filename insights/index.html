@@ -417,6 +417,16 @@
   .write-editor:empty::before{content:attr(data-placeholder);color:var(--muted);}
   .write-editor h2{font-family:var(--serif);font-size:19px;margin:10px 0 6px;}
   .write-editor a{color:var(--accent);}
+  .write-editor.drag-over{border-color:var(--accent);background:rgba(14,143,136,0.06);}
+  .write-editor img, .rich-render img{max-width:100%;border-radius:2px;margin:8px 0;display:block;}
+  .write-editor video, .rich-render video{max-width:100%;border-radius:2px;margin:8px 0;display:block;background:#000;}
+  .write-editor table, .rich-render table{border-collapse:collapse;margin:10px 0;width:100%;}
+  .write-editor table td, .write-editor table th,
+  .rich-render table td, .rich-render table th{border:1px solid var(--line);padding:6px 9px;font-size:13px;text-align:left;}
+  .write-editor table th, .rich-render table th{background:var(--paper);font-weight:700;}
+  .drop-hint{
+    font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:6px;
+  }
   .tags-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;min-height:26px;}
   .tags-row .tag-chip{background:var(--paper);border-color:var(--line);color:var(--text);}
   .tags-row .tag-chip .x{margin-left:5px;color:var(--danger);cursor:pointer;font-weight:700;}
@@ -475,6 +485,7 @@
     <div class="sort-controls">
       <select id="sortKey">
         <option value="date">Date</option>
+        <option value="updated">Updated</option>
         <option value="title">Title</option>
         <option value="tags">Tag</option>
         <option value="type">Type</option>
@@ -520,7 +531,7 @@
 <div class="modal-overlay" id="postModalOverlay">
   <div class="modal">
     <div class="modal-header">
-      <h3>New Post</h3>
+      <h3 id="postModalTitle">New Post</h3>
       <button id="closePostModal">&times;</button>
     </div>
     <div class="modal-body">
@@ -553,8 +564,14 @@
           <button type="button" data-cmd="insertOrderedList" title="Numbered list">1.</button>
           <button type="button" data-cmd="createLink" title="Link">🔗</button>
           <button type="button" data-cmd="removeFormat" title="Clear formatting">Tx</button>
+          <button type="button" data-action="insertImage" title="Insert image">🖼</button>
+          <button type="button" data-action="insertVideo" title="Insert video">🎬</button>
+          <button type="button" data-action="insertTable" title="Insert table">▦</button>
         </div>
-        <div id="writeEditor" class="write-editor" contenteditable="true" data-placeholder="Write your post directly here…"></div>
+        <div id="writeEditor" class="write-editor" contenteditable="true" data-placeholder="Write your post directly here… drag images or video in anywhere"></div>
+        <div class="drop-hint">Drag &amp; drop images or video anywhere in the text above, or use the 🖼 / 🎬 / ▦ buttons.</div>
+        <input type="file" id="inlineImageInput" accept="image/*" style="display:none;">
+        <input type="file" id="inlineVideoInput" accept="video/*" style="display:none;">
       </div>
 
       <label>Tags</label>
@@ -581,6 +598,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn-ghost" id="deletePostBtn">Delete post</button>
+      <button class="btn-ghost" id="editPostBtn">Edit post</button>
       <button class="btn-primary" id="downloadPostBtn">Download</button>
     </div>
   </div>
@@ -684,6 +702,13 @@
     if(isNaN(dt)) return d;
     return dt.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});
   }
+  function fmtDateTime(iso){
+    if(!iso) return "—";
+    const dt = new Date(iso);
+    if(isNaN(dt)) return iso;
+    return dt.toLocaleString(undefined,{year:"numeric",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+  }
+  function lastUpdated(post){ return post.updatedAt || (post.date + "T00:00:00"); }
   function uid(){ return "p_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8); }
 
   const ICONS = {write:"✎", text:"▤", html:"◆", image:"▧", pdf:"⎙", video:"▶", audio:"♪", file:"⎋"};
@@ -768,6 +793,7 @@
         case "tags": av=(a.tags&&a.tags[0])||""; bv=(b.tags&&b.tags[0])||""; break;
         case "type": av=a.category||""; bv=b.category||""; break;
         case "size": av=a.size||0; bv=b.size||0; break;
+        case "updated": av=lastUpdated(a); bv=lastUpdated(b); break;
         default: av=a.date||""; bv=b.date||"";
       }
       let cmp = (av > bv) ? 1 : (av < bv) ? -1 : 0;
@@ -837,7 +863,7 @@
         </div>
         <div class="card-body">
           <div class="card-title">${escapeHtml(p.title)}</div>
-          <div class="card-date">${fmtDate(p.date)}</div>
+          <div class="card-date">${fmtDate(p.date)}${p.updatedAt && p.updatedAt.slice(0,10) !== p.date ? ` · updated ${fmtDate(p.updatedAt.slice(0,10))}` : ""}</div>
           <div class="card-excerpt">${escapeHtml(excerptFor(p))}</div>
           <div class="card-tags">${(p.tags||[]).slice(0,4).map(t=>`<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}</div>
         </div>
@@ -847,7 +873,7 @@
 
   function renderCompact(list){
     return `<div class="compact-list">` + list.map(p => `
-      <div class="compact-row" data-open="${p.id}">
+      <div class="compact-row" data-open="${p.id}" title="Updated ${fmtDateTime(lastUpdated(p))}">
         <span class="type-icon">${typeIcon(p.category)}</span>
         <span class="c-title">${escapeHtml(p.title)}</span>
         <span class="c-date">${fmtDate(p.date)}</span>
@@ -866,6 +892,7 @@
       <thead><tr>
         <th data-sort="title">Title ${sortArrow("title")}</th>
         <th data-sort="date">Date ${sortArrow("date")}</th>
+        <th data-sort="updated">Updated ${sortArrow("updated")}</th>
         <th data-sort="type">Type ${sortArrow("type")}</th>
         <th data-sort="tags">Tags ${sortArrow("tags")}</th>
         <th data-sort="size">Size ${sortArrow("size")}</th>
@@ -876,6 +903,7 @@
           <tr data-open="${p.id}">
             <td class="t-title">${escapeHtml(p.title)}</td>
             <td class="t-date">${fmtDate(p.date)}</td>
+            <td class="t-date">${fmtDateTime(lastUpdated(p))}</td>
             <td><span class="type-pill">${p.category}</span></td>
             <td class="t-tags">${(p.tags||[]).map(t=>`<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}</td>
             <td class="t-size">${fmtSize(p.size)}</td>
@@ -900,7 +928,8 @@
     activePostFilter = id;
     document.getElementById("viewerTitle").textContent = p.title;
     document.getElementById("viewerMeta").innerHTML = `
-      <span>${fmtDate(p.date)}</span>
+      <span>Published ${fmtDate(p.date)}</span>
+      <span>Updated ${fmtDateTime(lastUpdated(p))}</span>
       <span class="type-pill">${p.category}</span>
       <span>${fmtSize(p.size)}</span>
       <span>${(p.tags||[]).map(t=>`<span class="tag-chip">${escapeHtml(t)}</span>`).join(" ")}</span>
@@ -1000,28 +1029,49 @@
   /* ============ NEW POST MODAL ============ */
   const postModal = document.getElementById("postModalOverlay");
   const writeEditor = document.getElementById("writeEditor");
+  let editingId = null; // id of post being edited, or null when creating new
 
-  function openPostModal(){
-    document.getElementById("postTitle").value = "";
-    document.getElementById("postDate").value = new Date().toISOString().slice(0,10);
-    writeEditor.innerHTML = "";
-    pendingTags = [];
+  function openPostModal(editId){
+    editingId = editId || null;
+    const p = editingId ? posts.find(x=>x.id===editingId) : null;
+
+    document.getElementById("postModalTitle").textContent = p ? "Edit Post" : "New Post";
+    document.getElementById("savePostBtn").textContent = p ? "Save changes" : "Save post";
+    document.getElementById("postTitle").value = p ? p.title : "";
+    document.getElementById("postDate").value = p ? p.date : new Date().toISOString().slice(0,10);
+    writeEditor.innerHTML = (p && p.category === "write") ? p.textContent : "";
+    pendingTags = p ? [...(p.tags||[])] : [];
     pendingFile = null;
-    pendingCategory = null;
-    document.getElementById("fileDrop").textContent = "Click to choose a file, or drag it here";
-    document.getElementById("fileDrop").classList.remove("has-file");
-    setPostType("write");
+    pendingCategory = p ? p.category : null;
+
+    const fileDrop = document.getElementById("fileDrop");
+    if(p && p.category !== "write"){
+      fileDrop.textContent = "Current: " + (p.fileName || p.category) + " (" + fmtSize(p.size) + ") — click to replace it";
+      fileDrop.classList.add("has-file");
+    } else {
+      fileDrop.textContent = "Click to choose a file, or drag it here";
+      fileDrop.classList.remove("has-file");
+    }
+
+    setPostType(p && p.category !== "write" ? "upload" : "write");
     renderTagsRow();
     postModal.classList.add("open");
   }
-  function closePostModal(){ postModal.classList.remove("open"); }
-  document.getElementById("newPostBtn").addEventListener("click", openPostModal);
+  function closePostModal(){ postModal.classList.remove("open"); editingId = null; }
+  document.getElementById("newPostBtn").addEventListener("click", ()=> openPostModal(null));
   document.getElementById("closePostModal").addEventListener("click", closePostModal);
   document.getElementById("cancelPostBtn").addEventListener("click", closePostModal);
   postModal.addEventListener("click",(e)=>{ if(e.target.id==="postModalOverlay") closePostModal(); });
 
+  document.getElementById("editPostBtn").addEventListener("click", ()=>{
+    const id = currentViewerId;
+    if(!id) return;
+    closeViewer();
+    openPostModal(id);
+  });
+
   let currentPostType = "write"; // "write" or "upload"
-  let pendingCategory = null;    // detected category once a file is chosen
+  let pendingCategory = null;    // detected category once a file is chosen (or the existing category when editing)
   function setPostType(t){
     currentPostType = t;
     document.querySelectorAll("#typeSelect label").forEach(l=>{
@@ -1043,15 +1093,134 @@
 
   /* rich-text toolbar (write mode) */
   document.getElementById("editorToolbar").addEventListener("click",(e)=>{
-    const btn = e.target.closest("button[data-cmd]");
-    if(!btn) return;
+    const cmdBtn = e.target.closest("button[data-cmd]");
+    if(cmdBtn){
+      writeEditor.focus();
+      const cmd = cmdBtn.dataset.cmd;
+      if(cmd === "createLink"){
+        const url = prompt("Link URL:");
+        if(url) document.execCommand(cmd, false, url);
+      } else {
+        document.execCommand(cmd, false, cmdBtn.dataset.arg || null);
+      }
+      return;
+    }
+    const actionBtn = e.target.closest("button[data-action]");
+    if(!actionBtn) return;
+    if(actionBtn.dataset.action === "insertImage") inlineImageInput.click();
+    else if(actionBtn.dataset.action === "insertVideo") inlineVideoInput.click();
+    else if(actionBtn.dataset.action === "insertTable") promptInsertTable();
+  });
+
+  /* --- inline media: insert-at-cursor helpers --- */
+  function fileToDataURL(file){
+    return new Promise((resolve,reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=> resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+  let savedRange = null;
+  writeEditor.addEventListener("mouseup", saveSelection);
+  writeEditor.addEventListener("keyup", saveSelection);
+  function saveSelection(){
+    const sel = window.getSelection();
+    if(sel && sel.rangeCount && writeEditor.contains(sel.anchorNode)){
+      savedRange = sel.getRangeAt(0).cloneRange();
+    }
+  }
+  function insertNodeInEditor(node){
     writeEditor.focus();
-    const cmd = btn.dataset.cmd;
-    if(cmd === "createLink"){
-      const url = prompt("Link URL:");
-      if(url) document.execCommand(cmd, false, url);
-    } else {
-      document.execCommand(cmd, false, btn.dataset.arg || null);
+    const sel = window.getSelection();
+    let range = savedRange;
+    if(!range || !writeEditor.contains(range.startContainer)){
+      range = document.createRange();
+      range.selectNodeContents(writeEditor);
+      range.collapse(false);
+    }
+    range.deleteContents();
+    range.insertNode(node);
+    range.setStartAfter(node);
+    range.setEndAfter(node);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    savedRange = range.cloneRange();
+  }
+  function insertImageInEditor(dataUrl){
+    const img = document.createElement("img");
+    img.src = dataUrl;
+    insertNodeInEditor(img);
+  }
+  function insertVideoInEditor(dataUrl){
+    const video = document.createElement("video");
+    video.src = dataUrl;
+    video.controls = true;
+    insertNodeInEditor(video);
+  }
+  function promptInsertTable(){
+    let rows = parseInt(prompt("Rows?","3"), 10);
+    let cols = parseInt(prompt("Columns?","3"), 10);
+    if(!rows || rows < 1) rows = 3;
+    if(!cols || cols < 1) cols = 3;
+    rows = Math.min(rows, 20); cols = Math.min(cols, 10);
+    const table = document.createElement("table");
+    for(let r=0;r<rows;r++){
+      const tr = document.createElement("tr");
+      for(let c=0;c<cols;c++){
+        const cell = document.createElement(r===0 ? "th" : "td");
+        cell.textContent = r===0 ? ("Header " + (c+1)) : "";
+        tr.appendChild(cell);
+      }
+      table.appendChild(tr);
+    }
+    insertNodeInEditor(table);
+    insertNodeInEditor(document.createElement("p"));
+  }
+
+  const inlineImageInput = document.getElementById("inlineImageInput");
+  const inlineVideoInput = document.getElementById("inlineVideoInput");
+  inlineImageInput.addEventListener("change", async (e)=>{
+    if(!e.target.files.length) return;
+    const url = await fileToDataURL(e.target.files[0]);
+    insertImageInEditor(url);
+    inlineImageInput.value = "";
+  });
+  inlineVideoInput.addEventListener("change", async (e)=>{
+    if(!e.target.files.length) return;
+    const url = await fileToDataURL(e.target.files[0]);
+    insertVideoInEditor(url);
+    inlineVideoInput.value = "";
+  });
+
+  /* drag & drop images/video straight into the write editor */
+  writeEditor.addEventListener("dragover", (e)=>{
+    e.preventDefault();
+    writeEditor.classList.add("drag-over");
+  });
+  writeEditor.addEventListener("dragleave", ()=> writeEditor.classList.remove("drag-over"));
+  writeEditor.addEventListener("drop", async (e)=>{
+    e.preventDefault();
+    writeEditor.classList.remove("drag-over");
+    const files = Array.from(e.dataTransfer.files || []);
+    if(!files.length) return;
+    // place the caret at the drop point, if the browser supports it
+    let range = null;
+    if(document.caretRangeFromPoint){
+      range = document.caretRangeFromPoint(e.clientX, e.clientY);
+    } else if(document.caretPositionFromPoint){
+      const pos = document.caretPositionFromPoint(e.clientX, e.clientY);
+      if(pos){ range = document.createRange(); range.setStart(pos.offsetNode, pos.offset); }
+    }
+    if(range && writeEditor.contains(range.startContainer)) savedRange = range;
+    for(const file of files){
+      if(file.type.startsWith("image/")){
+        const url = await fileToDataURL(file);
+        insertImageInEditor(url);
+      } else if(file.type.startsWith("video/")){
+        const url = await fileToDataURL(file);
+        insertVideoInEditor(url);
+      }
     }
   });
 
@@ -1106,42 +1275,64 @@
     const date = document.getElementById("postDate").value || new Date().toISOString().slice(0,10);
     if(!title){ alert("Give the post a title first."); return; }
 
-    let post = {
+    const isEdit = !!editingId;
+    let post = isEdit ? posts.find(x=>x.id===editingId) : {
       id: uid(),
-      title, date,
       category: "write",
-      tags: [...pendingTags],
       textContent: "",
       fileBlob: null,
       fileName: "",
       size: 0
     };
+    if(isEdit && !post){ alert("That post no longer exists."); closePostModal(); return; }
+
+    post.title = title;
+    post.date = date;
+    post.tags = [...pendingTags];
 
     if(currentPostType === "write"){
       post.category = "write";
       post.textContent = writeEditor.innerHTML;
+      post.fileBlob = null;
+      post.fileName = "";
       post.size = new Blob([post.textContent]).size;
       if(post.tags.length === 0){
         post.tags = autoGenerateTags(writeEditor.innerText || "", title, 6);
       }
-    } else {
-      if(!pendingFile){ alert("Choose a file to upload."); return; }
+    } else if(pendingFile){
+      // a new or replacement file was chosen
       post.category = pendingCategory;
       post.fileName = pendingFile.name;
       post.size = pendingFile.size;
       if(TEXT_READABLE.has(pendingCategory)){
         post.textContent = await pendingFile.text();
-        if(post.tags.length === 0) post.tags = autoGenerateTags(post.textContent, title, 6);
+        post.fileBlob = null;
       } else {
         post.fileBlob = pendingFile;
-        if(post.tags.length === 0) post.tags = autoGenerateTags(pendingFile.name, title, 5);
+        post.textContent = "";
       }
+      if(post.tags.length === 0){
+        post.tags = TEXT_READABLE.has(pendingCategory)
+          ? autoGenerateTags(post.textContent, title, 6)
+          : autoGenerateTags(pendingFile.name, title, 5);
+      }
+    } else if(!isEdit){
+      alert("Choose a file to upload.");
+      return;
     }
+    // editing an upload-type post without picking a replacement file: keep the existing file/category as-is
+
+    post.updatedAt = new Date().toISOString();
 
     await dbPut(post);
-    posts.push(post);
+    if(!isEdit) posts.push(post);
+    const wasEditingId = editingId;
     closePostModal();
-    renderAll();
+    if(isEdit){
+      openViewer(wasEditingId);
+    } else {
+      renderAll();
+    }
   });
 
   /* ============ TOP BAR CONTROLS ============ */
