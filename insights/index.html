@@ -347,6 +347,31 @@
     font-size:10.5px;padding:3px 7px;border-radius:2px;cursor:pointer;margin-right:4px;font-family:var(--mono);
   }
   table.posts-table td.t-actions button:hover{border-color:var(--danger);color:var(--danger);}
+  .vis-pill{
+    display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;
+    padding:2px 8px;border-radius:10px;border:1px solid var(--line);text-transform:uppercase;letter-spacing:.03em;
+  }
+  .vis-pill.public{background:rgba(14,143,136,0.1);color:var(--accent);border-color:var(--accent);}
+  .vis-pill.private{background:var(--paper);color:var(--muted);border-color:var(--line);}
+  .card-thumb .vis-pill{position:absolute;top:8px;right:8px;background:var(--paper-2);}
+  .compact-row .vis-pill{font-size:9px;padding:1px 6px;}
+  .viewer-meta .vis-pill{font-size:10px;}
+  .vis-toggle{display:flex;gap:8px;margin:4px 0 2px;}
+  .vis-toggle label{
+    flex:1;text-align:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--radius);
+    cursor:pointer;font-size:12.5px;font-weight:600;color:var(--muted);
+  }
+  .vis-toggle label input{display:none;}
+  .vis-toggle label.sel[data-vis="private"]{border-color:var(--muted);background:var(--paper);color:var(--text);font-weight:700;}
+  .vis-toggle label.sel[data-vis="public"]{border-color:var(--accent);background:rgba(14,143,136,0.08);color:var(--accent);font-weight:700;}
+  .vis-hint{font-size:11px;color:var(--muted);margin:2px 0 12px;}
+  .sidebar-section .vis-filter{display:flex;flex-direction:column;gap:4px;}
+  .sidebar-section .vis-filter-item{
+    display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:var(--radius);
+    cursor:pointer;font-size:12px;color:var(--ink-muted);
+  }
+  .sidebar-section .vis-filter-item:hover{background:var(--ink-2);color:#fff;}
+  .sidebar-section .vis-filter-item.active{background:var(--accent);color:#082523;font-weight:700;}
   .type-pill{
     font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:0.5px;
     padding:2px 7px;border-radius:10px;background:var(--ink);color:var(--accent-2);
@@ -489,6 +514,7 @@
         <option value="title">Title</option>
         <option value="tags">Tag</option>
         <option value="type">Type</option>
+        <option value="visibility">Visibility</option>
         <option value="size">Size</option>
       </select>
       <button class="icon-btn" id="sortDirBtn" title="Toggle sort direction">↓</button>
@@ -507,6 +533,10 @@
     <div class="sidebar-section">
       <h2>Contents</h2>
       <ul class="toc-list" id="tocList"></ul>
+    </div>
+    <div class="sidebar-section">
+      <h2>Visibility</h2>
+      <div class="vis-filter" id="visFilter"></div>
     </div>
     <div class="sidebar-section">
       <h2>Tags</h2>
@@ -540,6 +570,13 @@
 
       <label>Date</label>
       <input type="date" id="postDate">
+
+      <label>Visibility</label>
+      <div class="vis-toggle" id="visToggle">
+        <label data-vis="private" class="sel"><input type="radio" name="pvis" value="private" checked>🔒 Private</label>
+        <label data-vis="public"><input type="radio" name="pvis" value="public">🌐 Public</label>
+      </div>
+      <div class="vis-hint">Private posts stay local to this Post Studio. Public posts are marked ready to publish.</div>
 
       <label>Content type</label>
       <div class="type-select" id="typeSelect">
@@ -659,6 +696,7 @@
   let sortDir = "desc";
   let searchTerm = "";
   let activeTagFilter = null;
+  let activeVisibilityFilter = "all"; // "all" | "public" | "private"
   let activePostFilter = null;
   let pendingTags = [];
   let pendingFile = null; // {blob, name, size}
@@ -752,6 +790,25 @@
       });
     }
 
+    const visFilter = document.getElementById("visFilter");
+    const publicCount = posts.filter(p => (p.visibility||"private")==="public").length;
+    const privateCount = posts.length - publicCount;
+    const visOptions = [
+      {key:"all", label:"All posts", count:posts.length},
+      {key:"public", label:"🌐 Public", count:publicCount},
+      {key:"private", label:"🔒 Private", count:privateCount}
+    ];
+    visFilter.innerHTML = visOptions.map(o => `
+      <div class="vis-filter-item ${activeVisibilityFilter===o.key?'active':''}" data-vis="${o.key}">
+        <span>${o.label}</span><span>${o.count}</span>
+      </div>`).join("");
+    visFilter.querySelectorAll(".vis-filter-item").forEach(el=>{
+      el.addEventListener("click", ()=>{
+        activeVisibilityFilter = el.dataset.vis;
+        renderAll();
+      });
+    });
+
     const tagCloud = document.getElementById("tagCloud");
     const tagCount = {};
     posts.forEach(p => (p.tags||[]).forEach(t => tagCount[t] = (tagCount[t]||0)+1));
@@ -786,12 +843,16 @@
     if(activeTagFilter){
       list = list.filter(p => (p.tags||[]).includes(activeTagFilter));
     }
+    if(activeVisibilityFilter !== "all"){
+      list = list.filter(p => (p.visibility||"private") === activeVisibilityFilter);
+    }
     list.sort((a,b)=>{
       let av, bv;
       switch(sortKey){
         case "title": av=(a.title||"").toLowerCase(); bv=(b.title||"").toLowerCase(); break;
         case "tags": av=(a.tags&&a.tags[0])||""; bv=(b.tags&&b.tags[0])||""; break;
         case "type": av=a.category||""; bv=b.category||""; break;
+        case "visibility": av=a.visibility||"private"; bv=b.visibility||"private"; break;
         case "size": av=a.size||0; bv=b.size||0; break;
         case "updated": av=lastUpdated(a); bv=lastUpdated(b); break;
         default: av=a.date||""; bv=b.date||"";
@@ -809,9 +870,12 @@
     document.getElementById("countLabel").textContent = list.length + (list.length===1?" post":" posts");
 
     const filterBar = document.getElementById("activeFilterBar");
-    if(activeTagFilter){
+    const filterParts = [];
+    if(activeTagFilter) filterParts.push("tag: " + activeTagFilter);
+    if(activeVisibilityFilter !== "all") filterParts.push(activeVisibilityFilter === "public" ? "public only" : "private only");
+    if(filterParts.length){
       filterBar.style.display = "flex";
-      document.getElementById("activeFilterLabel").textContent = "Filtered by tag: " + activeTagFilter;
+      document.getElementById("activeFilterLabel").textContent = "Filtered by " + filterParts.join(", ");
     } else {
       filterBar.style.display = "none";
     }
@@ -859,6 +923,7 @@
       <div class="card" data-open="${p.id}">
         <div class="card-thumb">
           <span class="type-badge">${p.category}</span>
+          <span class="vis-pill ${(p.visibility||'private')}">${(p.visibility||'private')==='public' ? '🌐 Public' : '🔒 Private'}</span>
           ${p.category==="image" && p.fileBlob ? `<img src="${URL.createObjectURL(p.fileBlob)}" alt="">` : typeIcon(p.category)}
         </div>
         <div class="card-body">
@@ -876,6 +941,7 @@
       <div class="compact-row" data-open="${p.id}" title="Updated ${fmtDateTime(lastUpdated(p))}">
         <span class="type-icon">${typeIcon(p.category)}</span>
         <span class="c-title">${escapeHtml(p.title)}</span>
+        <span class="vis-pill ${(p.visibility||'private')}">${(p.visibility||'private')==='public' ? '🌐' : '🔒'}</span>
         <span class="c-date">${fmtDate(p.date)}</span>
         <span class="c-tags">${(p.tags||[]).slice(0,3).map(t=>`<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}</span>
       </div>
@@ -894,6 +960,7 @@
         <th data-sort="date">Date ${sortArrow("date")}</th>
         <th data-sort="updated">Updated ${sortArrow("updated")}</th>
         <th data-sort="type">Type ${sortArrow("type")}</th>
+        <th data-sort="visibility">Visibility ${sortArrow("visibility")}</th>
         <th data-sort="tags">Tags ${sortArrow("tags")}</th>
         <th data-sort="size">Size ${sortArrow("size")}</th>
         <th>Actions</th>
@@ -905,6 +972,7 @@
             <td class="t-date">${fmtDate(p.date)}</td>
             <td class="t-date">${fmtDateTime(lastUpdated(p))}</td>
             <td><span class="type-pill">${p.category}</span></td>
+            <td><span class="vis-pill ${(p.visibility||'private')}">${(p.visibility||'private')==='public' ? '🌐 Public' : '🔒 Private'}</span></td>
             <td class="t-tags">${(p.tags||[]).map(t=>`<span class="tag-chip">${escapeHtml(t)}</span>`).join("")}</td>
             <td class="t-size">${fmtSize(p.size)}</td>
             <td class="t-actions">
@@ -931,6 +999,7 @@
       <span>Published ${fmtDate(p.date)}</span>
       <span>Updated ${fmtDateTime(lastUpdated(p))}</span>
       <span class="type-pill">${p.category}</span>
+      <span class="vis-pill ${(p.visibility||'private')}">${(p.visibility||'private')==='public' ? '🌐 Public' : '🔒 Private'}</span>
       <span>${fmtSize(p.size)}</span>
       <span>${(p.tags||[]).map(t=>`<span class="tag-chip">${escapeHtml(t)}</span>`).join(" ")}</span>
     `;
@@ -1043,6 +1112,7 @@
     pendingTags = p ? [...(p.tags||[])] : [];
     pendingFile = null;
     pendingCategory = p ? p.category : null;
+    setPostVisibility(p ? (p.visibility||"private") : "private");
 
     const fileDrop = document.getElementById("fileDrop");
     if(p && p.category !== "write"){
@@ -1089,6 +1159,18 @@
   }
   document.querySelectorAll("#typeSelect label").forEach(l=>{
     l.addEventListener("click", ()=> setPostType(l.dataset.type));
+  });
+
+  let currentVisibility = "private"; // "private" or "public"
+  function setPostVisibility(v){
+    currentVisibility = v;
+    document.querySelectorAll("#visToggle label").forEach(l=>{
+      l.classList.toggle("sel", l.dataset.vis === v);
+      l.querySelector("input").checked = (l.dataset.vis === v);
+    });
+  }
+  document.querySelectorAll("#visToggle label").forEach(l=>{
+    l.addEventListener("click", ()=> setPostVisibility(l.dataset.vis));
   });
 
   /* rich-text toolbar (write mode) */
@@ -1289,6 +1371,7 @@
     post.title = title;
     post.date = date;
     post.tags = [...pendingTags];
+    post.visibility = currentVisibility;
 
     if(currentPostType === "write"){
       post.category = "write";
@@ -1359,6 +1442,7 @@
   });
   document.getElementById("clearFilterBtn").addEventListener("click", ()=>{
     activeTagFilter = null;
+    activeVisibilityFilter = "all";
     renderAll();
   });
 
@@ -1390,7 +1474,7 @@
 
   /* ============ INIT ============ */
   openDB().then(dbAll).then(all=>{
-    posts = all;
+    posts = all.map(p => ({...p, visibility: p.visibility || "private"}));
     renderAll();
   }).catch(err=>{
     console.error("DB init failed", err);
