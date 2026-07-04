@@ -1,0 +1,13 @@
+{
+  "name": "bitsense-ransomware-reporter-tests",
+  "private": true,
+  "type": "module",
+  "description": "jsdom test suite for ransomware-report.html (place this folder next to the HTML file)",
+  "scripts": {
+    "test": "node run-all.mjs"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^6.0.0",
+    "jsdom": "^24.0.0"
+  }
+}

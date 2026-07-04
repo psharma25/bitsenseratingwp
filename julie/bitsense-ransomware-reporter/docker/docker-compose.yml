@@ -1,0 +1,22 @@
+# BitSense Ransomware Incident Reporter — compose stack
+# Runs the hardened nginx container and maps host port 80 -> container 8080.
+# Add a reverse proxy / certbot companion later for TLS.
+services:
+  ransomware-reporter:
+    build: .
+    image: bitsense/ransomware-reporter:1.0
+    container_name: ransomware-reporter
+    ports:
+      - "80:8080"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run
+      - /var/cache/nginx
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
