@@ -1,1 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Unit Time Finder — coordinate a plumber or electrician visit</title>
+<meta name="description" content="Each unit marks its preferred times and conflicts; the board finds a two-week visit slot that works for every unit." />
+<style>
+  :root{
+    --paper:#F4F1EA; --card:#FBFAF6; --ink:#1E2A3A; --ink2:#4A5568; --mute:#8A93A2;
+    --line:#E4DFD3; --line2:#D3CCBC;
+    --teal:#14808A; --teal-soft:#E1EFEF; --teal-ink:#0C5A62;
+    --go:#2E9E6B; --go-soft:#E4F3EB; --go-fill:#9AD3B4;
+    --no:#D2603F; --no-soft:#FaEDE8; --no-fill:#EBB6A4;
+    --pref:#E0A32E; --pref-soft:#FBF1DC;
+    --field:#FFFFFF; --hover:#EDE8DC;
+    --no-ink:#7A2E18; --go-ink:#1B6B44;
+    --go-line:#CBE7D6; --teal-line:#C7E0E1;
+    --shadow:0 2px 14px -10px rgba(30,42,58,.5);
+  }
+  html[data-theme="dark"]{
+    --paper:#12181F; --card:#1B2330; --ink:#E9ECF2; --ink2:#B4BDCB; --mute:#8792A2;
+    --line:#2A3442; --line2:#3B4759;
+    --teal:#41B7C1; --teal-soft:#153036; --teal-ink:#8CDEE6;
+    --go:#4CBB82; --go-soft:#16301F; --go-fill:#2F6B4B;
+    --no:#E07A57; --no-soft:#34201A; --no-fill:#6E3624;
+    --pref:#E3B65C; --pref-soft:#33290F;
+    --field:#232D3C; --hover:#26303F;
+    --no-ink:#F3BFA9; --go-ink:#A9E3C2;
+    --go-line:#245238; --teal-line:#1E4A50;
+    --shadow:0 2px 14px -10px rgba(0,0,0,.85);
+  }
+  html{color-scheme:light}
+  html[data-theme="dark"]{color-scheme:dark}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink)}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.5;-webkit-text-size-adjust:100%}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+  .wrap{max-width:860px;margin:0 auto;padding:22px 16px 96px}
+  h1{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:clamp(25px,6vw,38px);line-height:1.05;letter-spacing:-.01em}
+  h1 em{font-style:italic;color:var(--teal)}
+  .lede{color:var(--ink2);margin-top:9px;max-width:60ch;font-size:15px}
+  .eyebrow{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:9px}
 
+  /* top bar */
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+  .topbar .btn{display:inline-flex;align-items:center;gap:7px}
+
+  /* recommendation hero */
+  .hero-grid{display:grid;grid-template-columns:minmax(230px,.85fr) 1.15fr;gap:14px;margin-top:20px;align-items:start}
+  @media (max-width:640px){ .hero-grid{grid-template-columns:1fr} }
+  .coord{border:1px solid var(--line2);border-radius:14px;background:var(--card);box-shadow:var(--shadow);padding:0}
+
+  /* collapsible top frames */
+  .collaphead{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;background:none;border:none;cursor:pointer;padding:13px 16px;font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:600;text-align:left}
+  .collaphead .caret{color:var(--teal);transition:transform .15s;font-size:12px}
+  .collap.closed .collaphead .caret{transform:rotate(0deg)}
+  .collap:not(.closed) .collaphead .caret{transform:rotate(90deg)}
+  .collap.closed .collapbody{display:none}
+  .coord .collapbody{padding:0 16px 16px}
+  .rec .collapbody{padding:0}
+  .coord .field{margin-bottom:10px}
+  .coord .field input,.coord .field select{width:100%}
+  .coord .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .coord .apply{margin-top:4px}
+  .coord .note{margin-top:8px}
+  .hero-grid .rec{margin-top:0}
+  .rec{margin-top:20px;border:1px solid var(--line2);border-radius:14px;background:var(--card);box-shadow:var(--shadow);overflow:hidden}
+  .rec .band{background:var(--go-soft);border-bottom:1px solid var(--go-line);padding:8px 16px;font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--go);font-weight:600}
+  .rec .band.none{background:var(--teal-soft);border-color:var(--teal-line);color:var(--teal-ink)}
+  .rec .body{padding:16px}
+  .rec .big{font-family:Georgia,serif;font-size:clamp(20px,4.5vw,28px);line-height:1.15}
+  .rec .sub{color:var(--ink2);margin-top:6px;font-size:14px}
+  .rec .who{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px;align-items:center}
+  .alt{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .altcard{flex:1;min-width:150px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--paper)}
+  .altcard .d{font-family:ui-monospace,monospace;font-size:13px;font-weight:600}
+  .altcard .m{font-size:12px;color:var(--ink2);margin-top:3px}
+
+  /* tabs */
+  .tabs{display:flex;gap:8px;margin:24px 0 4px;flex-wrap:wrap}
+  .tab{font-weight:600;font-size:14px;color:var(--ink2);background:none;border:1px solid var(--line2);border-radius:999px;padding:9px 18px;cursor:pointer;transition:.15s}
+  .tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .tab:not(.on):hover{background:var(--hover)}
+  .panel{display:none}
+  .panel.on{display:block}
+  section.blk{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:16px}
+  .blk h2{font-family:Georgia,serif;font-size:19px;font-weight:700}
+  .blk .hint{color:var(--ink2);font-size:13.5px;margin-top:5px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:600}
+  input[type=text],input[type=date],select,textarea{font-family:inherit;font-size:14px;color:var(--ink);background:var(--field);border:1px solid var(--line2);border-radius:8px;padding:9px 11px}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(20,128,138,.15)}
+  textarea{width:100%;min-height:70px;resize:vertical;font-family:ui-monospace,monospace;font-size:12px}
+  button.btn{font-family:inherit;font-weight:600;font-size:14px;cursor:pointer;border-radius:8px;padding:10px 16px;border:1px solid var(--teal);background:var(--teal);color:#fff;transition:.12s}
+  button.btn:hover{background:var(--teal-ink)}
+  button.btn.ghost{background:none;color:var(--teal)}
+  button.btn.ghost:hover{background:var(--teal-soft)}
+  button.btn.warn{border-color:var(--no);color:var(--no);background:none}
+  button.btn.warn:hover{background:var(--no-soft)}
+  button.btn.sm{padding:7px 12px;font-size:13px}
+
+  /* participants */
+  .people{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line2);border-radius:999px;padding:5px 8px 5px 6px;background:var(--field);cursor:pointer;transition:.12s}
+  .chip.active{border-color:var(--teal);box-shadow:0 0 0 3px rgba(20,128,138,.14);background:var(--teal-soft)}
+  .chip .av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-size:18px;background:var(--paper);border:1px solid var(--line)}
+  .chip .nm{font-size:13.5px;font-weight:600}
+  .chip .x{border:none;background:none;color:var(--mute);cursor:pointer;font-size:16px;line-height:1;padding:2px 4px;border-radius:6px}
+  .chip .x:hover{color:var(--no);background:var(--no-soft)}
+  .avpick{display:flex;gap:6px;flex-wrap:wrap;max-width:340px}
+  .avopt{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-size:20px;background:var(--field);border:1px solid var(--line2);cursor:pointer}
+  .avopt.sel{border-color:var(--teal);box-shadow:0 0 0 3px rgba(20,128,138,.15);background:var(--teal-soft)}
+
+  /* grid */
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:12px 2px;font-size:12.5px;color:var(--ink2)}
+  .legend .k{display:inline-flex;align-items:center;gap:6px}
+  .sw{width:15px;height:15px;border-radius:4px;border:1px solid var(--line2);display:inline-block}
+  .sw.no{background:var(--no-fill);border-color:var(--no)}
+  .sw.pref{background:var(--go-soft);border-color:var(--go)}
+  .sw.free{background:var(--field)}
+  .gridwrap{overflow-x:auto;margin-top:8px;-webkit-overflow-scrolling:touch}
+  table.grid{border-collapse:separate;border-spacing:0;width:100%;min-width:520px}
+  table.grid th,table.grid td{padding:0}
+  table.grid thead th{position:sticky;top:0;background:var(--card);font-family:ui-monospace,monospace;font-size:10.5px;font-weight:600;color:var(--ink2);letter-spacing:.02em;padding:6px 4px;border-bottom:1px solid var(--line2);text-align:center;white-space:nowrap}
+  table.grid thead th.daycol{text-align:left;padding-left:6px;min-width:78px}
+  td.day{font-family:ui-monospace,monospace;font-size:12px;color:var(--ink2);padding:0 6px;white-space:nowrap;border-bottom:1px solid var(--line)}
+  td.day b{color:var(--ink)}
+  td.day.wknd{color:var(--teal-ink)}
+  .cell{width:100%;height:44px;min-width:52px;border:1px solid var(--line);border-radius:7px;margin:3px;background:var(--field);cursor:pointer;display:grid;place-items:center;font-size:15px;transition:.1s;position:relative}
+  td.slot{border-bottom:1px solid var(--line)}
+  .cell:hover{border-color:var(--teal)}
+  .cell.no{background:var(--no-fill);border-color:var(--no);color:var(--no-ink)}
+  .cell.pref{background:var(--go-soft);border-color:var(--go);color:var(--go-ink)}
+  .cell:focus-visible{outline:2px solid var(--teal);outline-offset:1px}
+  .modeseg{display:inline-flex;border:1px solid var(--line2);border-radius:10px;overflow:hidden;margin:12px 0 2px}
+  .modeseg button{font-family:inherit;font-weight:600;font-size:13.5px;padding:9px 16px;border:none;background:var(--field);cursor:pointer;color:var(--ink2);display:flex;align-items:center;gap:7px}
+  .modeseg button+button{border-left:1px solid var(--line2)}
+  .modeseg button .mk{font-size:14px}
+  .modeseg button.on.block{background:var(--no);color:#fff}
+  .modeseg button.on.prefer{background:var(--go);color:#fff}
+  .modeseg button:not(.on):hover{background:var(--hover)}
+
+  /* result heat cells */
+  .cell.res{cursor:pointer}
+  .cell.res .n{font-family:ui-monospace,monospace;font-size:11px;font-weight:600}
+  .cell.blocked{background:var(--no-soft);border-color:var(--no-fill)}
+  .cell.blocked .n{color:var(--no)}
+  .cell.allfree{border-color:var(--go)}
+  .cell.best{box-shadow:0 0 0 2px var(--go) inset}
+  .cell.res .stars{position:absolute;top:2px;right:4px;font-size:9px;color:var(--pref)}
+
+  .detail{margin-top:12px;border:1px dashed var(--line2);border-radius:10px;padding:12px;font-size:13.5px;display:none}
+  .detail.on{display:block}
+  .detail .lab{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+  .avrow{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;margin-bottom:8px;min-height:20px}
+  .avtok{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:14px;background:var(--paper);border:1px solid var(--line)}
+  .avtok.mini{width:20px;height:20px;font-size:12px}
+
+  .empty{color:var(--mute);font-size:13.5px;padding:10px 2px}
+  .note{font-size:12.5px;color:var(--mute);margin-top:10px;line-height:1.5}
+  .syncstatus{font-size:13.5px;color:var(--ink2);margin-top:6px;display:flex;align-items:center;gap:8px}
+  .syncstatus .dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .syncstatus .dot.on{background:var(--go);box-shadow:0 0 0 3px var(--go-soft)}
+  .syncstatus .dot.off{background:var(--mute)}
+  details.setup{margin-top:14px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+  details.setup>summary{cursor:pointer;list-style:none;padding:13px 16px;font-family:ui-monospace,monospace;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);font-weight:600;display:flex;justify-content:space-between;align-items:center}
+  details.setup>summary::-webkit-details-marker{display:none}
+  details.setup>summary:after{content:"▸";color:var(--teal)}
+  details.setup[open]>summary:after{content:"▾"}
+  .setupbody{padding:0 16px 16px}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:11px 16px;border-radius:10px;font-size:13.5px;box-shadow:0 10px 30px rgba(30,42,58,.35);z-index:40;max-width:92vw}
+  footer{margin-top:26px;font-size:12px;color:var(--mute);border-top:1px solid var(--line);padding-top:14px}
+  .livebox{margin-top:12px;border-top:1px solid var(--line);padding-top:4px}
+  .livebox>summary{cursor:pointer;list-style:none;font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);font-weight:600;padding:7px 0;display:flex;justify-content:space-between;align-items:center}
+  .livebox>summary::-webkit-details-marker{display:none}
+  .livebox>summary:after{content:"▸";color:var(--teal)}
+  .livebox[open]>summary:after{content:"▾"}
+  .livebody .field input{width:100%}
+  .futil{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+  .fnote{font-size:12px;color:var(--mute);line-height:1.5}
+  .contacts{margin-top:26px;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:16px 18px;box-shadow:var(--shadow)}
+  .contacts h3{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:10px}
+  .contacts ul{list-style:none}
+  .contacts li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line)}
+  .contacts li:last-child{border-bottom:none}
+  .contacts .role{font-weight:600;font-size:14px;color:var(--ink)}
+  .contacts a{font-family:ui-monospace,monospace;font-size:14px;font-weight:600;color:var(--teal);text-decoration:none;white-space:nowrap;padding:4px 8px;border:1px solid var(--teal-soft);border-radius:8px;background:var(--teal-soft)}
+  .contacts a:hover{background:var(--teal);color:#fff}
+  .avmodal{position:fixed;inset:0;background:rgba(30,42,58,.42);display:none;align-items:center;justify-content:center;z-index:60;padding:16px}
+  .avmodal.on{display:flex}
+  .avmodal .box{background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:18px;max-width:340px;width:100%;box-shadow:0 20px 50px rgba(30,42,58,.4)}
+  .avmodal h4{font-family:Georgia,serif;font-size:18px;margin-bottom:12px}
+  @media (max-width:520px){ .wrap{padding:18px 12px 96px} .cell{height:40px;min-width:46px} }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<script>try{if(localStorage.getItem("ttf_theme")==="dark")document.documentElement.setAttribute("data-theme","dark");}catch(e){}</script>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <button class="btn ghost sm" id="contactsBtn" type="button">📞 Service contacts</button>
+    <button class="btn ghost sm" id="themeBtn" type="button" aria-label="Switch background theme">☾ Dark</button>
+  </div>
+  <p class="eyebrow" id="eyebrow">Building maintenance · shared board</p>
+  <h1>Find a time that works for <em>everyone</em></h1>
+  <p class="lede" id="lede">Choose your preferred times and the times when you have a conflict. The board looks across the next two weeks and finds a visit slot that works for every unit.</p>
+
+  <div class="hero-grid">
+    <div class="coord collap closed" id="coordCard">
+      <button class="collaphead" id="coordHead" type="button" aria-expanded="false" aria-controls="coordBody"><span>Coordinator · visit window</span><span class="caret">▸</span></button>
+      <div class="collapbody" id="coordBody">
+      <div class="field"><label for="sJob">Visit type</label><select id="sJob"><option>Plumber</option><option>Electrician</option><option>HVAC technician</option><option>Handyperson</option><option>Inspector</option><option>Other</option></select></div>
+      <div class="field"><label for="sStart">Two-week window starts</label><input type="date" id="sStart"></div>
+      <div class="two">
+        <div class="field"><label for="sDayStart">Day starts</label><select id="sDayStart"></select></div>
+        <div class="field"><label for="sDayEnd">Day ends</label><select id="sDayEnd"></select></div>
+      </div>
+      <div class="field"><label for="sBlock">Slot length</label><select id="sBlock"><option value="1">1 hour</option><option value="2" selected>2 hours</option><option value="3">3 hours</option><option value="4">4 hours</option></select></div>
+      <button class="btn sm apply" id="applySetup">Apply window</button>
+      <p class="note">Changing hours or slot length re-scales the grid and clears marks. Changing the date or visit type keeps everything.</p>
+      <details class="livebox" id="liveBox">
+        <summary>Live sharing — one calendar for all units</summary>
+        <div class="livebody">
+          <p class="syncstatus" id="syncStatus"></p>
+          <div id="syncSetup">
+            <p class="hint" style="margin-top:8px">Connect a free shared store (a Cloudflare Worker — 5-minute setup, code included) so every unit sees and edits the same calendar. Paste its address, name a room for your building, then share the invite link.</p>
+            <div class="field" style="margin-top:10px"><label for="syncUrl">Shared store address</label><input type="text" id="syncUrl" placeholder="https://your-worker.workers.dev" autocomplete="off"></div>
+            <div class="field" style="margin-top:8px"><label for="syncRoom">Room name</label><input type="text" id="syncRoom" placeholder="e.g. 42-oak-st" autocomplete="off"></div>
+            <button class="btn sm" id="saveSync" style="margin-top:10px">Turn on live sharing</button>
+          </div>
+          <div id="syncOff" style="display:none;margin-top:10px"><button class="btn ghost sm" id="syncOffBtn">Turn off live sharing on this device</button></div>
+          <div style="margin-top:12px"><button class="btn sm" id="copyLink">Copy invite link</button></div>
+        </div>
+      </details>
+      </div>
+    </div>
+    <div class="rec collap closed" id="recCard">
+      <button class="collaphead" id="recHead" type="button" aria-expanded="false" aria-controls="rec"><span>Recommendation · best time</span><span class="caret">▸</span></button>
+      <div class="collapbody" id="rec"></div>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab on" id="tab-mark-btn" role="tab">Mark my times</button>
+    <button class="tab" id="tab-result-btn" role="tab">Group result</button>
+  </div>
+
+  <!-- ============ MARK ============ -->
+  <div class="panel on" id="tab-mark">
+    <section class="blk">
+      <h2>Who's marking?</h2>
+      <p class="hint">Tap your unit to select it, then mark the slots below. Tap a unit's avatar to choose a different face. Not listed? Add a unit.</p>
+      <div class="people" id="people" style="margin-top:12px"></div>
+      <div id="addForm" style="margin-top:12px;display:none">
+        <div class="row" style="align-items:flex-start">
+          <div class="field"><label for="newName">Unit name or label</label><input type="text" id="newName" placeholder="e.g. Unit 5" maxlength="24" autocomplete="off"></div>
+        </div>
+        <div class="field" style="margin-top:10px"><label>Pick an avatar</label><div class="avpick" id="avpick"></div></div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="saveNew">Add unit</button>
+          <button class="btn ghost" id="cancelNew">Cancel</button>
+        </div>
+      </div>
+      <button class="btn ghost sm" id="showAdd" style="margin-top:12px">+ Add a unit</button>
+    </section>
+
+    <section class="blk" id="markBlk">
+      <h2 id="markTitle">Mark your times</h2>
+      <p class="hint">Pick what you're marking, then tap the slots. Tap a slot again to clear it. You can change these any time.</p>
+      <div class="modeseg" role="group" aria-label="What to mark">
+        <button id="modeBlock" class="on block"><span class="mk">✕</span> Can't do it</button>
+        <button id="modePrefer" class="prefer"><span class="mk">★</span> Prefer time</button>
+      </div>
+      <div class="legend">
+        <span class="k"><span class="sw free"></span> free</span>
+        <span class="k"><span class="sw no"></span> ✕ can't do it</span>
+        <span class="k"><span class="sw pref"></span> ★ prefer</span>
+      </div>
+      <div class="gridwrap"><div id="markGrid"></div></div>
+    </section>
+  </div>
+
+  <!-- ============ RESULT ============ -->
+  <div class="panel" id="tab-result">
+    <section class="blk">
+      <h2>Where everyone lands</h2>
+      <p class="hint">Green cells work for all units; the number is how many prefer that slot. Red means at least one unit is blocked. Tap any slot to see who.</p>
+      <div class="legend">
+        <span class="k"><span class="sw" style="background:var(--go-fill);border-color:var(--go)"></span> works for all</span>
+        <span class="k"><span class="sw no"></span> someone blocked</span>
+        <span class="k">★ = prefers</span>
+      </div>
+      <div class="gridwrap"><div id="resGrid"></div></div>
+      <div class="detail" id="resDetail"></div>
+    </section>
+  </div>
+
+  <section class="contacts" id="contacts">
+    <h3>Service contacts</h3>
+    <ul>
+      <li><span class="role">Electrician · Fausto</span><a href="tel:+15085576080">508-557-6080</a></li>
+      <li><span class="role">Plumber</span><a href="tel:+15083958863">508-395-8863</a></li>
+      <li><span class="role">Landscape &amp; snow</span><a href="tel:+17742793604">774-279-3604</a></li>
+      <li><span class="role">Handyman · Ulisses</span><a href="tel:+17743465715">774-346-5715</a></li>
+    </ul>
+  </section>
+
+  <footer>
+    <div class="futil">
+      <button class="btn ghost sm" id="exportBtn">Export board</button>
+      <button class="btn ghost sm" id="importBtn">Import board</button>
+      <input type="file" id="importFile" accept="application/json,.json" hidden>
+      <button class="btn warn sm" id="resetBtn">Reset to Unit 1–4</button>
+    </div>
+    <p class="fnote">Unit Time Finder · saved on this device; when live sharing is on, the board syncs for every unit on the invite link. No accounts.</p>
+  </footer>
+</div>
+
+<div class="avmodal" id="avModal" role="dialog" aria-modal="true">
+  <div class="box">
+    <h4 id="avModalTitle">Choose an avatar</h4>
+    <div class="avpick" id="avModalGrid"></div>
+    <div class="row" style="margin-top:14px;justify-content:flex-end"><button class="btn ghost" id="avModalClose">Close</button></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const AV=["🦊","🐼","🐧","🦁","🐸","🐙","🦉","🐝","🦄","🐳","🐢","🐰","🐨","🐷","🐵","🦔","🌵","🍄","🎸","🚀","🌮","🌻","🐝","🦩"];
+const LS="ttf_v2";  // bumped: discards older test boards; loads a fresh Unit 1–4 roster
+const clampDate=d=>{const x=new Date(d);x.setHours(0,0,0,0);return x;};
+const now=()=>Date.now();
+const UNIT_AV=["🦊","🐼","🐧","🦁"];
+
+let state=load()||fresh();
+let ui={tab:"mark",detailKey:null,mode:"block"};
+
+function fresh(){
+  const start=clampDate(new Date()); const t=now();
+  const participants=[1,2,3,4].map((n,i)=>({id:"u"+n,name:"Unit "+n,av:UNIT_AV[i],bl:[],pr:[],pu:t}));
+  return {v:1, job:"Plumber", start:start.toISOString().slice(0,10), days:14,
+    dayStart:8, dayEnd:20, block:2, participants, activeId:null, u:t, tomb:[]};
+}
+function load(){ try{const r=localStorage.getItem(LS);return r?JSON.parse(r):null;}catch(e){return null;} }
+function save(){ try{localStorage.setItem(LS,JSON.stringify(state));}catch(e){} }
+
+/* ---------- slots / time math ---------- */
+const slotsPerDay=()=>Math.max(1,Math.round((state.dayEnd-state.dayStart)/state.block));
+function fmtHour(h){ const m=h>=12?"PM":"AM"; let hh=h%12; if(hh===0)hh=12; return hh+" "+m; }
+function slotLabel(si){
+  const a=state.dayStart+si*state.block, b=state.dayStart+(si+1)*state.block;
+  const ma=a>=12?"PM":"AM", mb=b>=12?"PM":"AM";
+  let ha=a%12||12, hb=b%12||12;
+  return ma===mb ? `${ha}–${hb} ${mb}` : `${ha} ${ma}–${hb} ${mb}`;
+}
+function dayDate(di){ const d=clampDate(state.start); d.setDate(d.getDate()+di); return d; }
+function dayLabel(di){ const d=dayDate(di); return d.toLocaleDateString(undefined,{weekday:"short"})+" "+d.toLocaleDateString(undefined,{month:"short",day:"numeric"}); }
+function isWknd(di){ const g=dayDate(di).getDay(); return g===0||g===6; }
+function key(di,si){ return di+"_"+si; }
+function slotWhen(k){ const [di,si]=k.split("_").map(Number);
+  return dayDate(di).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})+", "+slotLabel(si); }
+function sig(){ return state.start+"|"+state.dayStart+"|"+state.dayEnd+"|"+state.block+"|"+state.days; }
+
+/* ---------- participants ---------- */
+function active(){ return state.participants.find(p=>p.id===state.activeId)||null; }
+function newId(){ return "t"+Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function nextAvatar(){ const used=new Set(state.participants.map(p=>p.av)); return AV.find(a=>!used.has(a))||AV[state.participants.length%AV.length]; }
+
+/* ---------- encode / decode ---------- */
+function b64e(o){ return btoa(unescape(encodeURIComponent(JSON.stringify(o)))); }
+function b64d(s){ return JSON.parse(decodeURIComponent(escape(atob(s)))); }
+
+/* ---------- rendering ---------- */
+function render(){ renderPeople(); renderMarkGrid(); renderResult(); renderRec(); renderHeader(); syncSetup(); save(); }
+
+function renderHeader(){
+  const d0=dayDate(0), d1=dayDate(state.days-1);
+  const wnd=d0.toLocaleDateString(undefined,{month:"short",day:"numeric"})+" – "+d1.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+  $("eyebrow").textContent=state.job+" visit · "+wnd;
+  $("markTitle").textContent = active()? `Mark ${active().av} ${active().name}'s times` : "Mark your times";
+}
+
+function renderPeople(){
+  const box=$("people"); box.innerHTML="";
+  if(!state.participants.length){ box.innerHTML='<span class="empty">No units yet. Add one to start.</span>'; }
+  state.participants.forEach(p=>{
+    const el=document.createElement("div"); el.className="chip"+(p.id===state.activeId?" active":"");
+    el.innerHTML=`<span class="av">${p.av}</span><span class="nm">${escapeHtml(p.name)}</span><button class="x" title="Remove ${escapeHtml(p.name)}" aria-label="Remove ${escapeHtml(p.name)}">×</button>`;
+    el.querySelector(".nm").onclick=()=>{ state.activeId=p.id; render(); ui.tab==="mark"||showTab("mark"); };
+    el.querySelector(".av").title="Change avatar";
+    el.querySelector(".av").onclick=e=>{ e.stopPropagation(); chooseAvatar(p.id); };
+    el.onclick=e=>{ if(e.target.classList.contains("x"))return; state.activeId=p.id; render(); };
+    el.querySelector(".x").onclick=e=>{ e.stopPropagation(); removeParticipant(p.id); };
+    box.appendChild(el);
+  });
+}
+
+function cellState(p,k){ if(p.bl&&p.bl.includes(k))return "no"; if(p.pr&&p.pr.includes(k))return "pref"; return "free"; }
+function renderMarkGrid(){
+  const host=$("markGrid"); const p=active();
+  if(!p){ host.innerHTML='<div class="empty">Pick or add a unit above to start marking.</div>'; return; }
+  host.innerHTML=gridTable((di,si)=>{
+    const k=key(di,si), st=cellState(p,k);
+    return `<button class="cell ${st}" data-k="${k}" aria-label="${slotWhen(k)}: ${st==='no'?'cannot do it':st==='pref'?'preferred':'free'}">${st==='no'?'✕':st==='pref'?'★':''}</button>`;
+  });
+  host.querySelectorAll(".cell").forEach(c=>c.onclick=()=>applyMark(c.dataset.k));
+}
+function gridTable(cellFn){
+  const sp=slotsPerDay();
+  let head='<thead><tr><th class="daycol">Day</th>';
+  for(let si=0;si<sp;si++) head+=`<th>${slotLabel(si)}</th>`;
+  head+="</tr></thead>";
+  let body="<tbody>";
+  for(let di=0;di<state.days;di++){
+    const d=dayDate(di); const wk=isWknd(di)?" wknd":"";
+    body+=`<tr><td class="day${wk}"><b>${d.toLocaleDateString(undefined,{weekday:"short"})}</b> ${d.toLocaleDateString(undefined,{month:"short",day:"numeric"})}</td>`;
+    for(let si=0;si<sp;si++) body+=`<td class="slot">${cellFn(di,si)}</td>`;
+    body+="</tr>";
+  }
+  body+="</tbody>";
+  return `<table class="grid">${head}${body}</table>`;
+}
+function applyMark(k){
+  const p=active(); if(!p)return; p.bl=p.bl||[]; p.pr=p.pr||[];
+  const inNo=p.bl.includes(k), inPr=p.pr.includes(k);
+  if(ui.mode==="prefer"){
+    if(inPr){ p.pr=p.pr.filter(x=>x!==k); }               // tap again to clear
+    else { p.bl=p.bl.filter(x=>x!==k); p.pr.push(k); }    // set prefer
+  }else{
+    if(inNo){ p.bl=p.bl.filter(x=>x!==k); }
+    else { p.pr=p.pr.filter(x=>x!==k); p.bl.push(k); }    // set can't-do-it
+  }
+  p.pu=now(); render(); scheduleSync();
+}
+function setMode(m){ ui.mode=m;
+  $("modeBlock").classList.toggle("on",m==="block"); $("modePrefer").classList.toggle("on",m==="prefer"); }
+
+/* ---------- aggregation ---------- */
+function tally(){
+  const sp=slotsPerDay(), out={};
+  for(let di=0;di<state.days;di++)for(let si=0;si<sp;si++){
+    const k=key(di,si); const blocked=[], prefers=[];
+    state.participants.forEach(p=>{ if((p.bl||[]).includes(k))blocked.push(p); else if((p.pr||[]).includes(k))prefers.push(p); });
+    out[k]={blocked,prefers,allFree:state.participants.length>0&&blocked.length===0};
+  }
+  return out;
+}
+function bestSlots(t){
+  return Object.keys(t).filter(k=>t[k].allFree)
+    .map(k=>({k,pref:t[k].prefers.length,di:+k.split("_")[0],si:+k.split("_")[1]}))
+    .sort((a,b)=> b.pref-a.pref || a.di-b.di || a.si-b.si);
+}
+
+function recHeadLabel(text){ const hd=$("recHead"); if(hd&&hd.firstElementChild) hd.firstElementChild.textContent=text; }
+function renderRec(){
+  const box=$("rec");
+  if(!state.participants.length){ recHeadLabel("Recommendation · best time"); box.innerHTML=`<div class="band none">Getting started</div><div class="body"><div class="big">Add the units, then mark times</div><div class="sub">As soon as two or more units mark their times, the best shared slot appears here.</div></div>`; return; }
+  const t=tally(), best=bestSlots(t);
+  if(!best.length){ recHeadLabel("Recommendation · no clear slot yet");
+    box.innerHTML=`<div class="band none">No clear slot yet</div><div class="body"><div class="big">Every slot has at least one conflict</div><div class="sub">Nobody is fully free across the current window. Try widening the hours above, or ask a unit to loosen a blocked slot. The Group result tab shows where the fewest units are blocked.</div></div>`;
+    return;
+  }
+  const top=best[0], n=state.participants.length;
+  recHeadLabel("Best so far · "+slotWhen(top.k));
+  const prefAv=t[top.k].prefers.map(p=>`<span class="avtok" title="${escapeHtml(p.name)} prefers this">${p.av}</span>`).join("");
+  const alts=best.slice(1,4).map(b=>`<div class="altcard"><div class="d">${slotWhen(b.k)}</div><div class="m">works for all ${n}${b.pref?` · ${b.pref} prefer`:""}</div></div>`).join("");
+  box.innerHTML=`<div class="band">Best time so far</div><div class="body">
+    <div class="big">${slotWhen(top.k)}</div>
+    <div class="sub">Works for all ${n} unit${n>1?"s":""}${top.pref?` · ${top.pref} prefer this slot`:" · no preferences marked yet"}.</div>
+    ${prefAv?`<div class="who">${prefAv}<span class="sub" style="margin:0 0 0 4px">prefer this</span></div>`:""}
+    ${alts?`<div class="alt">${alts}</div>`:""}
+  </div>`;
+}
+
+function renderResult(){
+  const host=$("resGrid");
+  if(!state.participants.length){ host.innerHTML='<div class="empty">Add units and mark times to see the group picture.</div>'; return; }
+  const t=tally(), best=bestSlots(t), bestKey=best[0]&&best[0].k;
+  host.innerHTML=gridTable((di,si)=>{
+    const k=key(di,si), c=t[k]; const cls=c.blocked.length?"blocked":(c.allFree?"allFree":"");
+    const isBest=k===bestKey?" best":"";
+    const label = c.blocked.length? `${c.blocked.length} blocked` : `all free${c.prefers.length?", "+c.prefers.length+" prefer":""}`;
+    const n = c.blocked.length? `✕${c.blocked.length}` : (c.prefers.length? c.prefers.length : "✓");
+    return `<button class="cell res ${cls}${isBest}" data-k="${k}" aria-label="${slotWhen(k)}: ${label}">${c.prefers.length&&!c.blocked.length?'<span class="stars">'+'★'.repeat(Math.min(c.prefers.length,3))+'</span>':''}<span class="n">${n}</span></button>`;
+  });
+  host.querySelectorAll(".cell.res").forEach(c=>c.onclick=()=>showDetail(c.dataset.k));
+  if(ui.detailKey) showDetail(ui.detailKey,true);
+}
+function showDetail(k,keep){
+  ui.detailKey=k; const t=tally()[k]; const box=$("resDetail"); box.classList.add("on");
+  const people=arr=>arr.map(p=>`<span class="avtok" title="${escapeHtml(p.name)}">${p.av}</span><span style="font-size:13px">${escapeHtml(p.name)}</span>`).join('&nbsp;&nbsp;&nbsp;');
+  box.innerHTML=`<div class="lab">${slotWhen(k)}</div>
+    <div style="margin-top:8px"><span class="lab">Can't do it</span><div class="avrow">${t.blocked.length?people(t.blocked):'<span style="color:var(--go);font-size:12.5px">nobody — works for all</span>'}</div></div>
+    <div><span class="lab">Prefers this</span><div class="avrow">${t.prefers.length?people(t.prefers):'<span style="color:var(--mute);font-size:12.5px">no preference marked</span>'}</div></div>`;
+  if(!keep && box.scrollIntoView) box.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+/* ---------- participant actions ---------- */
+function removeParticipant(id){
+  const p=state.participants.find(x=>x.id===id); if(!p)return;
+  if(!confirm(`Remove ${p.name} and their marks from the board?`))return;
+  state.participants=state.participants.filter(x=>x.id!==id);
+  state.tomb=(state.tomb||[]).filter(t=>t.id!==id); state.tomb.push({id,at:now()});
+  if(state.activeId===id) state.activeId=state.participants[0]?.id||null;
+  ui.detailKey=null; render(); scheduleSync(); toast(`Removed ${p.name}.`);
+}
+
+/* ---------- add form ---------- */
+let pickAv=AV[0];
+function openAdd(){
+  pickAv=nextAvatar();
+  $("newName").value="";
+  $("avpick").innerHTML=AV.map(a=>`<button class="avopt${a===pickAv?" sel":""}" data-a="${a}">${a}</button>`).join("");
+  $("avpick").querySelectorAll(".avopt").forEach(b=>b.onclick=()=>{ pickAv=b.dataset.a; $("avpick").querySelectorAll(".avopt").forEach(x=>x.classList.toggle("sel",x.dataset.a===pickAv)); });
+  $("addForm").style.display="block"; $("showAdd").style.display="none"; $("newName").focus();
+}
+function closeAdd(){ $("addForm").style.display="none"; $("showAdd").style.display="inline-block"; }
+function saveNew(){
+  const nm=$("newName").value.trim(); if(!nm){ $("newName").focus(); return; }
+  const p={id:newId(),name:nm.slice(0,24),av:pickAv,bl:[],pr:[],pu:now()};
+  state.participants.push(p); state.activeId=p.id; closeAdd(); render(); scheduleSync(); toast(`Added ${p.av} ${p.name} — tap slots to mark.`);
+}
+
+/* ---------- share / collect ---------- */
+/* ---------- choose / change a unit's avatar ---------- */
+let avTarget=null;
+function chooseAvatar(id){
+  avTarget=id; const p=state.participants.find(x=>x.id===id); if(!p)return;
+  $("avModalTitle").textContent="Choose an avatar for "+p.name;
+  $("avModalGrid").innerHTML=AV.map(a=>`<button class="avopt${a===p.av?" sel":""}" data-a="${a}">${a}</button>`).join("");
+  $("avModalGrid").querySelectorAll(".avopt").forEach(b=>b.onclick=()=>{
+    p.av=b.dataset.a; p.pu=now(); closeAvModal(); render(); scheduleSync();
+  });
+  $("avModal").classList.add("on");
+}
+function closeAvModal(){ $("avModal").classList.remove("on"); avTarget=null; }
+
+function copyLink(){
+  const base=location.origin+location.pathname;
+  if(SYNC.mode==="rest"){ copy(base+"#sync="+b64e(SYNC.cfg),"Invite link copied — units that open it join this live calendar."); return; }
+  copy(base+"#b="+b64e(state),"Invite link copied — it carries a snapshot of the current board.");
+}
+function exportBoard(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="unit-time-finder_"+state.start+".json"; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+  toast("Board exported.");
+}
+function importBoard(file){
+  const r=new FileReader();
+  r.onload=()=>{ try{ const o=JSON.parse(r.result); if(!o.participants)throw 0; state=normalize(o); state.u=now(); state.activeId=state.participants[0]?.id||null; ui.detailKey=null; render(); scheduleSync(); toast("Board imported."); }catch(e){ toast("That file couldn't be read as a board."); } };
+  r.readAsText(file);
+}
+function normalize(o){
+  return Object.assign(fresh(), o, {
+    u:o.u||now(), tomb:o.tomb||[],
+    participants:(o.participants||[]).map(p=>({id:p.id||newId(),name:String(p.name||"Unit").slice(0,24),av:p.av||"🙂",bl:p.bl||[],pr:p.pr||[],pu:p.pu||now()}))
+  });
+}
+function mergeBoards(local,remote){
+  const lu=local.u||0, ru=remote.u||0;
+  const base = ru>lu ? remote : local;                // settings winner
+  const out = Object.assign({}, base);
+  out.activeId = local.activeId;                        // active unit stays device-local
+  out.u = Math.max(lu,ru);
+  const tomb={}; [...(local.tomb||[]),...(remote.tomb||[])].forEach(t=>{ if(tomb[t.id]===undefined||t.at>tomb[t.id]) tomb[t.id]=t.at; });
+  out.tomb = Object.keys(tomb).map(id=>({id,at:tomb[id]}));
+  const byId={};
+  [...(local.participants||[]),...(remote.participants||[])].forEach(p=>{ const ex=byId[p.id]; if(!ex||(p.pu||0)>(ex.pu||0)) byId[p.id]=p; });
+  out.participants = Object.keys(byId).map(id=>byId[id]).filter(p=>!(tomb[p.id]!==undefined && tomb[p.id]>=(p.pu||0)));
+  return out;
+}
+
+/* ---------- setup ---------- */
+function fillHourSelects(){
+  const opt=(sel,from,to,val)=>{ sel.innerHTML=""; for(let h=from;h<=to;h++){const o=document.createElement("option");o.value=h;o.textContent=fmtHour(h);if(h===val)o.selected=true;sel.appendChild(o);} };
+  opt($("sDayStart"),6,20,state.dayStart);
+  opt($("sDayEnd"),8,22,state.dayEnd);
+}
+function syncSetup(){ $("sJob").value=state.job; $("sStart").value=state.start; $("sBlock").value=String(state.block); fillHourSelects(); }
+function applySetup(){
+  const job=$("sJob").value, start=$("sStart").value||state.start;
+  const ds=+$("sDayStart").value, de=+$("sDayEnd").value, bl=+$("sBlock").value;
+  if(de<=ds){ toast("End time must be after the start time."); return; }
+  const geometryChanged = ds!==state.dayStart || de!==state.dayEnd || bl!==state.block;
+  if(geometryChanged && state.participants.some(p=>(p.bl||[]).length||(p.pr||[]).length)){
+    if(!confirm("Changing the hours or slot length clears existing marks because the times shift. Continue?")) return;
+    state.participants.forEach(p=>{ p.bl=[]; p.pr=[]; });
+  }
+  state.job=job; state.start=start; state.dayStart=ds; state.dayEnd=de; state.block=bl; state.u=now();
+  ui.detailKey=null; render(); scheduleSync(); toast("Window updated.");
+}
+
+/* ---------- live sharing ---------- */
+let syncT=null;
+function scheduleSync(){ save(); if(SYNC.mode==='local')return; clearTimeout(syncT); syncT=setTimeout(()=>SYNC.push(),400); }
+const SYNC={
+  mode:"local", cfg:null, timer:null,
+  key(){ return "ttf-board-"+((this.cfg&&this.cfg.room)||"default"); },
+  async init(){
+    this.cfg=load2("ttf_sync");
+    if(typeof window!=="undefined" && window.storage && window.storage.get) this.mode="shared";
+    else if(this.cfg&&this.cfg.url&&this.cfg.room) this.mode="rest";
+    else this.mode="local";
+    if(this.mode!=="local"){ await this.pullMerge(true); this.startPoll(); }
+    updateSyncUI();
+  },
+  async pull(){
+    try{
+      if(this.mode==="shared"){ const r=await window.storage.get(this.key(),true); return r&&r.value?JSON.parse(r.value):null; }
+      if(this.mode==="rest"){ const r=await fetch(this.cfg.url+"?room="+encodeURIComponent(this.cfg.room),{cache:"no-store"}); if(!r.ok)return null; const j=await r.json(); return j&&j.board?j.board:(j&&j.participants?j:null); }
+    }catch(e){}
+    return null;
+  },
+  async push(){
+    try{
+      if(this.mode==="shared"){ await window.storage.set(this.key(),JSON.stringify(state),true); }
+      else if(this.mode==="rest"){ await fetch(this.cfg.url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({room:this.cfg.room,board:state})}); }
+    }catch(e){}
+  },
+  async pullMerge(seed){
+    const remote=await this.pull();
+    if(remote&&remote.participants){ const before=JSON.stringify(state.participants)+state.u; state=mergeBoards(state,normalize(remote)); if(JSON.stringify(state.participants)+state.u!==before) render(); }
+    else if(seed){ await this.push(); }   // seed the shared board with our preloaded units
+  },
+  startPoll(){ clearInterval(this.timer); this.timer=setInterval(()=>this.pullMerge(false),4000); }
+};
+function load2(k){ try{const r=localStorage.getItem(k);return r?JSON.parse(r):null;}catch(e){return null;} }
+function setSync(url,room){
+  url=(url||"").trim().replace(/\/$/,""); room=(room||"").trim().slice(0,60);
+  if(!url||!room){ toast("Enter both the sync URL and a room code."); return; }
+  try{localStorage.setItem("ttf_sync",JSON.stringify({url,room}));}catch(e){}
+  SYNC.init().then(()=>toast("Live sharing on — everyone on this link now shares one calendar."));
+}
+function stopSync(){ localStorage.removeItem("ttf_sync"); clearInterval(SYNC.timer); SYNC.cfg=null; SYNC.mode = (window.storage&&window.storage.get)?"shared":"local"; updateSyncUI(); toast("Live sharing turned off for this device."); }
+function updateSyncUI(){
+  const el=$("syncStatus"); if(!el)return;
+  const on = SYNC.mode==="shared" || SYNC.mode==="rest";
+  el.innerHTML = SYNC.mode==="shared"
+      ? '<span class="dot on"></span> Live — shared calendar (Claude storage). Everyone viewing this sees the same board.'
+    : SYNC.mode==="rest"
+      ? `<span class="dot on"></span> Live — room <b>${escapeHtml(SYNC.cfg.room)}</b>. Everyone on the invite link shares this calendar.`
+      : '<span class="dot off"></span> This device only. Set up live sharing below so all units see one calendar.';
+  $("syncSetup").style.display = (SYNC.mode==="rest")?"none":"";
+  $("syncOff").style.display = (SYNC.mode==="rest")?"":"none";
+  if(SYNC.cfg){ $("syncUrl").value=SYNC.cfg.url||""; $("syncRoom").value=SYNC.cfg.room||""; }
+}
+
+
+function showTab(t){ ui.tab=t;
+  ["mark","result"].forEach(x=>{ $("tab-"+x).classList.toggle("on",x===t); $("tab-"+x+"-btn").classList.toggle("on",x===t); });
+}
+function toast(msg){ const old=document.querySelector(".toast"); if(old)old.remove();
+  const t=document.createElement("div"); t.className="toast"; t.setAttribute("role","status"); t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3600); }
+function copy(text,msg){ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(()=>toast(msg),()=>fallbackCopy(text,msg)); } else fallbackCopy(text,msg); }
+function fallbackCopy(text,msg){ const ta=document.createElement("textarea"); ta.value=text; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");toast(msg);}catch(e){toast("Copy failed — select and copy manually.");} ta.remove(); }
+function escapeHtml(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+/* ---------- theme (dark / white) ---------- */
+function currentTheme(){ return document.documentElement.getAttribute("data-theme")==="dark"?"dark":"light"; }
+function setTheme(t){
+  if(t==="dark") document.documentElement.setAttribute("data-theme","dark");
+  else document.documentElement.removeAttribute("data-theme");
+  try{localStorage.setItem("ttf_theme",t);}catch(e){}
+  const b=$("themeBtn"); if(b) b.textContent = t==="dark" ? "☀ White" : "☾ Dark";
+}
+$("themeBtn").onclick=()=>setTheme(currentTheme()==="dark"?"light":"dark");
+setTheme(currentTheme()); // sync button label with pre-applied theme
+
+/* ---------- collapsible top frames (closed by default) ---------- */
+function loadPanels(){ try{const r=localStorage.getItem("ttf_panels");return r?JSON.parse(r):null;}catch(e){return null;} }
+const PANELS = Object.assign({coord:false, rec:false}, loadPanels()||{}); // false = collapsed
+function applyPanel(name){
+  const card=$(name+"Card"), head=$(name+"Head"); if(!card||!head)return;
+  const open=!!PANELS[name];
+  card.classList.toggle("closed",!open);
+  head.setAttribute("aria-expanded",open?"true":"false");
+}
+function togglePanel(name){
+  PANELS[name]=!PANELS[name];
+  try{localStorage.setItem("ttf_panels",JSON.stringify(PANELS));}catch(e){}
+  applyPanel(name);
+}
+$("coordHead").onclick=()=>togglePanel("coord");
+$("recHead").onclick=()=>togglePanel("rec");
+applyPanel("coord"); applyPanel("rec");
+
+/* ---------- service contacts button ---------- */
+$("contactsBtn").onclick=()=>{ const c=$("contacts"); if(c&&c.scrollIntoView) c.scrollIntoView({behavior:"smooth",block:"start"}); };
+
+/* ---------- wiring ---------- */
+["mark","result"].forEach(t=>$("tab-"+t+"-btn").addEventListener("click",()=>showTab(t)));
+$("showAdd").onclick=openAdd; $("cancelNew").onclick=closeAdd; $("saveNew").onclick=saveNew;
+$("newName").addEventListener("keydown",e=>{ if(e.key==="Enter")saveNew(); });
+$("copyLink").onclick=copyLink;
+$("avModalClose").onclick=closeAvModal;
+$("avModal").addEventListener("click",e=>{ if(e.target===$("avModal")) closeAvModal(); });
+$("exportBtn").onclick=exportBoard; $("importBtn").onclick=()=>$("importFile").click();
+$("importFile").onchange=e=>{ if(e.target.files[0])importBoard(e.target.files[0]); e.target.value=""; };
+$("resetBtn").onclick=()=>{ if(confirm("Reset the board back to Unit 1–4 and remove all marks?")){ state=fresh(); ui.detailKey=null; render(); scheduleSync(); toast("Board reset to Unit 1–4."); } };
+$("applySetup").onclick=applySetup;
+$("modeBlock").onclick=()=>setMode("block");
+$("modePrefer").onclick=()=>setMode("prefer");
+$("saveSync") && ($("saveSync").onclick=()=>setSync($("syncUrl").value,$("syncRoom").value));
+$("syncOffBtn") && ($("syncOffBtn").onclick=stopSync);
+
+/* ---------- init: invite link + live sharing ---------- */
+(function initFromHash(){
+  const sm=location.hash.match(/[#&]sync=([^&]+)/);
+  if(sm){ try{ const cfg=b64d(sm[1]); if(cfg&&cfg.url&&cfg.room){ localStorage.setItem("ttf_sync",JSON.stringify(cfg)); } }catch(e){} history.replaceState(null,"",location.pathname); }
+  const m=location.hash.match(/[#&]b=([^&]+)/);
+  if(m){ try{ const o=b64d(m[1]); if(o&&o.participants){ if(confirm("Open the shared board from this invite link? It replaces what's on this device.")){ state=normalize(o); } } }catch(e){}
+    history.replaceState(null,"",location.pathname); }
+})();
+if(!state.activeId && state.participants[0]) state.activeId=state.participants[0].id;
+render();
+SYNC.init();
+</script>
+</body>
+</html>
