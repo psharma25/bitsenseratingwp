@@ -1,1 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chalkline — Teaching Scheduler</title>
+<style>
+  :root{
+    --ink:#1b2a4a; --ink-soft:#41527a;
+    --paper:#faf8f2; --paper-line:#e7e1d2;
+    --pencil:#f5b82e; --teal:#2e7d74; --plum:#7a4a8c;
+    --pref:#dcefd2; --pref-b:#4e8a2e;          /* preferred = green */
+    --unav:#fce4c4; --unav-b:#e08a2e;          /* unavailable = orange */
+    --coral:#d95d4e;
+    --white:#fff; --radius:10px; --shadow:0 2px 10px rgba(27,42,74,.10);
+    --cellh:26px;
+    font-size:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:"Avenir Next","Segoe UI",system-ui,-apple-system,sans-serif;
+    background:var(--paper);color:var(--ink);min-height:100vh;
+    background-image:repeating-linear-gradient(to bottom, transparent 0 31px, rgba(27,42,74,.045) 31px 32px);
+  }
+  h1,h2,h3{font-family:"Rockwell","Roboto Slab","Georgia",serif;letter-spacing:.2px}
 
+  header{background:var(--ink);color:var(--paper);padding:14px 22px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;border-bottom:4px solid var(--pencil)}
+  header .logo{display:flex;align-items:baseline;gap:10px}
+  header h1{font-size:1.35rem;font-weight:700}
+  header .tag{font-size:.78rem;color:#c8d0e4;letter-spacing:.06em;text-transform:uppercase}
+  .rolebar{margin-left:auto;display:flex;gap:6px}
+  .rolebar button{background:transparent;border:1.5px solid #4a5b83;color:#d8deee;padding:7px 16px;border-radius:999px;font:inherit;font-size:.86rem;cursor:pointer;transition:all .15s ease}
+  .rolebar button:hover{border-color:var(--pencil);color:var(--pencil)}
+  .rolebar button.active{background:var(--pencil);border-color:var(--pencil);color:var(--ink);font-weight:600}
+  .rolebar button:focus-visible{outline:2px solid var(--pencil);outline-offset:2px}
+
+  main{max-width:1240px;margin:0 auto;padding:26px 20px 80px}
+
+  .weeknav{display:flex;align-items:flex-end;gap:4px;margin:18px 0 0;flex-wrap:wrap}
+  .weeknav .shift{background:var(--white);border:1px solid var(--paper-line);border-radius:8px;padding:8px 12px;cursor:pointer;font:inherit;color:var(--ink-soft);margin-bottom:6px}
+  .weeknav .shift:hover{border-color:var(--ink-soft)}
+  .weektab{background:#efeadb;border:1px solid var(--paper-line);border-bottom:none;border-radius:10px 10px 0 0;padding:9px 18px 12px;cursor:pointer;font:inherit;color:var(--ink-soft);font-size:.9rem;position:relative;top:6px;transition:all .12s ease}
+  .weektab.active{background:var(--white);color:var(--ink);font-weight:600;top:0;padding-bottom:18px;border-top:3px solid var(--pencil);box-shadow:0 -3px 8px rgba(27,42,74,.06)}
+  .weektab small{display:block;font-weight:400;font-size:.72rem;color:var(--ink-soft)}
+  .sheet{background:var(--white);border:1px solid var(--paper-line);border-radius:0 var(--radius) var(--radius) var(--radius);box-shadow:var(--shadow);padding:22px;position:relative;z-index:1}
+
+  .panel{background:var(--white);border:1px solid var(--paper-line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:22px}
+  .panel h2{font-size:1.05rem;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .panel h2::before{content:"";width:10px;height:10px;background:var(--pencil);border-radius:2px;display:inline-block}
+  .formrow{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  label{display:flex;flex-direction:column;gap:5px;font-size:.8rem;color:var(--ink-soft);font-weight:600}
+  input,select{font:inherit;padding:9px 11px;border:1px solid var(--paper-line);border-radius:8px;background:var(--paper);color:var(--ink);min-width:140px}
+  input:focus,select:focus{outline:2px solid var(--pencil);outline-offset:1px;border-color:var(--pencil)}
+  .btn{font:inherit;font-weight:600;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;background:var(--ink);color:var(--white);transition:transform .1s ease,opacity .15s}
+  .btn:hover{opacity:.92}.btn:active{transform:scale(.98)}
+  .btn:focus-visible{outline:2px solid var(--pencil);outline-offset:2px}
+  .btn.yellow{background:var(--pencil);color:var(--ink)}
+  .btn.ghost{background:transparent;border:1.5px solid var(--paper-line);color:var(--ink-soft)}
+  .btn.ghost:hover{border-color:var(--ink-soft)}
+  .btn.danger{background:transparent;border:1.5px solid var(--coral);color:var(--coral)}
+  .btn.danger:hover{background:var(--coral);color:var(--white)}
+  .btn.sm{padding:5px 10px;font-size:.78rem}
+
+  .peoplegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+  .person{display:flex;align-items:center;gap:12px;border:1px solid var(--paper-line);border-radius:var(--radius);padding:12px;background:var(--paper)}
+  .person .meta{flex:1;min-width:0}
+  .person .meta b{display:block;font-size:.95rem}
+  .person .meta span{font-size:.78rem;color:var(--ink-soft)}
+  .avatar{flex:none;border-radius:50%;box-shadow:0 1px 4px rgba(27,42,74,.25)}
+
+  .pickerrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+  .pickerrow .who{display:flex;align-items:center;gap:10px}
+
+  .subtabs{display:flex;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+  .subtabs button{font:inherit;font-size:.85rem;padding:8px 16px;border-radius:999px;cursor:pointer;border:1.5px solid var(--paper-line);background:var(--white);color:var(--ink-soft)}
+  .subtabs button.active{background:var(--ink);border-color:var(--ink);color:var(--paper);font-weight:600}
+
+  /* mode pills inside the calendar */
+  .modebar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;font-size:.8rem;color:var(--ink-soft)}
+  .modebar .pill{font:inherit;font-size:.8rem;padding:6px 14px;border-radius:999px;cursor:pointer;border:1.5px solid var(--paper-line);background:var(--white);color:var(--ink-soft)}
+  .modebar .pill.active{background:var(--pencil);border-color:var(--pencil);color:var(--ink);font-weight:600}
+
+  /* ============ timeline calendar (morning → evening) ============ */
+  .cal{overflow-x:auto}
+  .calgrid{display:grid;grid-template-columns:56px repeat(7,minmax(96px,1fr));gap:0;min-width:760px;border:1px solid var(--paper-line);border-radius:8px;overflow:hidden;background:var(--white)}
+  .cal .dh{background:var(--paper);border-bottom:2px solid var(--paper-line);border-left:1px solid var(--paper-line);padding:6px 4px;text-align:center;font-size:.7rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft)}
+  .cal .dh .num{display:block;font-family:"Rockwell","Roboto Slab",Georgia,serif;font-size:1rem;color:var(--ink);font-weight:700}
+  .cal .dh.today{background:#fdf3d7}
+  .cal .corner{background:var(--paper);border-bottom:2px solid var(--paper-line)}
+  .timecol{position:relative;background:var(--paper)}
+  .timecol .tl{position:absolute;right:6px;transform:translateY(-55%);font-size:.66rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+  .daybody{position:relative;border-left:1px solid var(--paper-line)}
+  .daybody.past{background:repeating-linear-gradient(45deg,#f5f2ea 0 6px,#efece2 6px 12px)}
+  .cellbg{position:absolute;left:0;right:0;border-top:1px solid #f2eee3;cursor:default}
+  .cellbg.hour{border-top:1px solid var(--paper-line)}
+  .cellbg.markable{cursor:pointer}
+  .cellbg.markable:hover{background:rgba(27,42,74,.05)}
+  .cellbg:focus-visible{outline:2px solid var(--pencil);outline-offset:-2px}
+  .cellbg.pref{background:var(--pref);box-shadow:inset 3px 0 0 var(--pref-b)}
+  .cellbg.unav{background:var(--unav);box-shadow:inset 3px 0 0 var(--unav-b)}
+  /* weekly recurring marks = striped; vacation = dense orange weave */
+  .cellbg.wk.pref{background:repeating-linear-gradient(45deg,var(--pref) 0 7px,#eef7e8 7px 14px)}
+  .cellbg.wk.unav{background:repeating-linear-gradient(45deg,var(--unav) 0 7px,#fdf4e4 7px 14px)}
+  .cellbg.vac{background:repeating-linear-gradient(-45deg,var(--unav) 0 4px,#f8d9a8 4px 8px);box-shadow:inset 3px 0 0 var(--unav-b)}
+  .vacflag{font-size:.72rem;margin-left:3px}
+  .vacrow{display:flex;align-items:center;gap:10px;padding:8px 4px;border-bottom:1px dashed var(--paper-line);font-size:.85rem;flex-wrap:wrap}
+  .vacrow:last-child{border-bottom:none}
+  .vacrow .range{font-weight:600}
+  /* combined-view mini dots inside a cell */
+  .dots{position:absolute;left:4px;top:2px;display:flex;gap:2px;flex-wrap:wrap;max-width:calc(100% - 8px);pointer-events:none}
+  .dot{width:8px;height:8px;border-radius:50%}
+  .dot.sq{border-radius:2px}
+  .dot.pref{background:var(--pref-b)} .dot.unav{background:var(--unav-b)}
+  .dot.more{width:auto;height:auto;font-size:.58rem;color:var(--ink-soft);line-height:8px}
+
+  .slotblk{
+    position:absolute;border-radius:6px;padding:2px 5px;font-size:.64rem;line-height:1.25;
+    color:var(--ink);cursor:pointer;overflow:hidden;border:1px solid rgba(27,42,74,.25);
+    box-shadow:0 1px 3px rgba(27,42,74,.18);transition:transform .1s ease;z-index:2;
+  }
+  .slotblk:hover{transform:translateY(-1px);z-index:3}
+  .slotblk:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+  .slotblk b{display:block;font-size:.66rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .slotblk .sub{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .slotblk .cap{opacity:.85;white-space:nowrap}
+  .slotblk.mine{outline:2.5px solid var(--plum)}
+  .slotblk.full{opacity:.75;background-image:repeating-linear-gradient(45deg,transparent 0 5px,rgba(255,255,255,.45) 5px 8px)}
+
+  .legend{display:flex;gap:16px;font-size:.76rem;color:var(--ink-soft);margin:12px 2px 0;flex-wrap:wrap;align-items:center}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:1px solid var(--paper-line)}
+  .legend .tsw{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border:1px solid var(--paper-line);border-radius:999px;background:var(--paper)}
+  .legend .tsw i{border:none}
+
+  .empty{text-align:center;color:var(--ink-soft);padding:34px 10px;font-size:.92rem;border:1.5px dashed var(--paper-line);border-radius:var(--radius);background:var(--white)}
+
+  .overlay{position:fixed;inset:0;background:rgba(27,42,74,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .overlay.open{display:flex}
+  .modal{background:var(--white);border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.3);width:min(440px,100%);padding:24px;border-top:5px solid var(--pencil)}
+  .modal h3{margin-bottom:16px;font-size:1.1rem}
+  .modal .formcol{display:flex;flex-direction:column;gap:12px}
+  .modal .actions{display:flex;justify-content:space-between;gap:10px;margin-top:20px}
+  .modal .actions .right{display:flex;gap:8px;margin-left:auto}
+  .modal .warn{color:var(--coral);font-size:.8rem;min-height:1.1em;margin-top:8px}
+  .modal .note{font-size:.8rem;color:var(--ink-soft)}
+  .modal .note.pref{color:var(--pref-b)} .modal .note.unav{color:var(--unav-b)}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:11px 20px;border-radius:999px;font-size:.86rem;opacity:0;pointer-events:none;transition:all .25s ease;z-index:60;border:1px solid var(--pencil)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .statrow{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+  .stat{background:var(--white);border:1px solid var(--paper-line);border-radius:var(--radius);padding:14px 20px;box-shadow:var(--shadow);min-width:140px}
+  .stat b{font-family:"Rockwell","Roboto Slab",Georgia,serif;font-size:1.6rem;display:block}
+  .stat span{font-size:.75rem;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase}
+
+  .mybookings{margin-top:20px}
+  .booking-line{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px dashed var(--paper-line);font-size:.86rem;flex-wrap:wrap}
+  .booking-line:last-child{border-bottom:none}
+
+  @media (max-width:540px){ header{padding:12px 14px} .rolebar{margin-left:0;width:100%} }
+  @media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><h1>Chalkline</h1><span class="tag">4-week planner · 8am–10pm · 30-min grid</span></div>
+  <nav class="rolebar" aria-label="Role">
+    <button data-role="admin" class="active">Admin</button>
+    <button data-role="teacher">Teacher</button>
+    <button data-role="student">Student</button>
+  </nav>
+</header>
+
+<main id="app"></main>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true"><div class="modal" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* =========================================================
+   Chalkline v3 — single-file teaching scheduler
+   · Visual morning→evening timeline (30-min rows, 8am–10pm)
+   · Mark preferred (green) / unavailable (orange) right on
+     the calendar — teachers and students alike
+   · Combined schedule (all teachers + all students) for
+     admin and teachers · Subjects shown on every slot
+   · 4-week rolling window · localStorage · no dependencies
+   ========================================================= */
+
+const LS_KEY="chalkline_v3";
+const uid=()=>Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3);
+
+/* ---------- time model ---------- */
+const DAY_START=8*60, DAY_END=22*60, STEP=30, ROWS=(DAY_END-DAY_START)/STEP; // 28 rows
+const CELL_H=26;
+const TIMES=[]; for(let m=DAY_START;m<DAY_END;m+=STEP) TIMES.push(mm2hm(m));
+const END_TIMES=TIMES.slice(1).concat([mm2hm(DAY_END)]);
+function mm2hm(m){ return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0"); }
+function hm2mm(hm){ const [h,m]=hm.split(":").map(Number); return h*60+m; }
+function t12(hm){ let [h,m]=hm.split(":").map(Number); const ap=h>=12?"pm":"am"; h=h%12||12; return h+(m?":"+String(m).padStart(2,"0"):"")+ap; }
+function rowOf(hm){ return (hm2mm(hm)-DAY_START)/STEP; }
+
+let state=load()||{teachers:[],students:[],slots:[],bookings:[],marks:[]};
+/* marks: {id, who:'t'|'s', personId, date, time, kind:'pref'|'unav'} — one per 30-min cell */
+
+let ui={role:"admin",weekOffset:0,weekIndex:0,teacherId:null,studentId:null,
+        teacherTab:"mine",adminTab:"people",teacherMode:"slots",studentMode:"book",repeatWeekly:false,
+        filterTeacher:"",filterSubject:""};
+
+function save(){ localStorage.setItem(LS_KEY,JSON.stringify(state)); }
+function load(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)); }catch(e){ return null; } }
+
+/* ---------- dates ---------- */
+function monday(d){ const x=new Date(d); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); x.setHours(0,0,0,0); return x; }
+function addDays(d,n){ const x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function iso(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function niceDate(d){ return d.toLocaleDateString(undefined,{month:"short",day:"numeric"}); }
+function niceFull(s){ const [y,m,dd]=s.split("-").map(Number); return new Date(y,m-1,dd).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"}); }
+function blockStart(){ return addDays(monday(new Date()),ui.weekOffset*28); }
+function weekStart(i){ return addDays(blockStart(),i*7); }
+const DAY_ABBR=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+/* ---------- avatars & teacher colors ---------- */
+function hashStr(s){ let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))>>>0; return h; }
+const AV_PALETTES=[["#2e7d74","#d3ece7"],["#7a4a8c","#e9dcf1"],["#b5541c","#f8e2d2"],["#1b5e91","#d8e9f6"],["#8c2f4a","#f6dde4"],["#5c6e1e","#e8f0cf"],["#3d3a8c","#e0dff7"],["#996d0c","#f7ecce"]];
+function palOf(name){ return AV_PALETTES[hashStr(name||"?")%AV_PALETTES.length]; }
+function avatarSVG(name,size=44){
+  const h=hashStr(name||"?"); const [bg]=palOf(name); const fg=AV_PALETTES[h%AV_PALETTES.length][1];
+  const initials=(name||"?").trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+  const shape=h%3; let deco="";
+  if(shape===0) deco=`<circle cx="${size*0.78}" cy="${size*0.2}" r="${size*0.13}" fill="${fg}" opacity="0.9"/>`;
+  if(shape===1) deco=`<rect x="${size*0.66}" y="${size*0.1}" width="${size*0.2}" height="${size*0.2}" rx="3" fill="${fg}" opacity="0.9" transform="rotate(15 ${size*0.76} ${size*0.2})"/>`;
+  if(shape===2) deco=`<polygon points="${size*0.78},${size*0.08} ${size*0.9},${size*0.28} ${size*0.66},${size*0.28}" fill="${fg}" opacity="0.9"/>`;
+  return `<svg class="avatar" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${esc(name)}">
+    <circle cx="${size/2}" cy="${size/2}" r="${size/2}" fill="${bg}"/>${deco}
+    <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="Rockwell,Georgia,serif" font-size="${size*0.4}" fill="#fff" font-weight="bold">${initials}</text></svg>`;
+}
+function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+/* ---------- lookups ---------- */
+const teacherById=id=>state.teachers.find(t=>t.id===id);
+const studentById=id=>state.students.find(s=>s.id===id);
+const slotById=id=>state.slots.find(s=>s.id===id);
+const bookingsFor=slotId=>state.bookings.filter(b=>b.slotId===slotId);
+function subjectsOf(t){ return (t.subjects||"").split(",").map(x=>x.trim()).filter(Boolean); }
+function markAt(who,personId,date,time){ return state.marks.find(m=>m.who===who&&m.personId===personId&&m.date===date&&m.time===time); }
+function personOf(who,id){ return who==="t"?teacherById(id):studentById(id); }
+function dowOf(date){ const [y,m,dd]=date.split("-").map(Number); return (new Date(y,m-1,dd).getDay()+6)%7; }
+function vacationOf(who,personId,date){
+  const p=personOf(who,personId); if(!p) return null;
+  return (p.vacations||[]).find(v=>v.from<=date&&date<=v.to)||null;
+}
+function weeklyAt(who,personId,dow,time){
+  const p=personOf(who,personId); if(!p) return null;
+  return (p.weekly||[]).find(w=>w.dow===dow&&w.time===time)||null;
+}
+/* Effective mark for a person at date+time.
+   Priority: vacation (whole-day unavailable) > date-specific mark > weekly recurring mark. */
+function effMark(who,personId,date,time){
+  const v=vacationOf(who,personId,date);
+  if(v) return {kind:"unav",src:"vac",label:v.label||"Vacation"};
+  const mk=markAt(who,personId,date,time);
+  if(mk) return {kind:mk.kind,src:"date"};
+  const wk=weeklyAt(who,personId,dowOf(date),time);
+  if(wk) return {kind:wk.kind,src:"week"};
+  return null;
+}
+function marksInRange(who,personId,date,start,end,kind){
+  const out=[]; for(let m=hm2mm(start);m<hm2mm(end);m+=STEP){
+    const e=effMark(who,personId,date,mm2hm(m)); if(e&&e.kind===kind) out.push(mm2hm(m));
+  } return out;
+}
+
+/* ---------- toast & modal ---------- */
+let toastTimer;
+function toast(msg){ const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2400); }
+const overlay=document.getElementById("overlay"),modalBox=document.getElementById("modalBox");
+function openModal(html){ modalBox.innerHTML=html; overlay.classList.add("open"); const f=modalBox.querySelector("input,select"); if(f) f.focus(); }
+function closeModal(){ overlay.classList.remove("open"); modalBox.innerHTML=""; }
+overlay.addEventListener("click",e=>{ if(e.target===overlay) closeModal(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeModal(); });
+
+/* =========================================================
+   TIMELINE CALENDAR  (the visual morning→evening grid)
+   opts:
+     slots: array of slots to draw
+     marksPerson: {who,personId} → draw + edit this person's marks
+     markable: cells clickable to cycle pref/unav
+     cellAdd: clicking an empty cell opens "add teaching time" (teacher)
+     combined: overlay everyone's marks as dots
+     viewer:'teacher'|'student'|'admin', studentId
+   ========================================================= */
+function calendarHTML(opts){
+  const ws=weekStart(ui.weekIndex), todayIso=iso(new Date());
+  // day headers
+  let html=`<div class="cal"><div class="calgrid" style="grid-template-rows:auto ${ROWS*CELL_H}px">`;
+  html+=`<div class="corner"></div>`;
+  for(let d=0;d<7;d++){
+    const day=addDays(ws,d), dayIso=iso(day);
+    let vacBadge="";
+    if(opts.marksPerson){
+      const v=vacationOf(opts.marksPerson.who,opts.marksPerson.personId,dayIso);
+      if(v) vacBadge=`<span class="vacflag" title="${esc(v.label||"Vacation")}">🌴</span>`;
+    } else if(opts.combined){
+      const vs=[];
+      for(const t of state.teachers){ const v=vacationOf("t",t.id,dayIso); if(v) vs.push(t.name+" (T)"+(v.label?" — "+v.label:"")); }
+      for(const s of state.students){ const v=vacationOf("s",s.id,dayIso); if(v) vs.push(s.name+" (S)"+(v.label?" — "+v.label:"")); }
+      if(vs.length) vacBadge=`<span class="vacflag" title="On vacation: ${esc(vs.join(", "))}">🌴${vs.length>1?vs.length:""}</span>`;
+    }
+    html+=`<div class="dh ${dayIso===todayIso?"today":""}">${DAY_ABBR[d]}<span class="num">${day.getDate()}${vacBadge}</span></div>`;
+  }
+  // time labels column
+  html+=`<div class="timecol">`;
+  for(let r=0;r<=ROWS;r+=2){ // hourly labels
+    html+=`<div class="tl" style="top:${r*CELL_H}px">${t12(mm2hm(DAY_START+r*STEP))}</div>`;
+  }
+  html+=`</div>`;
+  // combined marks index — effective marks (date-specific + weekly recurring + vacations)
+  let agg=null;
+  if(opts.combined){
+    agg={};
+    const people=[...state.teachers.map(p=>({who:"t",p})),...state.students.map(p=>({who:"s",p}))];
+    for(let d=0;d<7;d++){
+      const dayIso=iso(addDays(ws,d));
+      for(let r=0;r<ROWS;r++){
+        const tm=mm2hm(DAY_START+r*STEP);
+        for(const {who,p} of people){
+          const e=effMark(who,p.id,dayIso,tm);
+          if(!e) continue;
+          const k=dayIso+"|"+tm;
+          (agg[k]=agg[k]||{pref:[],unav:[]})[e.kind].push({name:p.name+(e.src==="vac"?" 🌴":e.src==="week"?" ↻":""),who});
+        }
+      }
+    }
+  }
+  // day bodies
+  for(let d=0;d<7;d++){
+    const day=addDays(ws,d), dayIso=iso(day), past=dayIso<todayIso;
+    html+=`<div class="daybody ${past?"past":""}">`;
+    // background 30-min cells
+    for(let r=0;r<ROWS;r++){
+      const tm=mm2hm(DAY_START+r*STEP);
+      let cls="cellbg"+(tm.endsWith(":00")?" hour":""), extra="", aria=`${DAY_ABBR[d]} ${t12(tm)}`;
+      if(opts.marksPerson){
+        const e=effMark(opts.marksPerson.who,opts.marksPerson.personId,dayIso,tm);
+        if(e){
+          cls+=" "+e.kind+(e.src==="week"?" wk":"")+(e.src==="vac"?" vac":"");
+          aria+=e.kind==="pref"?" — preferred":" — unavailable";
+          if(e.src==="week") aria+=" (repeats weekly)";
+          if(e.src==="vac") aria+=" ("+(e.label||"Vacation")+")";
+        }
+      }
+      if(agg){
+        const a=agg[dayIso+"|"+tm];
+        if(a){
+          const mk=(list,kind)=>list.slice(0,3).map(p=>`<span class="dot ${kind} ${p.who==="t"?"sq":""}"></span>`).join("")+(list.length>3?`<span class="dot more">+${list.length-3}</span>`:"");
+          extra=`<span class="dots">${mk(a.pref,"pref")}${mk(a.unav,"unav")}</span>`;
+          const names=k=>a[k].map(p=>p.name+(p.who==="t"?" (T)":" (S)")).join(", ");
+          aria+=(a.pref.length?` — preferred: ${names("pref")}`:"")+(a.unav.length?` — unavailable: ${names("unav")}`:"");
+        }
+      }
+      const clickable=(opts.markable||opts.cellAdd)&&!past;
+      html+=`<div class="${cls} ${clickable?"markable":""}" style="top:${r*CELL_H}px;height:${CELL_H}px"
+        ${clickable?`tabindex="0" role="button" data-cell="${dayIso}|${tm}"`:""} title="${esc(aria)}" aria-label="${esc(aria)}">${extra}</div>`;
+    }
+    // slot blocks with lane layout
+    const daySlots=opts.slots.filter(s=>s.date===dayIso).sort((a,b)=>a.start.localeCompare(b.start)||a.end.localeCompare(b.end));
+    const lanes=[]; // lane -> last end
+    daySlots.forEach(s=>{ let L=lanes.findIndex(end=>end<=s.start); if(L<0){L=lanes.length;lanes.push(s.end);} else lanes[L]=s.end; s._lane=L; });
+    const nl=Math.max(1,lanes.length);
+    daySlots.forEach(s=>{
+      const t=teacherById(s.teacherId), [bg]=palOf(t?t.name:"?");
+      const bks=bookingsFor(s.id), full=bks.length>=s.capacity;
+      const mine=opts.studentId&&bks.some(b=>b.studentId===opts.studentId);
+      const top=rowOf(s.start)*CELL_H, hgt=(hm2mm(s.end)-hm2mm(s.start))/STEP*CELL_H-3;
+      const w=100/nl, left=s._lane*w;
+      let flag="";
+      if(opts.viewer==="student"&&opts.studentId){
+        if(marksInRange("s",opts.studentId,s.date,s.start,s.end,"unav").length) flag=" ⚠";
+        else if(marksInRange("s",opts.studentId,s.date,s.start,s.end,"pref").length) flag=" ★";
+      }
+      const tName=t?t.name:"(removed)";
+      const label=`${t12(s.start)}–${t12(s.end)} ${s.subject||""} with ${tName}, ${bks.length} of ${s.capacity} booked${full?" (full)":""}`;
+      html+=`<div class="slotblk ${full?"full":""} ${mine?"mine":""}" data-slot="${s.id}" tabindex="0" role="button"
+        style="top:${top+1}px;height:${hgt}px;left:calc(${left}% + 2px);width:calc(${w}% - 5px);background:${bg}22;border-left:4px solid ${bg}"
+        title="${esc(label)}" aria-label="${esc(label)}">
+        <b>${t12(s.start)}${flag}</b>
+        <span class="sub">${esc(s.subject||"")}</span>
+        ${opts.viewer!=="teacher"?`<span class="cap">${esc(tName.split(" ")[0])}</span> `:""}
+        <span class="cap">${bks.length}/${s.capacity}${mine?" · you":""}</span>
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  html+=`</div></div>`;
+  return html;
+}
+
+function wireCalendar(opts){
+  if(opts.marksPerson&&opts.markable){
+    app.querySelectorAll("[data-cell]").forEach(c=>{
+      const act=()=>{
+        const [date,time]=c.dataset.cell.split("|");
+        const {who,personId}=opts.marksPerson;
+        if(vacationOf(who,personId,date)){ toast("That day is blocked by a vacation — edit it in Vacations below."); return; }
+        if(ui.repeatWeekly){
+          const p=personOf(who,personId); p.weekly=p.weekly||[];
+          const dow=dowOf(date);
+          const wk=p.weekly.find(w=>w.dow===dow&&w.time===time);
+          if(!wk) p.weekly.push({id:uid(),dow,time,kind:"pref"});
+          else if(wk.kind==="pref") wk.kind="unav";
+          else p.weekly=p.weekly.filter(w=>w!==wk);
+        } else {
+          const mk=markAt(who,personId,date,time);
+          if(!mk) state.marks.push({id:uid(),who,personId,date,time,kind:"pref"});
+          else if(mk.kind==="pref") mk.kind="unav";
+          else state.marks=state.marks.filter(m=>m.id!==mk.id);
+        }
+        save(); render();
+      };
+      c.onclick=act;
+      c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); act(); } };
+    });
+  } else if(opts.cellAdd){
+    app.querySelectorAll("[data-cell]").forEach(c=>{
+      const act=()=>{
+        const [date,time]=c.dataset.cell.split("|");
+        const end=mm2hm(Math.min(hm2mm(time)+60,DAY_END));
+        slotModal({date,teacherId:opts.cellAdd,start:time,end});
+      };
+      c.onclick=act;
+      c.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); act(); } };
+    });
+  }
+  app.querySelectorAll("[data-slot]").forEach(el=>{
+    const open=()=>{
+      const s=slotById(el.dataset.slot); if(!s) return;
+      if(opts.viewer==="student") studentSlotModal(s,opts.studentId);
+      else slotModal({slotId:s.id,date:s.date,teacherId:s.teacherId});
+    };
+    el.onclick=e=>{ e.stopPropagation(); open(); };
+    el.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); e.stopPropagation(); open(); } };
+  });
+}
+
+function markLegendHTML(extra=""){
+  return `<div class="legend">
+    <span><i style="background:var(--pref);border-color:var(--pref-b)"></i>Preferred</span>
+    <span><i style="background:var(--unav);border-color:var(--unav-b)"></i>Unavailable</span>
+    <span><i style="background:repeating-linear-gradient(45deg,var(--pref) 0 3px,#eef7e8 3px 6px)"></i>Repeats weekly ↻</span>
+    <span><i style="background:repeating-linear-gradient(-45deg,var(--unav) 0 3px,#f8d9a8 3px 6px)"></i>Vacation 🌴</span>
+    ${extra}</div>`;
+}
+
+/* ---------- vacation / time-off panel (teachers & students) ---------- */
+function vacationPanelHTML(who,personId){
+  const p=personOf(who,personId);
+  const vacs=(p.vacations||[]).slice().sort((a,b)=>a.from.localeCompare(b.from));
+  return `<div class="panel"><h2>Vacations & time off — days ${who==="t"?"you can't teach":"you can't come"}</h2>
+    <div class="formrow">
+      <label>From<input type="date" id="vFrom"></label>
+      <label>To<input type="date" id="vTo"></label>
+      <label>Label (optional)<input id="vLabel" placeholder="e.g. Summer trip"></label>
+      <button class="btn yellow" id="vAdd">Add time off</button>
+    </div>
+    <div style="margin-top:14px">
+      ${vacs.length?vacs.map(v=>`<div class="vacrow">🌴
+        <span class="range">${niceFull(v.from)} → ${niceFull(v.to)}</span>
+        <span>${esc(v.label||"")}</span>
+        <button class="btn danger sm" style="margin-left:auto" data-delvac="${v.id}">Remove</button></div>`).join("")
+      :`<div class="empty" style="padding:16px">No time off recorded. Whole days added here are blocked out on the calendar automatically.</div>`}
+    </div></div>`;
+}
+function wireVacationPanel(who,personId){
+  const p=personOf(who,personId);
+  const addBtn=document.getElementById("vAdd");
+  if(addBtn) addBtn.onclick=()=>{
+    const from=document.getElementById("vFrom").value, to=document.getElementById("vTo").value||from;
+    const label=document.getElementById("vLabel").value.trim();
+    if(!from) return toast("Pick a start date");
+    if(to<from) return toast("End date is before start date");
+    p.vacations=p.vacations||[];
+    p.vacations.push({id:uid(),from,to,label});
+    save(); render(); toast("Time off added");
+  };
+  app.querySelectorAll("[data-delvac]").forEach(b=>b.onclick=()=>{
+    p.vacations=(p.vacations||[]).filter(v=>v.id!==b.dataset.delvac);
+    save(); render(); toast("Time off removed");
+  });
+}
+function teacherLegendHTML(){
+  return state.teachers.map(t=>{ const [bg]=palOf(t.name);
+    return `<span class="tsw"><i style="background:${bg}"></i>${esc(t.name)}${t.subjects?` · ${esc(t.subjects)}`:""}</span>`; }).join("");
+}
+
+function weekTabsHTML(){
+  let tabs="";
+  for(let i=0;i<4;i++){
+    const ws=weekStart(i),we=addDays(ws,6);
+    tabs+=`<button class="weektab ${ui.weekIndex===i?"active":""}" data-week="${i}">Week ${i+1}<small>${niceDate(ws)} – ${niceDate(we)}</small></button>`;
+  }
+  const label=ui.weekOffset===0?"Current 4-week block":(ui.weekOffset>0?`${ui.weekOffset*4} weeks ahead`:`${Math.abs(ui.weekOffset)*4} weeks back`);
+  return `<div class="weeknav"><button class="shift" data-shift="-1">‹ Prev</button>${tabs}<button class="shift" data-shift="1">Next ›</button>
+    <span style="font-size:.75rem;color:var(--ink-soft);margin:0 0 12px 8px">${label}</span></div>`;
+}
+function wireWeekNav(){
+  app.querySelectorAll(".weektab").forEach(b=>b.onclick=()=>{ ui.weekIndex=+b.dataset.week; render(); });
+  app.querySelectorAll(".shift").forEach(b=>b.onclick=()=>{ ui.weekOffset+=+b.dataset.shift; ui.weekIndex=0; render(); });
+}
+
+/* =========================================================
+   ADMIN — People + Combined schedule
+   ========================================================= */
+const app=document.getElementById("app");
+function render(){
+  if(ui.role==="admin") renderAdmin();
+  else if(ui.role==="teacher") renderTeacher();
+  else renderStudent();
+}
+
+function renderAdmin(){
+  const upcoming=state.slots.filter(s=>s.date>=iso(new Date())).length;
+  let body="";
+  if(ui.adminTab==="people"){
+    body=`
+    <div class="panel"><h2>Add a teacher</h2>
+      <div class="formrow">
+        <label>Full name<input id="tName" placeholder="e.g. Maya Iyer"></label>
+        <label>Subjects (comma-separated)<input id="tSubj" placeholder="e.g. Math, Physics"></label>
+        <button class="btn yellow" id="addTeacher">Add teacher</button>
+      </div></div>
+    <div class="panel"><h2>Teachers (${state.teachers.length})</h2>
+      ${state.teachers.length?`<div class="peoplegrid">${state.teachers.map(t=>`
+        <div class="person">${avatarSVG(t.name,44)}
+          <div class="meta"><b>${esc(t.name)}</b><span>${esc(t.subjects||"—")} · ${state.slots.filter(s=>s.teacherId===t.id).length} slots</span></div>
+          <button class="btn danger sm" data-delteacher="${t.id}">Remove</button></div>`).join("")}</div>`
+      :`<div class="empty">No teachers yet.</div>`}</div>
+    <div class="panel"><h2>Add a student</h2>
+      <div class="formrow">
+        <label>Full name<input id="sName" placeholder="e.g. Leo Park"></label>
+        <label>Subjects of interest<input id="sSubj" placeholder="e.g. Math, Reading"></label>
+        <button class="btn yellow" id="addStudent">Add student</button>
+      </div></div>
+    <div class="panel"><h2>Students (${state.students.length})</h2>
+      ${state.students.length?`<div class="peoplegrid">${state.students.map(s=>`
+        <div class="person">${avatarSVG(s.name,44)}
+          <div class="meta"><b>${esc(s.name)}</b><span>${esc(s.subjects||"—")} · ${state.bookings.filter(b=>b.studentId===s.id).length} bookings</span></div>
+          <button class="btn danger sm" data-delstudent="${s.id}">Remove</button></div>`).join("")}</div>`
+      :`<div class="empty">No students yet.</div>`}</div>`;
+  } else {
+    body=`${weekTabsHTML()}
+    <div class="sheet">
+      <p style="font-size:.85rem;color:var(--ink-soft);margin-bottom:12px">
+        Every teacher's published times (colored by teacher, subject on each block) plus everyone's availability marks —
+        <b style="color:var(--pref-b)">green dots</b> preferred, <b style="color:var(--unav-b)">orange dots</b> unavailable.
+        Square dots are teachers, round dots are students; hover a cell to see names. Click a block to edit it.</p>
+      ${calendarHTML({slots:state.slots,combined:true,viewer:"admin"})}
+      ${markLegendHTML(`<span><span class="dot sq pref" style="display:inline-block;vertical-align:0"></span> Teacher</span>
+        <span><span class="dot pref" style="display:inline-block;vertical-align:0"></span> Student</span>`+teacherLegendHTML())}
+    </div>`;
+  }
+  app.innerHTML=`
+    <div class="statrow">
+      <div class="stat"><b>${state.teachers.length}</b><span>Teachers</span></div>
+      <div class="stat"><b>${state.students.length}</b><span>Students</span></div>
+      <div class="stat"><b>${upcoming}</b><span>Upcoming slots</span></div>
+      <div class="stat"><b>${state.bookings.length}</b><span>Bookings</span></div>
+    </div>
+    <div class="subtabs">
+      <button data-atab="people" class="${ui.adminTab==="people"?"active":""}">👥 People</button>
+      <button data-atab="combined" class="${ui.adminTab==="combined"?"active":""}">🗓 Combined schedule</button>
+    </div>${body}`;
+  app.querySelectorAll("[data-atab]").forEach(b=>b.onclick=()=>{ ui.adminTab=b.dataset.atab; render(); });
+  if(ui.adminTab==="people"){
+    document.getElementById("addTeacher").onclick=()=>{
+      const name=document.getElementById("tName").value.trim();
+      if(!name) return toast("Enter the teacher's name");
+      state.teachers.push({id:uid(),name,subjects:document.getElementById("tSubj").value.trim()});
+      save(); render(); toast(`Added ${name}`);
+    };
+    document.getElementById("addStudent").onclick=()=>{
+      const name=document.getElementById("sName").value.trim();
+      if(!name) return toast("Enter the student's name");
+      state.students.push({id:uid(),name,subjects:document.getElementById("sSubj").value.trim()});
+      save(); render(); toast(`Added ${name}`);
+    };
+    app.querySelectorAll("[data-delteacher]").forEach(b=>b.onclick=()=>{
+      const id=b.dataset.delteacher,t=teacherById(id);
+      if(!confirm(`Remove ${t.name}? Their slots and any student bookings on them will be deleted.`)) return;
+      const slotIds=new Set(state.slots.filter(s=>s.teacherId===id).map(s=>s.id));
+      state.slots=state.slots.filter(s=>s.teacherId!==id);
+      state.bookings=state.bookings.filter(b2=>!slotIds.has(b2.slotId));
+      state.marks=state.marks.filter(m=>!(m.who==="t"&&m.personId===id));
+      state.teachers=state.teachers.filter(t2=>t2.id!==id);
+      if(ui.teacherId===id) ui.teacherId=null;
+      save(); render(); toast("Teacher removed");
+    });
+    app.querySelectorAll("[data-delstudent]").forEach(b=>b.onclick=()=>{
+      const id=b.dataset.delstudent,s=studentById(id);
+      if(!confirm(`Remove ${s.name}? Their bookings will be cancelled.`)) return;
+      state.bookings=state.bookings.filter(b2=>b2.studentId!==id);
+      state.marks=state.marks.filter(m=>!(m.who==="s"&&m.personId===id));
+      state.students=state.students.filter(s2=>s2.id!==id);
+      if(ui.studentId===id) ui.studentId=null;
+      save(); render(); toast("Student removed");
+    });
+  } else {
+    wireWeekNav();
+    wireCalendar({viewer:"admin"});
+  }
+}
+
+/* =========================================================
+   TEACHER — My schedule (visual) + Everyone (combined)
+   ========================================================= */
+function renderTeacher(){
+  if(!state.teachers.length){ app.innerHTML=`<div class="empty" style="margin-top:30px">No teachers exist yet.<br>Switch to the <b>Admin</b> tab to add teachers first.</div>`; return; }
+  if(!ui.teacherId||!teacherById(ui.teacherId)) ui.teacherId=state.teachers[0].id;
+  const t=teacherById(ui.teacherId);
+  const mySlots=state.slots.filter(s=>s.teacherId===t.id&&s.date>=iso(new Date())).length;
+  const mine=ui.teacherTab==="mine";
+  const modeSlots=ui.teacherMode==="slots";
+  app.innerHTML=`
+    <div class="pickerrow">
+      <div class="who">${avatarSVG(t.name,52)}
+        <div><b style="font-size:1.1rem">${esc(t.name)}</b><br><span style="font-size:.8rem;color:var(--ink-soft)">${esc(t.subjects||"Teacher")} · ${mySlots} upcoming slots</span></div></div>
+      <label style="margin-left:auto">I am…
+        <select id="pickTeacher">${state.teachers.map(x=>`<option value="${x.id}" ${x.id===t.id?"selected":""}>${esc(x.name)}</option>`).join("")}</select></label>
+    </div>
+    <div class="subtabs">
+      <button data-ttab="mine" class="${mine?"active":""}">📅 My schedule</button>
+      <button data-ttab="all" class="${!mine?"active":""}">🌐 Everyone</button>
+    </div>
+    ${weekTabsHTML()}
+    <div class="sheet">
+      ${mine?`
+        <div class="modebar">Click on the calendar to:
+          <button class="pill ${modeSlots?"active":""}" data-mode="slots">➕ Add teaching times</button>
+          <button class="pill ${!modeSlots?"active":""}" data-mode="marks">🖍 Mark preferred / unavailable</button>
+          ${!modeSlots?`<button class="pill ${ui.repeatWeekly?"active":""}" id="repWeekly">↻ Repeat weekly</button>`:""}
+          <span>${modeSlots?"— click an empty cell to publish a teaching time; click a block to edit it.":(ui.repeatWeekly?"— clicks now set your recurring weekly pattern (applies to every week; striped on the calendar).":"— click a cell to cycle: preferred (green) → unavailable (orange) → clear (this date only).")}</span>
+        </div>
+        ${calendarHTML({slots:state.slots.filter(s=>s.teacherId===t.id),
+                        marksPerson:{who:"t",personId:t.id},
+                        markable:!modeSlots, cellAdd:modeSlots?t.id:null, viewer:"teacher"})}
+        ${markLegendHTML()}`
+      :`<p style="font-size:.85rem;color:var(--ink-soft);margin-bottom:12px">
+          All teachers' times and everyone's availability. Square dots = teachers, round dots = students; hover a cell for names. Your own blocks are editable.</p>
+        ${calendarHTML({slots:state.slots,combined:true,viewer:"teacher-all"})}
+        ${markLegendHTML(`<span><span class="dot sq pref" style="display:inline-block"></span> Teacher</span>
+          <span><span class="dot pref" style="display:inline-block"></span> Student</span>`+teacherLegendHTML())}`}
+    </div>
+    ${mine?vacationPanelHTML("t",t.id):""}`;
+  document.getElementById("pickTeacher").onchange=e=>{ ui.teacherId=e.target.value; render(); };
+  app.querySelectorAll("[data-ttab]").forEach(b=>b.onclick=()=>{ ui.teacherTab=b.dataset.ttab; render(); });
+  app.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ ui.teacherMode=b.dataset.mode; render(); });
+  const rep=document.getElementById("repWeekly");
+  if(rep) rep.onclick=()=>{ ui.repeatWeekly=!ui.repeatWeekly; render(); };
+  wireWeekNav();
+  if(mine){
+    wireCalendar({viewer:"teacher",marksPerson:{who:"t",personId:t.id},markable:!modeSlots,cellAdd:modeSlots?t.id:null});
+    wireVacationPanel("t",t.id);
+  }
+  else wireCalendar({viewer:"admin"}); // slot click → edit modal
+}
+
+/* ---------- slot add/edit modal ---------- */
+function slotModal(cfg){
+  const editing=cfg.slotId?slotById(cfg.slotId):null;
+  const s=editing||{date:cfg.date,teacherId:cfg.teacherId,start:cfg.start||"15:00",end:cfg.end||"16:00",capacity:1,subject:""};
+  const t=teacherById(s.teacherId);
+  const subs=subjectsOf(t);
+  const bks=editing?bookingsFor(editing.id).length:0;
+  const subjField=subs.length
+    ?`<label>Subject<select id="mSubj">${subs.map(x=>`<option ${x===s.subject?"selected":""}>${esc(x)}</option>`).join("")}</select></label>`
+    :`<label>Subject<input id="mSubj" value="${esc(s.subject||"")}" placeholder="e.g. Math"></label>`;
+  const tsel=(id,val,opts)=>`<select id="${id}">${opts.map(x=>`<option value="${x}" ${x===val?"selected":""}>${t12(x)}</option>`).join("")}</select>`;
+  openModal(`
+    <h3>${editing?"Edit time":"Add time"} — ${esc(t?t.name:"?")} · ${niceFull(s.date)}</h3>
+    <div class="formcol">
+      <label>Starts${tsel("mStart",s.start,TIMES)}</label>
+      <label>Ends${tsel("mEnd",s.end,END_TIMES)}</label>
+      ${subjField}
+      <label>Student capacity<input type="number" id="mCap" min="1" max="30" value="${s.capacity}"></label>
+      ${bks?`<div class="note">👥 ${bks} student${bks>1?"s":""} currently booked.</div>`:""}
+      <div class="note" id="mAvailNote"></div>
+    </div>
+    <div class="warn" id="mWarn"></div>
+    <div class="actions">
+      ${editing?`<button class="btn danger" id="mDelete">Delete</button>`:""}
+      <div class="right">
+        <button class="btn ghost" id="mCancel">Cancel</button>
+        <button class="btn yellow" id="mSave">${editing?"Save changes":"Publish time"}</button>
+      </div></div>`);
+  const availNote=()=>{
+    const st=document.getElementById("mStart").value,en=document.getElementById("mEnd").value;
+    const note=document.getElementById("mAvailNote"); note.className="note";
+    if(en<=st){ note.textContent=""; return; }
+    if(marksInRange("t",s.teacherId,s.date,st,en,"unav").length){ note.classList.add("unav"); note.textContent="⚠ This overlaps time this teacher marked unavailable."; }
+    else if(marksInRange("t",s.teacherId,s.date,st,en,"pref").length){ note.classList.add("pref"); note.textContent="★ This falls in this teacher's preferred time."; }
+    else note.textContent="";
+  };
+  document.getElementById("mStart").onchange=availNote;
+  document.getElementById("mEnd").onchange=availNote;
+  availNote();
+  document.getElementById("mCancel").onclick=closeModal;
+  if(editing) document.getElementById("mDelete").onclick=()=>{
+    if(bks&&!confirm("Students are booked on this time. Delete anyway and cancel their bookings?")) return;
+    state.bookings=state.bookings.filter(b=>b.slotId!==editing.id);
+    state.slots=state.slots.filter(x=>x.id!==editing.id);
+    save(); closeModal(); render(); toast("Time removed");
+  };
+  document.getElementById("mSave").onclick=()=>{
+    const start=document.getElementById("mStart").value,end=document.getElementById("mEnd").value;
+    const subject=document.getElementById("mSubj").value.trim();
+    const cap=Math.max(1,parseInt(document.getElementById("mCap").value||"1",10));
+    const warn=document.getElementById("mWarn");
+    if(end<=start) return warn.textContent="End time must be after the start time.";
+    const clash=state.slots.some(x=>x.teacherId===s.teacherId&&x.date===s.date&&x.id!==(editing&&editing.id)&&start<x.end&&end>x.start);
+    if(clash) return warn.textContent="This overlaps another of this teacher's times that day.";
+    if(marksInRange("t",s.teacherId,s.date,start,end,"unav").length&&!confirm("This time overlaps a slot marked unavailable. Publish anyway?")) return;
+    if(editing){ Object.assign(editing,{start,end,capacity:cap,subject}); toast("Time updated"); }
+    else{ state.slots.push({id:uid(),teacherId:s.teacherId,date:s.date,start,end,capacity:cap,subject}); toast("Time published"); }
+    save(); closeModal(); render();
+  };
+}
+
+/* =========================================================
+   STUDENT — Book (visual calendar) + mark availability
+   ========================================================= */
+function renderStudent(){
+  if(!state.students.length){ app.innerHTML=`<div class="empty" style="margin-top:30px">No students exist yet.<br>Switch to the <b>Admin</b> tab to add students first.</div>`; return; }
+  if(!ui.studentId||!studentById(ui.studentId)) ui.studentId=state.students[0].id;
+  const st=studentById(ui.studentId);
+  const myBookings=state.bookings.filter(b=>b.studentId===st.id)
+    .map(b=>({b,s:slotById(b.slotId)})).filter(x=>x.s)
+    .sort((a,bx)=>(a.s.date+a.s.start).localeCompare(bx.s.date+bx.s.start));
+  const allSubjects=[...new Set(state.slots.map(s=>s.subject).filter(Boolean))].sort();
+  let visSlots=state.slots;
+  if(ui.filterTeacher) visSlots=visSlots.filter(s=>s.teacherId===ui.filterTeacher);
+  if(ui.filterSubject) visSlots=visSlots.filter(s=>(s.subject||"")===ui.filterSubject);
+  const modeBook=ui.studentMode==="book";
+  app.innerHTML=`
+    <div class="pickerrow">
+      <div class="who">${avatarSVG(st.name,52)}
+        <div><b style="font-size:1.1rem">${esc(st.name)}</b><br><span style="font-size:.8rem;color:var(--ink-soft)">${esc(st.subjects||"Student")} · ${myBookings.length} booking${myBookings.length===1?"":"s"}</span></div></div>
+      <label style="margin-left:auto">I am…
+        <select id="pickStudent">${state.students.map(x=>`<option value="${x.id}" ${x.id===st.id?"selected":""}>${esc(x.name)}</option>`).join("")}</select></label>
+      <label>Teacher<select id="filterTeacher"><option value="">All</option>${state.teachers.map(x=>`<option value="${x.id}" ${ui.filterTeacher===x.id?"selected":""}>${esc(x.name)}</option>`).join("")}</select></label>
+      <label>Subject<select id="filterSubject"><option value="">All</option>${allSubjects.map(x=>`<option ${ui.filterSubject===x?"selected":""}>${esc(x)}</option>`).join("")}</select></label>
+    </div>
+    ${weekTabsHTML()}
+    <div class="sheet">
+      <div class="modebar">Click on the calendar to:
+        <button class="pill ${modeBook?"active":""}" data-mode="book">🎟 Book times</button>
+        <button class="pill ${!modeBook?"active":""}" data-mode="marks">🖍 Mark preferred / unavailable</button>
+        ${!modeBook?`<button class="pill ${ui.repeatWeekly?"active":""}" id="repWeekly">↻ Repeat weekly</button>`:""}
+        <span>${modeBook?"— click a teaching block to book or manage it. ★ suits your preferred time, ⚠ clashes with unavailable.":(ui.repeatWeekly?"— clicks now set your recurring weekly pattern (applies to every week; striped on the calendar).":"— click a cell to cycle: preferred (green) → unavailable (orange) → clear (this date only).")}</span>
+      </div>
+      ${calendarHTML({slots:visSlots,marksPerson:{who:"s",personId:st.id},markable:!modeBook,viewer:"student",studentId:st.id})}
+      ${markLegendHTML(`<span><i style="background:#fff;outline:2px solid var(--plum)"></i>Your booking</span>`+teacherLegendHTML())}
+    </div>
+    ${vacationPanelHTML("s",st.id)}
+    <div class="panel mybookings"><h2>My upcoming times</h2>
+      ${myBookings.length?myBookings.map(({b,s})=>{
+        const t=teacherById(s.teacherId);
+        return `<div class="booking-line">${avatarSVG(t?t.name:"?",26)}
+          <span><b>${niceFull(s.date)}</b> · ${t12(s.start)}–${t12(s.end)}${s.subject?` · ${esc(s.subject)}`:""} with ${t?esc(t.name):"(removed)"}</span>
+          <button class="btn danger sm" style="margin-left:auto" data-cancel="${b.id}">Cancel</button></div>`;}).join("")
+      :`<div class="empty">Nothing booked yet. Pick a teaching block in the calendar above.</div>`}</div>`;
+  document.getElementById("pickStudent").onchange=e=>{ ui.studentId=e.target.value; render(); };
+  document.getElementById("filterTeacher").onchange=e=>{ ui.filterTeacher=e.target.value; render(); };
+  document.getElementById("filterSubject").onchange=e=>{ ui.filterSubject=e.target.value; render(); };
+  app.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{ ui.studentMode=b.dataset.mode; render(); });
+  const rep=document.getElementById("repWeekly");
+  if(rep) rep.onclick=()=>{ ui.repeatWeekly=!ui.repeatWeekly; render(); };
+  app.querySelectorAll("[data-cancel]").forEach(btn=>btn.onclick=()=>{
+    state.bookings=state.bookings.filter(b=>b.id!==btn.dataset.cancel);
+    save(); render(); toast("Booking cancelled");
+  });
+  wireWeekNav();
+  wireCalendar({viewer:"student",studentId:st.id,marksPerson:{who:"s",personId:st.id},markable:!modeBook});
+  wireVacationPanel("s",st.id);
+}
+
+function studentSlotModal(slot,studentId){
+  const t=teacherById(slot.teacherId),bks=bookingsFor(slot.id);
+  const mine=bks.find(b=>b.studentId===studentId);
+  const full=bks.length>=slot.capacity,past=slot.date<iso(new Date());
+  const unavClash=marksInRange("s",studentId,slot.date,slot.start,slot.end,"unav").length>0;
+  const prefHit=marksInRange("s",studentId,slot.date,slot.start,slot.end,"pref").length>0;
+  openModal(`
+    <h3>${t?esc(t.name):"(removed)"} — ${niceFull(slot.date)}</h3>
+    <div class="formcol" style="font-size:.9rem">
+      <div>🕐 <b>${t12(slot.start)}–${t12(slot.end)}</b>${slot.subject?` · ${esc(slot.subject)}`:""}</div>
+      <div>👥 ${bks.length} of ${slot.capacity} spot${slot.capacity>1?"s":""} taken</div>
+      ${prefHit?`<div class="note pref">★ This falls in your preferred time.</div>`:""}
+      ${unavClash?`<div class="note unav">⚠ You marked yourself unavailable during this time.</div>`:""}
+      ${past?`<div class="note unav">This time is in the past.</div>`:""}
+    </div>
+    <div class="actions">
+      <button class="btn ghost" id="mCancel">Close</button>
+      <div class="right">
+        ${mine?`<button class="btn danger" id="mUnbook">Cancel my booking</button>`
+             :(!past&&!full?`<button class="btn yellow" id="mBook">Book this time</button>`:"")}
+      </div></div>`);
+  document.getElementById("mCancel").onclick=closeModal;
+  const bookBtn=document.getElementById("mBook");
+  if(bookBtn) bookBtn.onclick=()=>{
+    if(unavClash&&!confirm("You marked yourself unavailable during this time. Book anyway?")) return;
+    state.bookings.push({id:uid(),slotId:slot.id,studentId});
+    save(); closeModal(); render(); toast("Booked — see you there!");
+  };
+  const unBtn=document.getElementById("mUnbook");
+  if(unBtn) unBtn.onclick=()=>{
+    state.bookings=state.bookings.filter(b=>b.id!==mine.id);
+    save(); closeModal(); render(); toast("Booking cancelled");
+  };
+}
+
+/* ---------- role bar ---------- */
+document.querySelectorAll(".rolebar button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".rolebar button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); ui.role=b.dataset.role; render();
+});
+
+/* =========================================================
+   FIRST-RUN SEED — 3 teachers · 4 students
+   ========================================================= */
+if(!load()){
+  const T=[
+    {id:uid(),name:"Maya Iyer",  subjects:"Math, Physics"},
+    {id:uid(),name:"Sam Okafor", subjects:"Reading, Writing"},
+    {id:uid(),name:"Priya Nair", subjects:"Science, Chemistry"}
+  ];
+  const S=[
+    {id:uid(),name:"Leo Park",   subjects:"Math"},
+    {id:uid(),name:"Ava Chen",   subjects:"Reading, Science"},
+    {id:uid(),name:"Noah Silva", subjects:"Physics, Chemistry"},
+    {id:uid(),name:"Zoe Adams",  subjects:"Writing"}
+  ];
+  state.teachers=T; state.students=S;
+  const mon=monday(new Date()); const d=n=>iso(addDays(mon,n));
+  state.slots=[
+    {id:uid(),teacherId:T[0].id,date:d(1),start:"15:30",end:"16:30",capacity:2,subject:"Math"},
+    {id:uid(),teacherId:T[0].id,date:d(3),start:"17:00",end:"18:00",capacity:1,subject:"Physics"},
+    {id:uid(),teacherId:T[1].id,date:d(2),start:"16:00",end:"17:00",capacity:2,subject:"Reading"},
+    {id:uid(),teacherId:T[1].id,date:d(5),start:"10:00",end:"11:00",capacity:1,subject:"Writing"},
+    {id:uid(),teacherId:T[2].id,date:d(4),start:"18:30",end:"19:30",capacity:3,subject:"Science"},
+    {id:uid(),teacherId:T[2].id,date:d(2),start:"16:30",end:"17:30",capacity:2,subject:"Chemistry"},
+    {id:uid(),teacherId:T[2].id,date:d(8),start:"15:00",end:"16:00",capacity:2,subject:"Chemistry"}
+  ];
+  state.bookings=[
+    {id:uid(),slotId:state.slots[0].id,studentId:S[0].id},
+    {id:uid(),slotId:state.slots[2].id,studentId:S[1].id}
+  ];
+  const mark=(who,pid,date,from,to,kind)=>{ for(let m=hm2mm(from);m<hm2mm(to);m+=STEP) state.marks.push({id:uid(),who,personId:pid,date,time:mm2hm(m),kind}); };
+  mark("t",T[0].id,d(1),"15:00","17:00","pref");
+  mark("t",T[0].id,d(2),"18:00","22:00","unav");
+  mark("t",T[2].id,d(4),"18:00","20:00","pref");
+  mark("s",S[0].id,d(1),"15:00","18:00","pref");
+  mark("s",S[0].id,d(2),"08:00","12:00","unav");
+  mark("s",S[1].id,d(2),"16:00","18:00","pref");
+  mark("s",S[2].id,d(4),"18:00","20:00","pref");
+  // weekly recurring patterns (dow 0=Mon): Maya prefers weekday 3–5pm, never Fri evenings; Leo can't do Mon mornings
+  const wk=(p,dow,from,to,kind)=>{ p.weekly=p.weekly||[]; for(let m=hm2mm(from);m<hm2mm(to);m+=STEP) p.weekly.push({id:uid(),dow,time:mm2hm(m),kind}); };
+  [0,1,2,3].forEach(dw=>wk(T[0],dw,"15:00","17:00","pref"));
+  wk(T[0],4,"18:00","22:00","unav");
+  wk(T[1],5,"09:00","12:00","pref");
+  wk(S[0],0,"08:00","12:00","unav");
+  wk(S[3],2,"16:00","18:00","pref");
+  // vacations
+  T[2].vacations=[{id:uid(),from:d(14),to:d(18),label:"Conference week"}];
+  S[1].vacations=[{id:uid(),from:d(10),to:d(12),label:"Family trip"}];
+  save();
+}
+render();
+</script>
+</body>
+</html>
