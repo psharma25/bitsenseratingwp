@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reference Library</title>
+<style>
+  :root{ --page:#f5f8fa; --card:#ffffff; --ink:#22303a; --muted:#5b6b77; --line:#d8e1e8;
+         --petrol:#1b4965; --teal:#2a9d8f; --tint1:#e8f0f6; --tint2:#e4f4f2; }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Segoe UI", Calibri, Arial, sans-serif; background:var(--page); color:var(--ink); line-height:1.55; min-height:100vh;}
+  .wrap{max-width:900px; margin:0 auto; padding:60px 24px;}
+  h1{color:var(--petrol); font-size:26px; font-weight:600;}
+  .lede{color:var(--muted); font-size:14px; margin:8px 0 34px; max-width:640px;}
+  .grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:18px;}
+  a.card{display:block; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:22px 24px;
+         text-decoration:none; color:inherit; box-shadow:0 1px 3px rgba(27,73,101,.10); transition:transform .15s, box-shadow .15s; position:relative; overflow:hidden;}
+  a.card:hover{transform:translateY(-3px); box-shadow:0 6px 18px rgba(27,73,101,.16);}
+  a.card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:5px;}
+  a.card.t1::before{background:var(--petrol);}
+  a.card.t2::before{background:var(--teal);}
+  .tag{display:inline-block; font-size:11.5px; font-weight:600; padding:3px 12px; border-radius:12px; margin-bottom:12px;}
+  .t1 .tag{background:var(--tint1); color:var(--petrol);}
+  .t2 .tag{background:var(--tint2); color:#0f6e56;}
+  a.card h2{font-size:17px; font-weight:600; color:var(--petrol); margin-bottom:6px;}
+  a.card p{font-size:13px; color:var(--muted);}
+  .open{margin-top:14px; font-size:13px; font-weight:600; color:var(--teal);}
+  footer{margin-top:44px; font-size:12px; color:var(--muted); text-align:center;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reference library</h1>
+  <p class="lede">Single-file HTML references — no external dependencies. Click a card to open the tool.</p>
+  <div class="grid">
+
+    <a class="card t1" href="fbi_html.html">
+      <span class="tag">FBI</span>
+      <h2>FBI reference</h2>
+      <p>Opens fbi_html.html — rename this link target if the file uses a different name or path.</p>
+      <div class="open">Open →</div>
+    </a>
+
+    <a class="card t2" href="dodaf-viewpoints-explorer-v3.html">
+      <span class="tag">DoDAF 2.02</span>
+      <h2>DoDAF viewpoint explorer</h2>
+      <p>All 8 viewpoints and 52 models — collapsible, with a diagram, a MotionFit running example, and a "what makes it this view" note for every model. White and black themes.</p>
+      <div class="open">Open →</div>
+    </a>
+
+  </div>
+  <footer>Local index · edit the href attributes to match your file names and hosting paths</footer>
+</div>
+</body>
+</html>

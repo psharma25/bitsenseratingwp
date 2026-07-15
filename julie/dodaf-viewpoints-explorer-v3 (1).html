@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DoDAF 2.02 Viewpoint Explorer — MotionFit Readiness Platform</title>
+<style>
+  :root, html[data-theme="light"]{
+    --page:#f5f8fa; --card:#ffffff; --ink:#22303a; --muted:#5b6b77; --line:#d8e1e8;
+    --petrol:#1b4965; --teal:#2a9d8f; --tint1:#e8f0f6; --tint2:#e4f4f2;
+    --tint1-ink:#1b4965; --tint2-ink:#0f6e56; --chip:#eef3f7; --amber:#e9c46a;
+    --shadow:0 1px 3px rgba(27,73,101,.10);
+  }
+  html[data-theme="dark"]{
+    --page:#0d1117; --card:#161d26; --ink:#e6edf3; --muted:#9db2c0; --line:#2b3945;
+    --petrol:#5ea3c9; --teal:#4fc2b2; --tint1:#1c2a36; --tint2:#15302c;
+    --tint1-ink:#9cc7e2; --tint2-ink:#7fd6c8; --chip:#1c2630; --amber:#c9a24a;
+    --shadow:0 1px 3px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:"Segoe UI", Calibri, Arial, sans-serif; background:var(--page); color:var(--ink); line-height:1.55; transition:background .25s, color .25s;}
+  .tophead{max-width:1120px; margin:0 auto; padding:30px 22px 6px; display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;}
+  .tophead h1{font-size:23px; font-weight:600; color:var(--petrol);}
+  .tophead .lede{color:var(--muted); font-size:13.5px; margin-top:6px; max-width:820px;}
+  .theme-toggle{display:flex; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--card); flex:none;}
+  .theme-toggle button{background:transparent; color:var(--muted); border:0; padding:6px 16px; font-size:13px; cursor:pointer;}
+  .theme-toggle button.active{background:var(--chip); color:var(--ink); font-weight:600;}
+  .stats{max-width:1120px; margin:0 auto; padding:10px 22px 0; display:flex; gap:10px; flex-wrap:wrap;}
+  .stat{background:var(--card); border:1px solid var(--line); border-radius:8px; padding:7px 14px; box-shadow:var(--shadow);}
+  .stat b{font-size:18px; display:block; color:var(--petrol);}
+  .stat span{font-size:11.5px; color:var(--muted);}
+  main{max-width:1120px; margin:0 auto; padding:20px 22px 60px;}
+  .intro{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 18px; box-shadow:var(--shadow); font-size:13px; color:var(--muted); margin-bottom:18px;}
+  .intro b{color:var(--ink);}
+  .controls{display:flex; gap:10px; margin-bottom:16px;}
+  .controls button{background:var(--card); border:1px solid var(--line); color:var(--ink); font-size:13px; padding:7px 16px; border-radius:16px; cursor:pointer;}
+  .controls button:hover{border-color:var(--teal); color:var(--teal);}
+  .vp{background:var(--card); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow); margin-bottom:12px; overflow:hidden;}
+  .vp-head{display:flex; align-items:center; gap:14px; padding:14px 18px; cursor:pointer; user-select:none;}
+  .vp-head:hover{background:var(--chip);}
+  .vp-abbr{min-width:64px; text-align:center; background:var(--tint2); color:var(--tint2-ink); font-weight:600; font-size:13px; padding:5px 0; border-radius:8px;}
+  .vp.gov .vp-abbr{background:var(--tint1); color:var(--tint1-ink);}
+  .vp-title{font-size:15.5px; font-weight:600;}
+  .vp-sub{font-size:12.5px; color:var(--muted);}
+  .vp-count{margin-left:auto; font-size:12px; color:var(--muted); background:var(--chip); border:1px solid var(--line); border-radius:12px; padding:3px 12px; white-space:nowrap;}
+  .chev{width:10px; height:10px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(45deg); transition:transform .2s; margin-left:6px; flex:none;}
+  .vp.open>.vp-head .chev{transform:rotate(-135deg);}
+  .vp-body{display:none; border-top:1px solid var(--line); padding:6px 18px 16px;}
+  .vp.open .vp-body{display:block;}
+  .model{border-bottom:1px dashed var(--line);}
+  .model:last-child{border-bottom:0;}
+  .model-head{display:flex; align-items:baseline; gap:12px; padding:10px 4px; cursor:pointer;}
+  .model-head:hover .model-name{color:var(--teal);}
+  .model-id{min-width:66px; font-weight:600; font-size:13px; color:var(--tint2-ink);}
+  .vp.gov .model-id{color:var(--tint1-ink);}
+  .model-name{font-size:13.5px; font-weight:600;}
+  .model-brief{font-size:12.5px; color:var(--muted);}
+  .model-detail{display:none; padding:4px 4px 16px 78px;}
+  .model.open .model-detail{display:block;}
+  .model-detail p{font-size:13px; color:var(--muted); max-width:880px; margin-bottom:8px;}
+  .example{background:var(--tint2); border-left:3px solid var(--teal); padding:10px 14px; border-radius:0 8px 8px 0; font-size:13px; margin:8px 0; max-width:880px;}
+  .vp.gov .example{background:var(--tint1); border-left-color:var(--petrol);}
+  .example b{color:var(--tint2-ink);}
+  .vp.gov .example b{color:var(--tint1-ink);}
+  .unique{background:var(--chip); border-left:3px solid var(--amber); padding:10px 14px; border-radius:0 8px 8px 0; font-size:13px; margin:8px 0; max-width:880px; color:var(--muted);}
+  .unique b{color:var(--ink);}
+  .viz{margin:12px 0 4px; background:var(--page); border:1px solid var(--line); border-radius:10px; padding:14px;}
+  svg{width:100%; height:auto; display:block;}
+  svg text{font-family:"Segoe UI", Calibri, Arial, sans-serif;}
+  table.mini{width:100%; max-width:880px; border-collapse:collapse; font-size:12.5px; margin:8px 0;}
+  table.mini th{background:var(--chip); color:var(--ink); text-align:left; padding:7px 10px; font-weight:600; border-bottom:2px solid var(--petrol);}
+  table.mini td{padding:6px 10px; border-bottom:1px solid var(--line); color:var(--muted);}
+  table.mini td:first-child{color:var(--ink); font-weight:600;}
+  footer{text-align:center; font-size:12px; color:var(--muted); padding:20px;}
+  @media (max-width:640px){ .model-detail{padding-left:8px;} }
+</style>
+</head>
+<body>
+
+<div class="tophead">
+  <div>
+    <h1>DoDAF 2.02 viewpoint explorer</h1>
+    <div class="lede">The DoD Architecture Framework v2.02 (current release) defines <b style="color:var(--ink)">8 viewpoints</b> and <b style="color:var(--ink)">52 models</b>. Expand a viewpoint, click a model: every one has a description, a MotionFit running example, a note on what visually distinguishes that model type, and a diagram.</div>
+  </div>
+  <div class="theme-toggle">
+    <button id="btn-light" class="active" onclick="setTheme('light')">White</button>
+    <button id="btn-dark" onclick="setTheme('dark')">Black</button>
+  </div>
+</div>
+<div class="stats">
+  <div class="stat"><b>8</b><span>viewpoints</span></div>
+  <div class="stat"><b>52</b><span>models, all diagrammed</span></div>
+  <div class="stat"><b>2.02</b><span>current DoDAF version</span></div>
+  <div class="stat"><b>1</b><span>running example (MotionFit)</span></div>
+</div>
+
+<main>
+  <div class="intro"><b>Running example:</b> MotionFit — a cloud-hosted biomechanical movement-screening and injury-risk scoring platform for sports teams and occupational-health clinics. DoDAF is fit-for-purpose: you build only the models a decision needs. The amber callout under each model explains the visual signature that makes a diagram <i>that</i> view and not its neighbors.</div>
+  <div class="controls">
+    <button onclick="toggleAll(true)">Expand all viewpoints</button>
+    <button onclick="toggleAll(false)">Collapse all</button>
+  </div>
+  <div id="vps"></div>
+</main>
+
+<footer>DoDAF 2.02 reference · Running example is illustrative · Single-file HTML, no external dependencies</footer>
+
+<script>
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('btn-light').classList.toggle('active', t==='light');
+  document.getElementById('btn-dark').classList.toggle('active', t==='dark');
+  try{ localStorage.setItem('dodaf-theme', t); }catch(e){}
+}
+try{ var saved=localStorage.getItem('dodaf-theme'); if(saved){ setTheme(saved); } }catch(e){}
+
+var MID=0;
+function arrow(color){ MID++; var id='ga'+MID; var c=color||'var(--muted)';
+  return { id:id,
+    defs:'<defs><marker id="'+id+'" viewBox="0 0 10 10" refX="7.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto"><path d="M1 1.6 L8.6 5 L1 8.4 Q2.6 5 1 1.6 z" fill="'+c+'"/></marker></defs>',
+    ln:function(x1,y1,x2,y2,dash){ return '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="'+c+'" stroke-width="1.4" opacity="0.9"'+(dash?' stroke-dasharray="5 4"':'')+' marker-end="url(#'+id+')"/>'; },
+    curve:function(x1,y1,x2,y2,dash){ var mx=(x1+x2)/2; return '<path d="M'+x1+' '+y1+' C'+mx+' '+y1+', '+mx+' '+y2+', '+x2+' '+y2+'" fill="none" stroke="'+c+'" stroke-width="1.4" opacity="0.9"'+(dash?' stroke-dasharray="5 4"':'')+' marker-end="url(#'+id+')"/>'; },
+    path:function(d,dash){ return '<path d="'+d+'" fill="none" stroke="'+c+'" stroke-width="1.4" opacity="0.9"'+(dash?' stroke-dasharray="5 4"':'')+' marker-end="url(#'+id+')"/>'; }
+  };
+}
+var BASEDEFS='<defs>'
+ +'<filter id="ds" x="-20%" y="-25%" width="140%" height="160%"><feDropShadow dx="0" dy="1.6" stdDeviation="2.4" flood-color="#1b4965" flood-opacity="0.20"/></filter>'
+ +'<filter id="dsL" x="-15%" y="-20%" width="130%" height="150%"><feDropShadow dx="0" dy="2.2" stdDeviation="3.4" flood-color="#1b4965" flood-opacity="0.16"/></filter>'
+ +'<linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--teal)"/><stop offset="1" stop-color="var(--teal)" stop-opacity="0.72"/></linearGradient>'
+ +'<linearGradient id="gp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--petrol)"/><stop offset="1" stop-color="var(--petrol)" stop-opacity="0.72"/></linearGradient>'
+ +'<linearGradient id="gtint2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--tint2)"/><stop offset="1" stop-color="var(--tint2)" stop-opacity="0.55"/></linearGradient>'
+ +'<linearGradient id="gtint1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--tint1)"/><stop offset="1" stop-color="var(--tint1)" stop-opacity="0.55"/></linearGradient>'
+ +'</defs>';
+function box(x,y,w,h,fill,stroke,title,sub,tc,sc){
+  var grad = fill==='var(--tint2)'?'url(#gtint2)': fill==='var(--tint1)'?'url(#gtint1)': fill;
+  var s='<g filter="url(#ds)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="9" fill="'+CARD+'"/></g>';
+  s+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="9" fill="'+grad+'" stroke="'+stroke+'" stroke-width="1.1"/>';
+  s+='<rect x="'+x+'" y="'+y+'" width="4" height="'+h+'" rx="2" fill="'+stroke+'"/>';
+  var cy=y+(sub? h/2-6 : h/2+5);
+  s+='<text x="'+(x+w/2+2)+'" y="'+cy+'" text-anchor="middle" fill="'+tc+'" font-size="13" font-weight="600">'+title+'</text>';
+  if(sub){ s+='<text x="'+(x+w/2+2)+'" y="'+(y+h/2+15)+'" text-anchor="middle" fill="'+(sc||'var(--muted)')+'" font-size="11.5">'+sub+'</text>'; }
+  return s;
+}
+function lbl(x,y,t,anchor,size,fill,bold){ return '<text x="'+x+'" y="'+y+'" text-anchor="'+(anchor||'middle')+'" fill="'+(fill||'var(--muted)')+'" font-size="'+(size||11.5)+'"'+(bold?' font-weight="600"':'')+'>'+t+'</text>'; }
+function tag(x,y,t,fill,ink){
+  var w=t.length*6.6+18;
+  return '<rect x="'+(x-w/2)+'" y="'+(y-11)+'" width="'+w+'" height="20" rx="10" fill="'+fill+'" stroke="'+ink+'" stroke-opacity="0.35"/>'+lbl(x,y+3.5,t,'middle',11,ink,true);
+}
+function note(y,t){ return '<line x1="60" y1="'+(y-22)+'" x2="940" y2="'+(y-22)+'" stroke="var(--line)"/>'+lbl(500,y,t,'middle',11.5,'var(--muted)'); }
+
+var T2='var(--tint2)', T2I='var(--tint2-ink)', T1='var(--tint1)', T1I='var(--tint1-ink)', CARD='var(--card)', TE='var(--teal)', PE='var(--petrol)';
+
+function svgWrap(h, inner){ return '<svg viewBox="0 0 1000 '+h+'">'+BASEDEFS+inner+'</svg>'; }
+
+function flowH(nodes, opts){
+  opts=opts||{};
+  var a=arrow(), n=nodes.length, gap=34, w=Math.min(200,(1000-40-(n-1)*gap)/n), x0=(1000-(n*w+(n-1)*gap))/2, y=34, h=64, s=a.defs;
+  nodes.forEach(function(nd,i){
+    var x=x0+i*(w+gap);
+    s+=box(x,y,w,h, nd.p?T1:T2, nd.p?PE:TE, nd.t, nd.s, nd.p?T1I:T2I);
+    if(i<n-1){ s+=a.ln(x+w+3,y+h/2,x+w+gap-3,y+h/2,opts.dash); if(opts.labels&&opts.labels[i]) s+=tag(x+w+gap/2,y+h/2-22,opts.labels[i],'var(--chip)','var(--muted)'); }
+  });
+  if(opts.note) s+=note(140,opts.note);
+  return svgWrap(opts.note?152:120,s);
+}
+function tree(root, kids, nt){
+  var n=kids.length, gap=26, w=Math.min(215,(1000-40-(n-1)*gap)/n), x0=(1000-(n*w+(n-1)*gap))/2;
+  var s='<g filter="url(#dsL)"><rect x="385" y="14" width="230" height="54" rx="10" fill="url(#gp)"/></g>';
+  s+=lbl(500,36,root.t,'middle',14,'#fff',true)+lbl(500,54,root.s,'middle',11.5,'rgba(255,255,255,.85)');
+  s+='<path d="M500 68 L500 92" stroke="var(--line)" stroke-width="1.4" fill="none"/>';
+  var c1=x0+w/2, c2=x0+(n-1)*(w+gap)+w/2;
+  s+='<path d="M'+c1+' 92 L'+c2+' 92" stroke="var(--line)" stroke-width="1.4" fill="none"/>';
+  kids.forEach(function(k,i){
+    var cx=x0+i*(w+gap)+w/2;
+    s+='<path d="M'+cx+' 92 L'+cx+' 114" stroke="var(--line)" stroke-width="1.4" fill="none"/>';
+    s+=box(x0+i*(w+gap),114,w,58, k.p?T1:T2, k.p?PE:TE, k.t, k.s, k.p?T1I:T2I);
+  });
+  if(nt) s+=note(214,nt);
+  return svgWrap(nt?226:190,s);
+}
+function forest(groups, nt){
+  var gw=300, gap=40, x0=(1000-(groups.length*gw+(groups.length-1)*gap))/2;
+  var s='';
+  groups.forEach(function(g,i){
+    var gx=x0+i*(gw+gap), cx=gx+gw/2;
+    s+='<g filter="url(#ds)"><rect x="'+(gx+35)+'" y="18" width="'+(gw-70)+'" height="42" rx="9" fill="url(#gp)"/></g>';
+    s+=lbl(cx,44,g.t,'middle',12.5,'#fff',true);
+    s+='<path d="M'+cx+' 60 L'+cx+' 84" stroke="var(--line)" stroke-width="1.4" fill="none"/>';
+    s+=box(gx+18,84,gw-36,52, T2, TE, g.c, g.cs, T2I);
+  });
+  if(nt) s+=note(176,nt);
+  return svgWrap(nt?188:152,s);
+}
+function matrix(rows, cols, marks, nt){
+  var x0=290, cw=Math.min(115,690/cols.length), rh=44, y0=66;
+  var s='<rect x="'+(x0-6)+'" y="22" width="'+(cols.length*cw)+'" height="30" rx="8" fill="var(--chip)"/>';
+  cols.forEach(function(c,j){ s+=lbl(x0+j*cw+(cw-6)/2,42,c,'middle',12,'var(--ink)',true); });
+  rows.forEach(function(r,i){
+    if(i%2===1){ s+='<rect x="40" y="'+(y0+i*rh-3)+'" width="920" height="'+rh+'" rx="6" fill="var(--chip)" opacity="0.5"/>'; }
+    s+=lbl(x0-18,y0+i*rh+rh/2+2,r,'end',12.5,'var(--ink)',true);
+    cols.forEach(function(c,j){
+      s+='<rect x="'+(x0+j*cw)+'" y="'+(y0+i*rh)+'" width="'+(cw-8)+'" height="'+(rh-8)+'" rx="7" fill="'+CARD+'" stroke="var(--line)"/>';
+    });
+  });
+  marks.forEach(function(m){
+    var cx=x0+m[1]*cw+(cw-8)/2, cy=y0+m[0]*rh+(rh-8)/2;
+    if(m[2]){
+      var w=m[2].length*6.6+16;
+      s+='<rect x="'+(cx-w/2)+'" y="'+(cy-10)+'" width="'+w+'" height="20" rx="10" fill="'+T1+'" stroke="'+PE+'" stroke-opacity="0.5"/>';
+      s+=lbl(cx,cy+4,m[2],'middle',11,T1I,true);
+    } else {
+      s+='<rect x="'+(cx-11)+'" y="'+(cy-11)+'" width="22" height="22" rx="7" fill="url(#gt)"/>';
+      s+='<path d="M'+(cx-4.5)+' '+cy+' L'+(cx-1)+' '+(cy+3.5)+' L'+(cx+5)+' '+(cy-3.5)+'" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>';
+    }
+  });
+  var H=y0+rows.length*rh+(nt?40:12);
+  if(nt) s+=note(H-10,nt);
+  return svgWrap(H,s);
+}
+function lanes(items, colLabs, nt){
+  var x0=260, span=710, cols=colLabs.length, cw=span/cols, y0=40, rh=46;
+  var s='';
+  colLabs.forEach(function(c,j){
+    if(j%2===1){ s+='<rect x="'+(x0+j*cw)+'" y="'+(y0-10)+'" width="'+cw+'" height="'+(items.length*rh+12)+'" fill="var(--chip)" opacity="0.55"/>'; }
+    s+='<line x1="'+(x0+j*cw)+'" y1="'+(y0-10)+'" x2="'+(x0+j*cw)+'" y2="'+(y0+items.length*rh+2)+'" stroke="var(--line)"/>';
+    s+=lbl(x0+j*cw+cw/2,22,c,'middle',12,'var(--ink)',true);
+  });
+  s+='<line x1="'+(x0+cols*cw)+'" y1="'+(y0-10)+'" x2="'+(x0+cols*cw)+'" y2="'+(y0+items.length*rh+2)+'" stroke="var(--line)"/>';
+  items.forEach(function(it,i){
+    var y=y0+i*rh, bx=x0+it.s*cw, bw=it.len*cw;
+    s+=lbl(x0-16,y+22,it.l,'end',12.5,'var(--ink)');
+    if(it.hatch){
+      s+='<rect x="'+bx+'" y="'+(y+8)+'" width="'+bw+'" height="20" rx="10" fill="none" stroke="var(--muted)" stroke-dasharray="4 3"/>';
+      s+=tag(bx+bw/2,y+18,'retiring','var(--chip)','var(--muted)');
+    } else {
+      s+='<g filter="url(#ds)"><rect x="'+bx+'" y="'+(y+8)+'" width="'+bw+'" height="20" rx="10" fill="'+(it.p?'url(#gp)':'url(#gt)')+'"/></g>';
+      s+='<path d="M'+(bx+bw)+' '+(y+11)+' l7 7 l-7 7 l-7 -7 z" fill="'+(it.p?PE:TE)+'"/>';
+    }
+  });
+  var H=y0+items.length*rh+(nt?42:14);
+  if(nt) s+=note(H-10,nt);
+  return svgWrap(H,s);
+}
+function seq(actors, msgs, nt){
+  var a=arrow(PE), n=actors.length, cx=[], s=a.defs;
+  for(var i=0;i<n;i++){ cx.push(120+i*((1000-240)/(n-1))); }
+  var bot=76+msgs.length*46;
+  actors.forEach(function(ac,i){
+    s+='<line x1="'+cx[i]+'" y1="46" x2="'+cx[i]+'" y2="'+bot+'" stroke="var(--line)" stroke-dasharray="3 4"/>';
+    s+='<g filter="url(#ds)"><rect x="'+(cx[i]-78)+'" y="10" width="156" height="32" rx="16" fill="'+CARD+'" stroke="'+PE+'" stroke-width="1.1"/></g>';
+    s+=lbl(cx[i],30,ac,'middle',12.5,T1I,true);
+    s+='<rect x="'+(cx[i]-4)+'" y="52" width="8" height="'+(bot-58)+'" rx="4" fill="'+T1+'"/>';
+  });
+  msgs.forEach(function(m,i){
+    var y=80+i*46, x1=cx[m.f], x2=cx[m.t];
+    s+=a.ln(x1+(x2>x1?6:-6),y,x2+(x2>x1?-8:8),y,m.dash);
+    s+=tag((x1+x2)/2,y-14,(i+1)+'. '+m.l,'var(--chip)','var(--ink)');
+  });
+  var H=bot+(nt?42:16);
+  if(nt) s+=note(H-10,nt);
+  return svgWrap(H,s);
+}
+function states(nodes, edges, nt){
+  var a=arrow(), s=a.defs, W=150, H=40;
+  var sx=Math.max(14,nodes[0].x-W/2-28);
+  s+='<circle cx="'+sx+'" cy="'+nodes[0].y+'" r="7" fill="'+PE+'"/>';
+  s+=a.ln(sx+8,nodes[0].y,nodes[0].x-W/2-4,nodes[0].y);
+  nodes.forEach(function(nd,i){
+    s+='<g filter="url(#ds)"><rect x="'+(nd.x-W/2)+'" y="'+(nd.y-H/2)+'" width="'+W+'" height="'+H+'" rx="20" fill="'+(nd.p?'url(#gtint1)':'url(#gtint2)')+'" stroke="'+(nd.p?PE:TE)+'" stroke-width="1.1"/></g>';
+    s+=lbl(nd.x,nd.y+4,nd.t,'middle',12.5,nd.p?T1I:T2I,true);
+  });
+  var last=nodes.reduce(function(mx,nd){return nd.x>mx.x?nd:mx;},nodes[0]);
+  var ex=Math.min(985,last.x+W/2+26);
+  s+='<circle cx="'+ex+'" cy="'+last.y+'" r="9" fill="none" stroke="'+PE+'" stroke-width="1.6"/>';
+  s+='<circle cx="'+ex+'" cy="'+last.y+'" r="4.5" fill="'+PE+'"/>';
+  edges.forEach(function(e){
+    s+=a.path(e.d,e.dash);
+    if(e.l) s+=tag(e.lx,e.ly,e.l,'var(--chip)','var(--muted)');
+  });
+  var maxY=0; nodes.forEach(function(nd){ if(nd.y>maxY)maxY=nd.y; });
+  var HH=maxY+44+(nt?38:0);
+  if(nt) s+=note(HH-10,nt);
+  return svgWrap(HH,s);
+}
+function rulesviz(rules, nt){
+  var s='';
+  rules.forEach(function(r,i){
+    var y=16+i*58;
+    s+='<g filter="url(#ds)"><rect x="60" y="'+y+'" width="880" height="46" rx="10" fill="'+CARD+'"/></g>';
+    s+='<rect x="60" y="'+y+'" width="880" height="46" rx="10" fill="'+CARD+'" stroke="var(--line)"/>';
+    s+='<rect x="60" y="'+y+'" width="4" height="46" rx="2" fill="var(--amber)"/>';
+    s+='<rect x="80" y="'+(y+9)+'" width="34" height="28" rx="8" fill="url(#gp)"/>';
+    s+=lbl(97,y+28,'R'+(i+1),'middle',12,'#fff',true);
+    s+=lbl(130,y+28,r,'start',12.5,'var(--ink)');
+  });
+  var H=16+rules.length*58+(nt?36:8);
+  if(nt) s+=note(H-10,nt);
+  return svgWrap(H,s);
+}
+function cardsviz(items, nt){
+  var per=3, w=300, gap=22, x0=(1000-(per*w+(per-1)*gap))/2;
+  var rows=Math.ceil(items.length/per), s='';
+  items.forEach(function(it,i){
+    var r=Math.floor(i/per), c=i%per, x=x0+c*(w+gap), y=16+r*104;
+    s+='<g filter="url(#ds)"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="88" rx="10" fill="'+CARD+'"/></g>';
+    s+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="88" rx="10" fill="'+CARD+'" stroke="var(--line)"/>';
+    s+='<path d="M'+x+' '+(y+10)+' q0 -10 10 -10 h'+(w-20)+' q10 0 10 10 v20 h-'+w+' z" fill="'+(it.p?'url(#gp)':'url(#gt)')+'"/>';
+    s+=lbl(x+w/2,y+20,it.h,'middle',12.5,'#fff',true);
+    s+=lbl(x+w/2,y+54,it.b,'middle',11.5,'var(--muted)');
+    if(it.b2) s+=lbl(x+w/2,y+72,it.b2,'middle',11.5,'var(--muted)');
+  });
+  var H=16+rows*104+(nt?34:4);
+  if(nt) s+=note(H-10,nt);
+  return svgWrap(H,s);
+}
+function kpis(items, nt){
+  var w=230, gap=28, x0=(1000-(items.length*w+(items.length-1)*gap))/2, s='';
+  items.forEach(function(it,i){
+    var x=x0+i*(w+gap);
+    s+='<g filter="url(#dsL)"><rect x="'+x+'" y="20" width="'+w+'" height="104" rx="12" fill="'+CARD+'"/></g>';
+    s+='<rect x="'+x+'" y="20" width="'+w+'" height="104" rx="12" fill="'+CARD+'" stroke="var(--line)"/>';
+    s+='<rect x="'+(x+16)+'" y="20" width="'+(w-32)+'" height="4" rx="2" fill="'+(i%2?TE:PE)+'"/>';
+    s+=lbl(x+w/2,66,it.v,'middle',25,i%2?TE:PE,true);
+    s+=lbl(x+w/2,90,it.l,'middle',12.5,'var(--ink)',true);
+    s+=lbl(x+w/2,108,it.s,'middle',11);
+  });
+  if(nt) s+=note(164,nt);
+  return svgWrap(nt?176:140,s);
+}
+function xrows(items, hdr, nt){
+  var a=arrow(), s=a.defs;
+  s+='<rect x="40" y="12" width="920" height="26" rx="8" fill="var(--chip)"/>';
+  s+=lbl(150,29,hdr[0],'middle',12,'var(--ink)',true)+lbl(500,29,hdr[1],'middle',12,'var(--ink)',true)+lbl(850,29,hdr[2],'middle',12,'var(--ink)',true);
+  items.forEach(function(it,i){
+    var y=52+i*60;
+    s+=box(40,y,220,46,T2,TE,it.a,'',T2I);
+    s+='<g filter="url(#ds)"><rect x="330" y="'+y+'" width="340" height="46" rx="9" fill="'+CARD+'"/></g>';
+    s+='<rect x="330" y="'+y+'" width="340" height="46" rx="9" fill="'+CARD+'" stroke="var(--line)"/>';
+    s+=lbl(500,y+19,it.b,'middle',12,'var(--ink)',true);
+    s+=lbl(500,y+36,it.bs,'middle',11);
+    s+=box(740,y,220,46,T1,PE,it.c,'',T1I);
+    s+=a.ln(263,y+23,327,y+23); s+=a.ln(673,y+23,737,y+23);
+  });
+  var H=52+items.length*60+(nt?36:8);
+  if(nt) s+=note(H-10,nt);
+  return svgWrap(H,s);
+}
+function mapviz(L,R,links,lh,rh,nt){
+  var a=arrow(), s=a.defs, rowh=58;
+  s+=lbl(190,24,lh,'middle',12.5,'var(--ink)',true)+lbl(810,24,rh,'middle',12.5,'var(--ink)',true);
+  L.forEach(function(t,i){ s+=box(60,40+i*rowh,260,46,T1,PE,t,'',T1I); });
+  R.forEach(function(t,i){ s+=box(680,40+i*rowh,260,46,T2,TE,t,'',T2I); });
+  links.forEach(function(k){ s+=a.curve(324,63+k[0]*rowh,676,63+k[1]*rowh); });
+  var H=40+Math.max(L.length,R.length)*rowh+(nt?36:8);
+  if(nt) s+=note(H-10,nt);
+  return svgWrap(H,s);
+}
+function concepts(chain, verbs, nt){
+  var a=arrow(TE), n=chain.length, gap=64, w=(1000-80-(n-1)*gap)/n, x0=40, y=58, s=a.defs;
+  chain.forEach(function(c,i){
+    var cx=x0+i*(w+gap)+w/2;
+    s+='<g filter="url(#ds)"><ellipse cx="'+cx+'" cy="'+y+'" rx="'+(w/2)+'" ry="36" fill="url(#gtint2)" stroke="'+TE+'" stroke-width="1.2"/></g>';
+    s+=lbl(cx,y+4,c,'middle',13,T2I,true);
+    if(i<n-1){
+      s+=a.ln(x0+(i+1)*(w+gap)-gap+3,y,x0+(i+1)*(w+gap)-3,y);
+      s+=tag(x0+(i+1)*(w+gap)-gap/2,y-26,verbs[i],'var(--chip)','var(--muted)');
+    }
+  });
+  if(nt) s+=note(140,nt);
+  return svgWrap(nt?152:112,s);
+}
+
+var VIZ={
+ av1:function(){ return cardsviz([
+   {h:'Purpose',b:'Objective movement screening',b2:'and injury-risk scoring',p:1},
+   {h:'Scope',b:'Capture stations → cloud pipeline',b2:'→ clinician / coach reporting',p:1},
+   {h:'Timeframe',b:'Four increments over one year',p:1},
+   {h:'Stakeholders',b:'Athletes, clinicians, coaches,',b2:'platform operator'},
+   {h:'Environment',b:'AWS-hosted SaaS; health-adjacent',b2:'personal data'},
+   {h:'Views developed',b:'Fit-for-purpose subset',b2:'(the views on this page)'}
+  ],'A fact sheet about the architecture effort itself — the only model with no mission content of its own.'); },
+ av2:function(){ return xrows([
+   {a:'Screening session',b:'One participant completing the battery',bs:'at one site visit',c:'Used in OV-3, DIV-2, SV-6'},
+   {a:'Readiness score',b:'Deterministic risk output',bs:'for one session',c:'Used in OV-3, DIV-2, SvcV-6'},
+   {a:'Needline',b:'Required information exchange',bs:'between two operational nodes',c:'Used in OV-2, OV-3'}
+  ],['Term','Definition','Where it is used'],'Every term is defined once and reused verbatim across all other views.'); },
+ cv1:function(){ return mapviz(
+   ['Reduce preventable injuries','Objective return-to-play calls','Scale to partner clinics'],
+   ['C1.1 Movement screening','C1.2 Risk scoring','C1.3 Readiness reporting','C1.4 Data stewardship'],
+   [[0,0],[0,1],[1,1],[1,2],[2,2],[2,3]],'Enterprise goals','Capabilities that serve them',
+   'Strategy on the left, capability on the right — no performers, systems, or time.'); },
+ cv2:function(){ return tree({t:'C1 · Athlete readiness',s:'Organization-level capability'},[
+   {t:'C1.1 Movement screening',s:'Sensor capture'},{t:'C1.2 Risk scoring',s:'Deterministic pipeline'},
+   {t:'C1.3 Readiness reporting',s:'Coach and clinician views'},{t:'C1.4 Data stewardship',s:'Privacy and integrity',p:1}
+  ],'Pure decomposition: parent-child edges only, no flows, no sequence, no time.'); },
+ cv3:function(){ return lanes([
+   {l:'C1.1 Movement screening',s:0,len:2},{l:'C1.2 Risk scoring',s:0.55,len:2},
+   {l:'C1.3 Readiness reporting',s:1.55,len:2,p:1},{l:'C1.4 Data stewardship',s:0,len:3.5,p:1}
+  ],['Increment 1','Increment 2','Increment 3','Increment 4'],
+  'Bars mean "capability available", not work scheduled — that distinction is what separates CV-3 from PV-2.'); },
+ cv4:function(){ var a=arrow(); var s=a.defs;
+   s+=box(70,30,220,56,T2,TE,'C1.1 Screening','Data source',T2I);
+   s+=box(390,30,220,56,T2,TE,'C1.2 Scoring','',T2I);
+   s+=box(710,30,220,56,T2,TE,'C1.3 Reporting','',T2I);
+   s+=box(390,150,220,56,T1,PE,'C1.4 Stewardship','Trust foundation',T1I);
+   s+=a.ln(388,58,292,58)+lbl(340,48,'depends on');
+   s+=a.ln(708,58,612,58)+lbl(660,48,'depends on');
+   s+=a.path('M470 148 L470 110 Q470 96 456 92 L294 88',false)+lbl(370,118,'depends on');
+   s+=a.path('M530 148 L530 110 Q530 96 544 92 L706 88',false)+lbl(632,118,'depends on');
+   s+=lbl(500,240,'Edges are strategic dependencies between capabilities — not data flows, not interfaces.');
+   return svgWrap(255,s); },
+ cv5:function(){ return matrix(
+   ['Platform team','Sports-science group','Partner clinics'],
+   ['C1.1','C1.2','C1.3','C1.4'],
+   [[0,0,'Inc 1'],[0,3,'Inc 1'],[1,1,'Inc 2'],[2,2,'Inc 3']],
+   'Capabilities crossed with the organizations that field them, cell = which increment.'); },
+ cv6:function(){ return matrix(
+   ['C1.1 Screening','C1.2 Scoring','C1.3 Reporting','C1.4 Stewardship'],
+   ['A1','A2','A3','A4','A5'],
+   [[0,0],[0,1],[1,2],[2,3],[2,4],[3,0],[3,2],[3,3]],
+   'Traceability grid between two viewpoints: CV rows, OV columns. Empty rows or columns are findings.'); },
+ cv7:function(){ return matrix(
+   ['C1.1 Screening','C1.2 Scoring','C1.3 Reporting','C1.4 Stewardship'],
+   ['Intake','Scoring','Reporting','Notification'],
+   [[0,0],[1,1],[2,2],[2,3],[3,0],[3,1],[3,2]],
+   'Same grid idea as CV-6, but the columns are services (SvcV-1) instead of activities.'); },
+ ov1:function(){ var a=arrow(); var s=a.defs;
+   s+='<rect x="20" y="40" width="240" height="270" rx="12" fill="var(--chip)" stroke="'+PE+'" stroke-dasharray="6 4"/>';
+   s+=lbl(140,66,'Screening site (clinic / gym)','middle',13.5,T1I,true);
+   s+=box(45,84,190,54,CARD,TE,'Athlete / worker','Movement battery',T2I);
+   s+=box(45,158,190,54,CARD,TE,'Capture station','Markerless capture',T2I);
+   s+=box(45,232,190,50,CARD,TE,'Technician','Runs the session',T2I);
+   s+=a.ln(140,138,140,156);
+   s+='<rect x="330" y="40" width="330" height="270" rx="12" fill="'+T1+'" stroke="'+PE+'" stroke-width="1.5"/>';
+   s+=lbl(495,66,'MotionFit cloud platform','middle',13.5,T1I,true);
+   s+=box(355,84,280,50,CARD,PE,'Ingest and validation','',T1I);
+   s+=box(355,152,280,50,CARD,PE,'Risk scoring pipeline','',T1I);
+   s+=box(355,220,280,50,CARD,PE,'Readiness reporting','',T1I);
+   s+=a.ln(495,134,495,150)+a.ln(495,202,495,218);
+   s+='<rect x="730" y="40" width="250" height="270" rx="12" fill="var(--chip)" stroke="'+PE+'" stroke-dasharray="6 4"/>';
+   s+=lbl(855,66,'Decision makers','middle',13.5,T1I,true);
+   s+=box(755,84,200,54,CARD,TE,'Clinician / physio','Score, referral',T2I);
+   s+=box(755,158,200,54,CARD,TE,'Coach / manager','Team rollup',T2I);
+   s+=box(755,232,200,50,CARD,TE,'EHR system','Record integration',T2I);
+   s+=lbl(295,158,'telemetry')+a.ln(262,170,328,170);
+   s+=lbl(695,158,'scores')+a.ln(662,170,728,170);
+   s+=lbl(500,338,'One communicative picture: performers, places, and the main flows — deliberately free of any system names.');
+   return svgWrap(352,s); },
+ ov2:function(){ var a=arrow(); var s=a.defs;
+   s+=box(30,50,200,64,T2,TE,'Screening site','Op. node: capture',T2I);
+   s+=box(400,50,200,64,T1,PE,'Scoring center','Op. node: assess',T1I);
+   s+=box(770,50,200,64,T2,TE,'Care and coaching','Op. node: decide',T2I);
+   s+=a.ln(232,82,398,82)+lbl(315,72,'N1 session telemetry');
+   s+=a.ln(602,82,768,82)+lbl(685,72,'N2 scores / N4 rollups');
+   s+=a.path('M870 116 Q870 172 500 172 Q140 172 132 118',true)+lbl(500,162,'N3 follow-up outcome (feedback)');
+   s+=lbl(500,205,'Nodes are logical performers; edges are needlines — required exchanges, not implemented links.');
+   return svgWrap(220,s); },
+ ov3:function(){ return xrows([
+   {a:'Capture station',b:'N1 · Session telemetry',bs:'encrypted, consent required',c:'Ingest'},
+   {a:'Scoring pipeline',b:'N2 · Individual readiness score',bs:'personal data, role-restricted',c:'Clinician'},
+   {a:'Clinician',b:'N3 · Follow-up outcome',bs:'feedback for calibration',c:'Scoring pipeline'},
+   {a:'Reporting',b:'N4 · Team rollup',bs:'de-identified aggregate',c:'Coach'}
+  ],['Producer','Information element and attributes','Consumer'],
+  'One row per needline with its attributes — the tabular detail behind every OV-2 arrow.'); },
+ ov4:function(){ return forest([
+   {t:'Health-services director',c:'Screening technician',cs:'Clinic organization'},
+   {t:'Platform vendor CEO',c:'Site reliability team',cs:'Vendor organization'},
+   {t:'Head of performance',c:'Coach',cs:'Client organization'}
+  ],'Edges are reporting and coordination relationships between organizations — no data moves along them.'); },
+ ov5a:function(){ return tree({t:'A0 · Assess readiness',s:'Root activity'},[
+   {t:'A1–A2 Conduct screening',s:'Position, run battery, verify'},
+   {t:'A3 Score readiness',s:'Validate, normalize, compute',p:1},
+   {t:'A4–A5 Act on results',s:'Review, refer, adjust'}
+  ],'A hierarchy of what gets done — decomposition only, with no sequence and no flows (that is OV-5b).'); },
+ ov5b:function(){ return flowH([
+   {t:'A1 Conduct screening',s:'Technician'},{t:'A2 Transmit session',s:'Capture station'},
+   {t:'A3 Score readiness',s:'MotionFit pipeline',p:1},{t:'A4 Review and refer',s:'Clinician'},{t:'A5 Adjust training',s:'Coach'}
+  ],{note:'The same activities as OV-5a, now with sequence and handoffs — order is the added information.'}); },
+ ov6a:function(){ return rulesviz([
+   'A session may only be scored if participant consent is on file.',
+   'A clinician must review any high-risk score within 48 hours.',
+   'Coaches may never see individual clinical detail — aggregates only.'
+  ],'Structured constraint statements — the view is text-first because rules have no natural topology.'); },
+ ov6b:function(){ return states([
+   {x:115,y:50,t:'Captured'},{x:315,y:50,t:'Validated'},{x:515,y:50,t:'Scored',p:1},{x:715,y:50,t:'Reviewed'},{x:900,y:50,t:'Closed'},
+   {x:315,y:140,t:'Rejected'},{x:715,y:140,t:'Escalated',p:1}
+  ],[
+   {d:'M190 50 L238 50'},{d:'M390 50 L438 50'},{d:'M590 50 L638 50'},{d:'M790 50 L823 50'},
+   {d:'M315 69 L315 119',l:'fails checks',lx:370,ly:98},{d:'M715 69 L715 119',l:'high risk',lx:762,ly:98}
+  ],'Nodes are states of one thing (a session); edges are the events that move it — no performers, no data.'); },
+ ov6c:function(){ return seq(['Capture station','Scoring pipeline','Clinician'],[
+   {f:0,t:1,l:'submit session'},{f:1,t:0,l:'ack + validation result'},{f:1,t:2,l:'readiness score'},{f:2,t:1,l:'disposition recorded'}
+  ],'Vertical lifelines with time flowing downward — ordering of messages is the whole point of this view.'); },
+ sv1:function(){ var a=arrow(); var s=a.defs;
+   s+=box(20,30,170,58,CARD,TE,'Capture clients','Hardened devices',T2I);
+   s+=box(20,128,170,58,CARD,TE,'Identity provider','SSO / OIDC',T2I);
+   s+=box(20,226,170,58,CARD,TE,'EHR system','Referrals',T2I);
+   s+=box(20,324,170,58,CARD,TE,'Monitoring / SIEM','Telemetry',T2I);
+   s+='<rect x="260" y="14" width="720" height="452" rx="14" fill="var(--chip)" stroke="'+PE+'" stroke-width="1.5"/>';
+   s+=lbl(285,38,'MotionFit VPC (AWS)','start',13.5,T1I,true);
+   s+='<rect x="285" y="52" width="670" height="102" rx="10" fill="'+CARD+'" stroke="'+PE+'" stroke-dasharray="6 4"/>';
+   s+=lbl(305,72,'Public subnet — presentation','start',12,T1I,true);
+   s+=box(310,82,190,56,T1,PE,'WAF + ALB / API','TLS termination',T1I);
+   s+=box(530,82,190,56,T1,PE,'Auth broker','Token validation',T1I);
+   s+='<rect x="285" y="170" width="670" height="112" rx="10" fill="'+CARD+'" stroke="'+PE+'" stroke-dasharray="6 4"/>';
+   s+=lbl(305,190,'Private subnet — application','start',12,T1I,true);
+   s+=box(310,202,190,62,T2,TE,'Ingest service','Validate, normalize',T2I);
+   s+=box(530,202,190,62,T2,TE,'Scoring engine','Deterministic model',T2I);
+   s+=box(750,202,185,62,T2,TE,'Reporting API','Role-based views',T2I);
+   s+='<rect x="285" y="298" width="670" height="112" rx="10" fill="'+CARD+'" stroke="'+PE+'" stroke-dasharray="6 4"/>';
+   s+=lbl(305,318,'Data subnet — persistence (private endpoints only)','start',12,T1I,true);
+   s+=box(310,330,190,62,T1,PE,'S3 sessions','Encrypted, KMS',T1I);
+   s+=box(530,330,190,62,T1,PE,'PostgreSQL','Scores, referrals',T1I);
+   s+=box(750,330,185,62,T1,PE,'Audit log store','Immutable',T1I);
+   s+=a.ln(192,58,308,98)+lbl(235,60,'I1','middle',12,T2I,true);
+   s+=a.ln(192,158,528,116)+lbl(250,142,'I2','middle',12,T2I,true);
+   s+=a.ln(192,255,308,255)+lbl(240,247,'I3','middle',12,T2I,true);
+   s+=a.ln(308,355,192,350)+lbl(240,342,'I6','middle',12,T2I,true);
+   s+=a.ln(405,138,405,200)+lbl(416,172,'I4','middle',12,T1I,true);
+   s+=a.ln(405,264,405,328)+a.ln(625,264,625,328)+lbl(636,300,'I5','middle',12,T1I,true);
+   s+=a.ln(500,233,528,233)+a.ln(720,233,748,233);
+   s+=lbl(500,492,'Concrete named systems, numbered interfaces, and containment showing deployment grouping.');
+   return svgWrap(506,s); },
+ sv2:function(){ var a=arrow(); var s=a.defs;
+   s+=box(20,45,180,60,CARD,TE,'Screening sites','Clinic networks',T2I);
+   s+=box(20,155,180,60,CARD,TE,'Partner EHR','Health-system net',T2I);
+   s+='<rect x="380" y="25" width="240" height="205" rx="12" fill="'+T1+'" stroke="'+PE+'" stroke-width="1.5"/>';
+   s+=lbl(500,50,'Platform edge','middle',13.5,T1I,true);
+   s+=box(405,64,190,48,CARD,PE,'API endpoints','TLS 1.2+ only',T1I);
+   s+=box(405,126,190,48,CARD,PE,'VPN gateway','IPsec site-to-site',T1I);
+   s+=box(405,188,190,30,CARD,PE,'CDN for static assets','',T1I);
+   s+='<rect x="770" y="70" width="210" height="115" rx="12" fill="var(--chip)" stroke="'+PE+'" stroke-dasharray="6 4"/>';
+   s+=lbl(875,98,'MotionFit VPC','middle',13.5,T1I,true);
+   s+=lbl(875,122,'Private subnets; storage','middle',12)+lbl(875,140,'via VPC endpoints, no','middle',12)+lbl(875,158,'direct internet egress','middle',12);
+   s+=a.ln(202,75,403,86)+lbl(300,68,'mTLS session upload');
+   s+=a.ln(202,187,403,158)+lbl(300,200,'IPsec (FHIR referrals)');
+   s+=a.ln(622,128,768,128)+lbl(695,120,'Internal TLS');
+   s+=lbl(500,262,'The same interfaces as SV-1, now realized as links: networks, protocols, and encryption named on the wires.');
+   return svgWrap(276,s); },
+ sv3:function(){ return matrix(
+   ['ALB / API','Auth broker','Ingest','Scoring','Reporting','Database'],
+   ['ALB','Auth','Ingest','Scoring','Reptg','DB'],
+   [[0,1],[0,2],[1,0],[2,3],[2,5],[3,5],[4,3],[4,5],[3,2]],
+   'Systems on both axes; filled cells mark an interface. Density exposes coupling; the scoring row is deliberately sparse.'); },
+ sv4:function(){ return flowH([
+   {t:'validate-session',s:'Ingest'},{t:'normalize-channels',s:'Ingest'},
+   {t:'compute-risk',s:'Scoring engine',p:1},{t:'persist-score',s:'Scoring engine',p:1},{t:'render-rollup',s:'Reporting'}
+  ],{labels:['session','channels','score','score'],note:'Nodes are functions (verbs) that systems perform; edges carry named data — one level below SV-1 boxes.'}); },
+ sv5a:function(){ return matrix(
+   ['A1 Screen','A2 Transmit','A3 Score','A4 Review','A5 Adjust'],
+   ['validate','normalize','compute','persist','render'],
+   [[1,0],[2,1],[2,2],[2,3],[3,4],[4,4]],
+   'Operational activities (rows) traced to system functions (columns). Gaps = unsupported operations; orphan columns = gold-plating.'); },
+ sv5b:function(){ return matrix(
+   ['A1 Screen','A2 Transmit','A3 Score','A4 Review','A5 Adjust'],
+   ['Capture stn','Ingest','Scoring','Reporting'],
+   [[0,0],[1,0],[1,1],[2,1],[2,2],[3,3],[4,3]],
+   'Same traceability as SV-5a at coarser grain — whole systems instead of functions.'); },
+ sv6:function(){ return xrows([
+   {a:'Capture client',b:'I1 · Session bundle',bs:'JSON over mTLS, event-driven, ~4 MB',c:'Ingest service'},
+   {a:'Reporting API',b:'I3 · FHIR ServiceRequest',bs:'IPsec, on referral',c:'Partner EHR'},
+   {a:'All components',b:'I6 · Security telemetry',bs:'OCSF, continuous stream',c:'SIEM'}
+  ],['Producing system','Exchange with engineering attributes','Consuming system'],
+  'One row per system exchange with format, protocol, and periodicity — the integrator&#39;s working document.'); },
+ sv7:function(){ return kpis([
+   {v:'≤ 30 s',l:'Scoring latency',s:'p95, per session'},
+   {v:'99.9%',l:'Platform availability',s:'monthly'},
+   {v:'50',l:'Ingest burst capacity',s:'concurrent sessions'}
+  ],'Quantitative thresholds only — no structure, no flows. These numbers are what a test program verifies.'); },
+ sv8:function(){ return lanes([
+   {l:'Pilot single-container scorer',s:0,len:1.6,hatch:1},
+   {l:'Autoscaled scoring service',s:1.3,len:2.7,p:1},
+   {l:'CSV export path',s:0,len:2.4,hatch:1},
+   {l:'EHR FHIR integration',s:2.2,len:1.8,p:1}
+  ],['Now','Increment 2','Increment 3','Increment 4'],
+  'System lifecycles over time — the faded bars are retirements, which only this view shows.'); },
+ sv9:function(){ return cardsviz([
+   {h:'Near term',b:'Markerless-capture accuracy',b2:'improvements'},
+   {h:'Mid term',b:'On-device pose estimation',b2:'shrinks upload sizes',p:1},
+   {h:'Long term',b:'FHIR maturity across',b2:'partner clinics',p:1}
+  ],'External technology trends bucketed by horizon — a forecast about the world, not the architecture.'); },
+ sv10a:function(){ return rulesviz([
+   'Scores are computed only by the deterministic engine — never by an LLM.',
+   'Raw video never leaves the capture station.',
+   'All data-tier access goes through private endpoints.'
+  ],'The system-level twin of OV-6a: constraints on machine behavior instead of mission behavior.'); },
+ sv10b:function(){ return states([
+   {x:100,y:50,t:'Received'},{x:290,y:50,t:'Validated'},{x:480,y:50,t:'Queued'},{x:670,y:50,t:'Scored',p:1},{x:880,y:50,t:'Published'},
+   {x:480,y:140,t:'Failed'}
+  ],[
+   {d:'M175 50 L213 50'},{d:'M365 50 L403 50'},{d:'M555 50 L593 50'},{d:'M745 50 L803 50'},
+   {d:'M545 130 L640 72',l:'retry',lx:615,ly:112},{d:'M480 69 L480 119',l:'error',lx:512,ly:98}
+  ],'Implementation-level states of a session object, including the failure and retry loop OV-6b abstracts away.'); },
+ sv10c:function(){ return seq(['Client','ALB / Auth','Ingest','Scorer','Database'],[
+   {f:0,t:1,l:'POST session (mTLS)'},{f:1,t:2,l:'validated request'},{f:2,t:3,l:'queue message',dash:1},
+   {f:3,t:4,l:'persist score'},{f:1,t:0,l:'401 on bad token',dash:1}
+  ],'Actual system messages with protocols, queues (dashed), and error branches — engineering detail OV-6c omits.'); },
+ svcv1:function(){ return flowH([
+   {t:'Session intake',s:'REST, event-driven'},{t:'Scoring service',s:'Stateless compute'},
+   {t:'Reporting service',s:'GraphQL / REST'},{t:'Notification',s:'Email, webhooks',p:1}
+  ],{note:'Nodes are services with published contracts and consumers — capabilities offered, not deployed boxes.'}); },
+ svcv2:function(){ return flowH([
+   {t:'Intake',s:'publishes'},{t:'session-validated',s:'event',p:1},{t:'Scoring',s:'subscribes / publishes'},
+   {t:'score-ready',s:'event',p:1},{t:'Reporting + Notify',s:'both subscribe'}
+  ],{dash:1,note:'Interaction patterns are first-class: dashed hops are pub/sub events, not request/response calls.'}); },
+ svcv3a:function(){ return matrix(
+   ['App compute cluster','Managed queue','Managed email','Edge / CDN'],
+   ['Intake','Scoring','Reporting','Notify'],
+   [[0,0],[0,1],[0,2],[1,0],[1,1],[2,3],[3,2]],
+   'Systems (rows) crossed with services (columns): where each service actually runs or is consumed from.'); },
+ svcv3b:function(){ return matrix(
+   ['Intake','Scoring','Reporting','Notify'],
+   ['Intake','Scoring','Reptg','Notify'],
+   [[1,0],[2,0],[2,1],[3,1]],
+   'Service-to-service dependencies. Nothing depends on Notify — a safe leaf that can degrade without breaking the core.'); },
+ svcv4:function(){ return flowH([
+   {t:'computeScore',s:'exposed operation',p:1},{t:'normalize',s:'internal'},{t:'run model',s:'internal'},
+   {t:'persist',s:'internal'},{t:'getScoreStatus',s:'exposed operation',p:1}
+  ],{note:'The functions inside one service: exposed operations at the edges, internal steps between.'}); },
+ svcv5:function(){ return matrix(
+   ['A1 Screen','A2 Transmit','A3 Score','A4 Review','A5 Adjust'],
+   ['Intake','Scoring','Reporting','Notify'],
+   [[1,0],[2,1],[3,2],[3,3],[4,2]],
+   'Activities traced to the services that support them — the services twin of SV-5.'); },
+ svcv6:function(){ return xrows([
+   {a:'Scoring service',b:'score-ready event',bs:'JSON, broker pub/sub, at-least-once',c:'Reporting (P1)'},
+   {a:'Scoring service',b:'score-ready event',bs:'same event, second subscriber',c:'Notification (P2)'},
+   {a:'Intake service',b:'session-validated event',bs:'JSON, broker pub/sub',c:'Scoring service'}
+  ],['Producing service','Exchange, payload, and pattern','Consuming service'],
+  'Per-exchange attributes like SV-6, but delivery semantics (at-least-once, ordering) are the key columns.'); },
+ svcv7:function(){ return kpis([
+   {v:'≤ 30 s',l:'computeScore',s:'p95'},
+   {v:'≤ 800 ms',l:'Reporting query',s:'p95'},
+   {v:'≤ 60 s',l:'Notification delivery',s:'end to end'}
+  ],'Service-level objectives per contract — thresholds a consumer can hold the provider to.'); },
+ svcv8:function(){ return lanes([
+   {l:'Reporting service (monolith)',s:0,len:2.4,hatch:1},
+   {l:'Individual-report service',s:2.1,len:1.9,p:1},
+   {l:'Team-analytics service',s:2.1,len:1.9,p:1}
+  ],['Now','Increment 2','Increment 3','Increment 4'],
+  'Portfolio evolution: one service splitting into two as load grows — the split is the story.'); },
+ svcv9:function(){ return cardsviz([
+   {h:'Near term',b:'Managed broker retry features',b2:'replace custom logic'},
+   {h:'Mid term',b:'GraphQL federation maturity',b2:'for the reporting layer',p:1}
+  ],'Forecast of service-relevant technology, mirroring SV-9 for the service portfolio.'); },
+ svcv10a:function(){ return rulesviz([
+   'All service calls require a validated token.',
+   'computeScore must be idempotent per session ID.',
+   'No service may return raw kinematic data to coach roles.'
+  ],'Contract-level rules: idempotency, authorization, and payload constraints per service.'); },
+ svcv10b:function(){ return states([
+   {x:110,y:50,t:'Pending'},{x:330,y:50,t:'Computing',p:1},{x:560,y:50,t:'Available'},{x:800,y:50,t:'Superseded'},
+   {x:330,y:140,t:'Failed'}
+  ],[
+   {d:'M185 50 L253 50'},{d:'M405 50 L483 50'},{d:'M635 50 L723 50',l:'re-score',lx:679,ly:40},
+   {d:'M330 69 L330 119',l:'error',lx:362,ly:98}
+  ],'States of the score resource a service manages — resource lifecycle rather than system internals.'); },
+ svcv10c:function(){ return seq(['Client','Intake','Broker','Scoring','Reporting'],[
+   {f:0,t:1,l:'REST upload'},{f:1,t:2,l:'session-validated',dash:1},{f:2,t:3,l:'deliver event',dash:1},
+   {f:3,t:2,l:'score-ready',dash:1},{f:2,t:4,l:'deliver event',dash:1}
+  ],'A service-level trace where most hops are asynchronous events (dashed) — the pattern is the signature.'); },
+ div1:function(){ return concepts(
+   ['Participant','Screening session','Readiness assessment','Care action'],
+   ['undergoes','yields','prompts'],
+   'Business nouns in ellipses with verb relationships — no keys, no attributes, no types.'); },
+ div2:function(){ var a=arrow(); var s=a.defs;
+   function ent(x,name,attrs,p){
+     var st=p?PE:TE;
+     var r='<rect x="'+x+'" y="50" width="180" height="110" rx="8" fill="'+CARD+'" stroke="'+st+'"/><rect x="'+x+'" y="50" width="180" height="30" rx="8" fill="'+st+'"/>';
+     r+=lbl(x+90,70,name,'middle',13,'#fff',true);
+     attrs.forEach(function(t,i){ r+=lbl(x+15,102+i*20,t,'start',12); });
+     return r;
+   }
+   s+=ent(20,'Participant',['Participant ID (key)','Team / employer','Consent status'],1);
+   s+=a.ln(202,105,278,105)+lbl(240,95,'1 : n');
+   s+=ent(282,'Screening session',['Session ID (key)','Site, timestamp','Movement battery']);
+   s+=a.ln(464,105,540,105)+lbl(502,95,'1 : n');
+   s+=ent(544,'Sensor reading',['Reading ID (key)','Kinematic channels','Quality flags']);
+   s+=a.ln(372,162,372,195);
+   s+='<rect x="282" y="198" width="180" height="40" rx="8" fill="'+T1+'" stroke="'+PE+'"/>'+lbl(372,223,'Readiness score (1:1)','middle',13,T1I,true);
+   s+=ent(806,'Referral',['Referral ID (key)','Provider, disposition','EHR reference'],1);
+   s+='<line x1="464" y1="218" x2="893" y2="218" stroke="var(--muted)" stroke-width="1.3"/>'+a.ln(893,218,893,164)+lbl(670,210,'a score may generate 0..1 referral');
+   s+=lbl(500,272,'Entities with attributes, keys, and cardinalities — structured, but still independent of any database product.');
+   return svgWrap(286,s); },
+ div3:function(){ return cardsviz([
+   {h:'participant (table)',b:'uuid PK, org_id FK, consent bool',b2:'row-level security by org',p:1},
+   {h:'session / score (tables)',b:'uuid PKs, indexed by participant',b2:'score FK unique → 1:1',p:1},
+   {h:'raw readings (S3)',b:'compressed objects keyed',b2:'by session ID'}
+  ],'Types, indexes, and storage technology appear — the DIV level where a DBA can build it.'); },
+ pv1:function(){ return mapviz(
+   ['Engineering','Customer success','Joint team w/ health system'],
+   ['Platform build','Clinic pilot','EHR integration'],
+   [[0,0],[1,1],[2,2]],'Owning organization','Project',
+   'Projects tied to the organizations accountable for them — ownership, not schedule.'); },
+ pv2:function(){ return lanes([
+   {l:'Platform build + security baseline',s:0,len:1.55,p:1},
+   {l:'Pilot with two clinics',s:0.8,len:1.5},
+   {l:'EHR integration (FHIR)',s:1.75,len:1.3},
+   {l:'General availability',s:2.65,len:1.2,p:1}
+  ],['Q1','Q2','Q3','Q4'],
+  'A schedule of work with dependencies — bars mean effort underway, where CV-3 bars mean capability available.'); },
+ pv3:function(){ return matrix(
+   ['Platform build','Clinic pilot','EHR integration'],
+   ['C1.1','C1.2','C1.3','C1.4'],
+   [[0,0],[0,3],[1,1],[2,2]],
+   'Projects (rows) traced to the capabilities they deliver — the view that keeps spending honest.'); },
+ stdv1:function(){ return xrows([
+   {a:'Transport security',b:'TLS 1.2+',bs:'all external and internal APIs',c:'SV-1 interfaces'},
+   {a:'Identity',b:'OAuth 2.0 / OIDC',bs:'user and service authentication',c:'Auth broker, services'},
+   {a:'Clinical exchange',b:'HL7 FHIR R4',bs:'referral payloads',c:'I3 to partner EHR'},
+   {a:'Hardening',b:'CIS Benchmarks',bs:'hosts, containers, cloud accounts',c:'All compute'}
+  ],['Area','Normative standard','Architecture element it binds'],
+  'Standards on the left bound to the specific architecture elements they govern — a normative cross-reference, not a design.'); },
+ stdv2:function(){ return lanes([
+   {l:'TLS 1.3-only endpoints',s:0.5,len:1.2,p:1},
+   {l:'Post-quantum cipher defaults',s:1.6,len:1.6,p:1},
+   {l:'FHIR R5 partner adoption',s:2.2,len:1.6},
+   {l:'New state privacy statutes',s:1.0,len:2.6}
+  ],['Horizon 1','Horizon 2','Horizon 3','Horizon 4'],
+  'The same standards idea projected forward: expected changes plotted against planning horizons.'); }
+};
+
+var DATA=[
+ {abbr:'AV', gov:true, name:'All viewpoint', sub:'Overarching context shared by every other view', models:[
+  {id:'AV-1', name:'Overview and summary information', brief:'Executive frame: scope, purpose, environment', svg:'av1',
+   desc:'The front door of the architecture description: what the architecture is for, who the stakeholders are, scope, timeframe, environment, and which views were developed. Written first as a plan, finalized last as a summary of findings.',
+   ex:'Purpose = objective injury-risk screening for teams and clinics; scope = edge capture through cloud scoring to reporting; environment = AWS-hosted SaaS handling personal health-adjacent data.',
+   unique:'No flows, no nodes, no time axis — a structured fact sheet about the architecture effort itself. If a diagram has arrows, it is not an AV-1.'},
+  {id:'AV-2', name:'Integrated dictionary', brief:'Definitions of every term used across the views', svg:'av2',
+   desc:'A controlled vocabulary: every activity, node, system, service, and data element used in any view is defined once here, so a term means exactly the same thing everywhere.',
+   ex:'"Screening session", "readiness score", and "needline" each get one authoritative definition reused across OV-3, DIV-2, and SV-6.',
+   unique:'Term → definition → where-used rows. Its visual signature is cross-reference structure, not topology — the arrows point at other views, not at data flows.'}
+ ]},
+ {abbr:'CV', gov:true, name:'Capability viewpoint', sub:'Strategic capability requirements and their evolution', models:[
+  {id:'CV-1', name:'Vision', brief:'Strategic context and desired end state', svg:'cv1',
+   desc:'Links the architecture to enterprise goals: the overall vision the capabilities serve and the transformation intended.',
+   ex:'MotionFit vision: reduce preventable injuries by making objective readiness data part of every training and return-to-work decision.',
+   unique:'Goals on one side, capabilities on the other, alignment lines between. No performers, no systems, no schedule — if operational detail appears, you have drifted into OV.'},
+  {id:'CV-2', name:'Capability taxonomy', brief:'Hierarchy of capabilities and sub-capabilities', svg:'cv2',
+   desc:'Decomposes the top-level capability into the sub-capabilities the architecture must deliver, giving everything else a strategic anchor.',
+   ex:'Athlete readiness decomposes into movement screening, risk scoring, readiness reporting, and cross-cutting data stewardship.',
+   unique:'A pure tree: every edge means "is part of". No arrows of flow, no ordering left-to-right — siblings are peers, and only depth carries meaning.'},
+  {id:'CV-3', name:'Capability phasing', brief:'When each capability is delivered over time', svg:'cv3',
+   desc:'Shows capability increments across time: which sub-capabilities exist now, which arrive in which increment, and where gaps remain.',
+   ex:'Screening and stewardship land in increment 1; scoring in increment 2; full reporting in increment 3.',
+   unique:'Capabilities × time with availability bars. It looks like a Gantt but is not one: a bar means "the force has this capability", not "a team is working" — that is PV-2.'},
+  {id:'CV-4', name:'Capability dependencies', brief:'Which capabilities depend on which', svg:'cv4',
+   desc:'A dependency graph between capabilities — useful for sequencing investment and spotting single points of strategic failure.',
+   ex:'Risk scoring depends on movement screening and on data stewardship; reporting depends on scoring.',
+   unique:'A directed graph whose edges read "depends on" — strategic prerequisites, not data or control flow. A node with many inbound edges is a strategic single point of failure.'},
+  {id:'CV-5', name:'Capability to organizational development mapping', brief:'Who fields each capability, when', svg:'cv5',
+   desc:'Maps capability increments to the organizations that will deploy and operate them.',
+   ex:'Increment 1 is fielded by the platform team; increment 2 adds the sports-science group; increment 3 onboards partner clinics.',
+   unique:'A matrix whose cells contain increments — three dimensions (capability, organization, time) flattened into one grid. The cell labels are what distinguish it from CV-6/CV-7.'},
+  {id:'CV-6', name:'Capability to operational activities mapping', brief:'Which activities realize each capability', svg:'cv6',
+   desc:'Traceability between the CV and OV: every capability should be realized by at least one operational activity, and vice versa.',
+   ex:'C1.1 maps to A1–A2; C1.2 maps to A3; C1.3 maps to A4–A5; stewardship touches most columns.',
+   unique:'A cross-viewpoint traceability grid: CV rows, OV columns, dots for coverage. The insight is in the blanks — an empty row is an undelivered capability, an empty column an unjustified activity.'},
+  {id:'CV-7', name:'Capability to services mapping', brief:'Which services deliver each capability', svg:'cv7',
+   desc:'Traceability between the CV and SvcV: which services deliver each capability, exposing over- and under-served capabilities.',
+   ex:'C1.2 is delivered by the scoring service; C1.3 by the reporting and notification services.',
+   unique:'Identical grammar to CV-6, but columns are services with contracts rather than mission activities — the pairing of strategy with the service portfolio is the differentiator.'}
+ ]},
+ {abbr:'OV', gov:false, name:'Operational viewpoint', sub:'What the mission does, independent of systems', models:[
+  {id:'OV-1', name:'High-level operational concept graphic', brief:'The one-picture story of the mission', svg:'ov1',
+   desc:'The famous "one slide": performers, locations, and the main information flows, drawn for communication rather than precision.',
+   ex:'Participants screened at a clinic or gym, telemetry flowing to the cloud pipeline, scores flowing to clinicians and coaches.',
+   unique:'Pictorial and place-oriented: dashed regions are locations, and no system names appear. It should survive a complete change of technology — that survivability is the test of a true OV-1.'},
+  {id:'OV-2', name:'Operational resource flow description', brief:'Operational nodes and needlines between them', svg:'ov2',
+   desc:'Abstracts OV-1 into operational nodes connected by needlines — required resource exchanges, each detailed later in OV-3.',
+   ex:'Three nodes — screening site, scoring center, care-and-coaching — joined by needlines N1–N4 including a feedback loop.',
+   unique:'Nodes are logical performers (roles/places), and every edge is a labeled needline: a requirement to exchange, not an implemented link. The N-numbers are the signature.'},
+  {id:'OV-3', name:'Operational resource flow matrix', brief:'Every needline as a row with attributes', svg:'ov3',
+   desc:'The needlines behind the arrows, one row per exchange: information element, producer, consumer, criticality, protection.',
+   ex:'N1 telemetry (encrypted, consented), N2 individual score (role-restricted), N3 follow-up feedback, N4 de-identified rollup.',
+   unique:'Row-per-needline tabular structure. The same content as OV-2 but pivoted: geometry is replaced by attribute columns, which is why OV-2 and OV-3 must reconcile exactly.',
+   table:[['Needline','Information element','Producer','Consumer','Notes'],['N1','Session telemetry','Capture station','Ingest','Encrypted; requires consent'],['N2','Individual readiness score','Scoring pipeline','Clinician','Personal data; role-restricted'],['N3','Follow-up outcome','Clinician','Scoring pipeline','Feedback loop for calibration'],['N4','Team readiness rollup','Reporting','Coach','De-identified aggregate']]},
+  {id:'OV-4', name:'Organizational relationships chart', brief:'Command / organization structure of the performers', svg:'ov4',
+   desc:'Shows the organizations and roles involved and their relationships, clarifying who owns each operational node.',
+   ex:'Clinic operations, the platform vendor, and the client organization — three org trees coordinating around one workflow.',
+   unique:'Org-chart edges mean supervision or coordination — authority, not information. Nothing flows along these lines; that is what separates OV-4 from every other OV.'},
+  {id:'OV-5a', name:'Operational activity decomposition tree', brief:'Activities broken down hierarchically', svg:'ov5a',
+   desc:'A tree of what gets done, decomposed from mission level to leaf activities, without sequence or flow.',
+   ex:'"Assess readiness" decomposes into conduct screening, score readiness, and act on results.',
+   unique:'Same tree grammar as CV-2 but the nodes are verbs (activities), not capabilities — and still no ordering. Add arrows between siblings and you have made an OV-5b.'},
+  {id:'OV-5b', name:'Operational activity model', brief:'Activities with flows between them', svg:'ov5b',
+   desc:'Adds sequence and resource flows to the activity tree: which activity feeds which, and who performs each.',
+   ex:'Five activities from screening to training adjustment; only A3 happens inside the platform.',
+   unique:'The horizontal arrows are the added information: sequence and handoffs between activities. Compare with OV-5a — identical nodes, but here order carries meaning.'},
+  {id:'OV-6a', name:'Operational rules model', brief:'Business rules constraining operations', svg:'ov6a',
+   desc:'Captures the rules that constrain the mission: conditions, permissions, and obligations.',
+   ex:'Consent before scoring; 48-hour clinician review of high-risk scores; coaches see aggregates only.',
+   unique:'Numbered constraint statements — deliberately text-first, because rules have no natural topology. Each rule should be checkable against OV-5b and OV-6b behavior.'},
+  {id:'OV-6b', name:'State transition description', brief:'How operational things change state', svg:'ov6b',
+   desc:'A state machine for a key operational object: the states it can be in and the events that move it between them.',
+   ex:'A session moves captured → validated → scored → reviewed → closed, with rejected and escalated branches.',
+   unique:'Rounded state pills where every node is a condition of one thing and every edge is a triggering event. No performers, no data — a diagram of "being", not "doing".'},
+  {id:'OV-6c', name:'Event-trace description', brief:'A timed sequence of exchanges for one scenario', svg:'ov6c',
+   desc:'A sequence diagram of one operational thread: which node sends what to whom, in what order.',
+   ex:'One session end-to-end: submit → acknowledge → score → record disposition.',
+   unique:'Vertical lifelines with time flowing downward and numbered messages — the only OV where vertical position means "later". It validates OV-2 needlines against a concrete scenario.'}
+ ]},
+ {abbr:'SV', gov:false, name:'Systems viewpoint', sub:'The systems that implement the operations', models:[
+  {id:'SV-1', name:'Systems interface description', brief:'Systems and the interfaces between them', svg:'sv1',
+   desc:'The system counterpart of OV-2: concrete systems, their groupings, and numbered interfaces between them, including external systems.',
+   ex:'The MotionFit VPC with presentation, application, and data tiers, plus interfaces I1–I6 to clients, identity, EHR, and monitoring.',
+   unique:'Named, buildable systems inside containment boxes (deployment grouping), with I-numbered interfaces. Swap the node names for roles and it collapses back into an OV-2 — the concreteness is the point.'},
+  {id:'SV-2', name:'Systems resource flow description', brief:'How interfaces are physically realized', svg:'sv2',
+   desc:'Drops from logical interfaces to the communications that carry them: networks, links, protocols, encryption.',
+   ex:'mTLS uploads, IPsec to the partner EHR, TLS-only endpoints at the edge, private endpoints inside the VPC.',
+   unique:'The wires are labeled with transport and cryptography (mTLS, IPsec, TLS). Same endpoints as SV-1, but the annotations moved from the boxes to the links — realization over identification.'},
+  {id:'SV-3', name:'Systems-systems matrix', brief:'N×N grid of system-to-system relationships', svg:'sv3',
+   desc:'A matrix with systems on both axes; each cell marks whether two systems interface. Reveals over-connected systems and gaps.',
+   ex:'The scoring engine touches only ingest and the database — a deliberate isolation decision made visible.',
+   unique:'The only square (same axis twice) matrix in the framework: an N² adjacency grid with an empty diagonal. Row density is coupling — one glance replaces tracing every SV-1 line.'},
+  {id:'SV-4', name:'Systems functionality description', brief:'Functions each system performs and data flows', svg:'sv4',
+   desc:'Documents system functions and the data flowing between them — the system-level parallel of OV-5b.',
+   ex:'validate-session and normalize-channels in ingest; compute-risk and persist-score in the scoring engine; render-rollup in reporting.',
+   unique:'Nodes are verbs performed by machines, with data items named on the arrows. One level of zoom below SV-1: boxes become the functions inside the boxes.'},
+  {id:'SV-5a', name:'Operational activity to systems function traceability', brief:'Maps activities to system functions', svg:'sv5a',
+   desc:'Every operational activity should be supported by at least one system function. Gaps mean unsupported operations; orphans mean gold-plating.',
+   ex:'A3 traces to compute-risk and persist-score; A4 to render and record functions.',
+   unique:'Mission verbs (rows) against machine verbs (columns) — the finest-grain traceability grid in DoDAF. Its diagnostic value lives in the empty cells, not the filled ones.'},
+  {id:'SV-5b', name:'Operational activity to systems traceability', brief:'Maps activities to whole systems', svg:'sv5b',
+   desc:'The same idea at coarser grain: which systems support which activities.',
+   ex:'A1–A2 supported by the capture station; A3 by ingest + scoring; A4–A5 by reporting.',
+   unique:'Identical rows to SV-5a but columns coarsen to whole systems — the zoom level, not the grammar, is what distinguishes the two 5-series grids.'},
+  {id:'SV-6', name:'Systems resource flow matrix', brief:'System data exchanges as rows with attributes', svg:'sv6',
+   desc:'The SV analog of OV-3: one row per system exchange with format, protocol, periodicity, security. The view integrators live in.',
+   ex:'I1 session bundle (JSON/mTLS, ~4 MB), I3 FHIR ServiceRequest (IPsec), I6 telemetry (OCSF, continuous).',
+   unique:'Row-per-exchange like OV-3, but the attributes are engineering facts: payload format, protocol, size, frequency. If you can write an interface control document from it, it is an SV-6.'},
+  {id:'SV-7', name:'Systems measures matrix', brief:'Performance measures for systems', svg:'sv7',
+   desc:'Quantitative requirements per system or interface: throughput, latency, availability — what a test program verifies.',
+   ex:'Scoring ≤ 30 s p95; availability 99.9%; ingest burst 50 concurrent sessions.',
+   unique:'Pure numbers with thresholds — no topology at all. The only SV whose diagram could be a scoreboard; every figure must be testable.'},
+  {id:'SV-8', name:'Systems evolution description', brief:'How systems change over time', svg:'sv8',
+   desc:'The migration story: current systems, planned upgrades and retirements, mapped against time.',
+   ex:'The pilot scorer evolves into the autoscaled service; the CSV export path retires when EHR integration ships.',
+   unique:'System lifecycles as time bars including retirements (the faded bars) — the only view where something disappearing is a first-class visual element.'},
+  {id:'SV-9', name:'Systems technology and skills forecast', brief:'Emerging tech and skills affecting the systems', svg:'sv9',
+   desc:'A forecast of technologies and workforce skills expected to affect the architecture within its planning horizon.',
+   ex:'Markerless-capture accuracy, on-device pose estimation, FHIR adoption maturity.',
+   unique:'Horizon-bucketed cards about the outside world. Nothing in this diagram is part of the architecture — it is the environment the architecture must ride.'},
+  {id:'SV-10a', name:'Systems rules model', brief:'Constraints on system behavior', svg:'sv10a',
+   desc:'System-level rules mirroring OV-6a: what systems must, may, and must not do.',
+   ex:'Deterministic-engine-only scoring; raw video never leaves the capture station; data-tier access via private endpoints only.',
+   unique:'Same numbered-rule form as OV-6a but every subject is a machine. Each rule should be enforceable by configuration or test, not by policy memo.'},
+  {id:'SV-10b', name:'Systems state transition description', brief:'System state machines', svg:'sv10b',
+   desc:'State models for systems or system objects, mirroring OV-6b at the implementation level.',
+   ex:'received → validated → queued → scored → published, with failed and retry transitions.',
+   unique:'The retry loop and error states are the tell: implementation-level failure handling that the operational OV-6b abstracts away.'},
+  {id:'SV-10c', name:'Systems event-trace description', brief:'Timed system message sequences', svg:'sv10c',
+   desc:'Sequence diagrams of actual system messages for one thread, including timeouts and error paths.',
+   ex:'client → ALB → ingest → queue → scorer → database, with a 401 branch.',
+   unique:'Lifelines like OV-6c, but the messages carry protocols and infrastructure hops (queues shown dashed) and error branches — the engineering shadow of the operational trace.'}
+ ]},
+ {abbr:'SvcV', gov:false, name:'Services viewpoint', sub:'Service-oriented parallel of the systems viewpoint', models:[
+  {id:'SvcV-1', name:'Services context description', brief:'Services, performers, and their relationships', svg:'svcv1',
+   desc:'Identifies the services, who provides and consumes them, and the resource flows between them — the SOA counterpart of SV-1.',
+   ex:'Four services — intake, scoring, reporting, notification — with clinics and client apps as consumers.',
+   unique:'Nodes are offered capabilities with published contracts, not deployed boxes. A service can move hosts without the diagram changing — the SV-1 equivalent could not.'},
+  {id:'SvcV-2', name:'Services resource flow description', brief:'Resource flows between services', svg:'svcv2',
+   desc:'Details the exchanges between services, including interaction patterns (request/response, publish/subscribe).',
+   ex:'Intake publishes session-validated; scoring subscribes then publishes score-ready; reporting and notification subscribe.',
+   unique:'Interaction pattern is drawn, not implied: dashed hops are events on a broker, solid ones are direct calls. The pattern distinction is what SV-2 does with protocols, done here with semantics.'},
+  {id:'SvcV-3a', name:'Systems-services matrix', brief:'Which systems host or use which services', svg:'svcv3a',
+   desc:'A matrix relating systems to services — where each service actually runs and which systems depend on it.',
+   ex:'Scoring runs on the compute cluster; notification is a consumed managed service.',
+   unique:'A bridge matrix between two viewpoints (SV rows, SvcV columns) — it answers "where does this service live", which neither viewpoint answers alone.'},
+  {id:'SvcV-3b', name:'Services-services matrix', brief:'N×N service dependency grid', svg:'svcv3b',
+   desc:'Service-to-service dependencies in matrix form, exposing coupling and availability chains.',
+   ex:'Reporting depends on scoring and intake; nothing depends on notification — a safe leaf.',
+   unique:'The service twin of SV-3: a square dependency grid. An empty column is a service the rest of the mesh can survive losing — resilience read straight off the blanks.'},
+  {id:'SvcV-4', name:'Services functionality description', brief:'Functions each service performs', svg:'svcv4',
+   desc:'The functions performed by each service and the data flows among them.',
+   ex:'computeScore and getScoreStatus exposed; normalization, model execution, persistence internal.',
+   unique:'Zooms inside one service: exposed operations at the boundary, internal steps between them. The exposed/internal split is the signature — SV-4 has no such boundary.'},
+  {id:'SvcV-5', name:'Operational activity to services traceability', brief:'Maps activities to services', svg:'svcv5',
+   desc:'Traceability from operational activities to the services that support them.',
+   ex:'A3 traces to scoring; A4 to reporting and notification; A2 to intake.',
+   unique:'The services member of the traceability-grid family: mission rows, service columns. Read alongside SV-5b to see whether systems or services carry each activity.'},
+  {id:'SvcV-6', name:'Services resource flow matrix', brief:'Service exchanges as rows with attributes', svg:'svcv6',
+   desc:'One row per service exchange with payload, protocol, pattern, and SLA attributes.',
+   ex:'score-ready: JSON, broker pub/sub, at-least-once, consumed by reporting (P1) and notification (P2).',
+   unique:'The attribute columns are delivery semantics — at-least-once, ordering, priority — which only matter when exchanges are asynchronous contracts rather than wires.'},
+  {id:'SvcV-7', name:'Services measures matrix', brief:'Performance measures for services', svg:'svcv7',
+   desc:'Quantitative measures per service: response time, throughput, availability targets.',
+   ex:'computeScore ≤ 30 s p95; reporting ≤ 800 ms p95; notification ≤ 60 s.',
+   unique:'Scoreboard form like SV-7, but every number is a service-level objective a consumer can hold a provider to — contract numbers, not test numbers.'},
+  {id:'SvcV-8', name:'Services evolution description', brief:'How the service portfolio changes over time', svg:'svcv8',
+   desc:'Planned changes to the service portfolio across increments.',
+   ex:'Reporting splits into individual-report and team-analytics services in increment 3.',
+   unique:'Portfolio bars over time where the characteristic event is a split or merge of services — evolution of contracts, not of hardware.'},
+  {id:'SvcV-9', name:'Services technology and skills forecast', brief:'Tech and skills affecting services', svg:'svcv9',
+   desc:'Forecast of technologies and skills relevant to the service portfolio.',
+   ex:'Managed broker retry features; GraphQL federation maturity.',
+   unique:'Horizon cards like SV-9, scoped to service-layer technology (brokers, API styles, contracts) rather than compute and sensors.'},
+  {id:'SvcV-10a', name:'Services rules model', brief:'Constraints on service behavior', svg:'svcv10a',
+   desc:'Rules constraining services: contracts, idempotency, authorization requirements.',
+   ex:'Token required on every call; computeScore idempotent per session; no raw kinematics to coach roles.',
+   unique:'Numbered rules whose subjects are service contracts — idempotency and authorization clauses that belong in an API specification, not a system config.'},
+  {id:'SvcV-10b', name:'Services state transition description', brief:'Service state machines', svg:'svcv10b',
+   desc:'State models for services or the resources they manage.',
+   ex:'A score resource: pending → computing → available → superseded, with a failed branch.',
+   unique:'The state pills describe a managed resource (the score), including a superseded state from re-scoring — resource lifecycle, where SV-10b shows processing internals.'},
+  {id:'SvcV-10c', name:'Services event-trace description', brief:'Timed service interaction sequences', svg:'svcv10c',
+   desc:'Sequence traces of service interactions for one scenario, including event-driven hops.',
+   ex:'REST upload → session-validated event → scoring → score-ready event → fan-out to subscribers.',
+   unique:'A lifeline trace where most hops are dashed (asynchronous events via the broker) — the async fan-out pattern is what marks it as the services trace.'}
+ ]},
+ {abbr:'DIV', gov:false, name:'Data and information viewpoint', sub:'The information itself at three abstraction levels', models:[
+  {id:'DIV-1', name:'Conceptual data model', brief:'Business-level information concepts', svg:'div1',
+   desc:'The information the mission cares about, named in business terms with high-level relationships — no keys, no types.',
+   ex:'A Participant undergoes Screening Sessions which yield a Readiness Assessment that may prompt a Care Action.',
+   unique:'Ellipses with verb-labeled relationships and zero attributes. If a key or a data type appears anywhere, the model has slid down a level to DIV-2.'},
+  {id:'DIV-2', name:'Logical data model', brief:'Entities, attributes, and relationships', svg:'div2',
+   desc:'Adds structure: entities with attributes, keys, and cardinalities, still independent of any database product.',
+   ex:'Participant 1:n Session 1:n Reading; Session 1:1 Score; Score 0..1 Referral.',
+   unique:'Entity boxes with attribute lists, key markers, and cardinality labels (1:n, 0..1) on the connectors — structured enough to validate OV-3 information elements, still product-free.'},
+  {id:'DIV-3', name:'Physical data model', brief:'Implementation schema', svg:'div3',
+   desc:'The physical realization: tables, columns, types, indexes, partitioning, and object-store layout.',
+   ex:'PostgreSQL tables with UUID keys and row-level security; raw readings as compressed S3 objects keyed by session.',
+   unique:'Storage technology is named and types appear (uuid PK, FK, indexes) — the only DIV a DBA can implement directly. Same entities as DIV-2, one abstraction lower.'}
+ ]},
+ {abbr:'PV', gov:true, name:'Project viewpoint', sub:'How projects and programs deliver the architecture', models:[
+  {id:'PV-1', name:'Project portfolio relationships', brief:'Projects and the organizations running them', svg:'pv1',
+   desc:'Maps the projects delivering the architecture to the organizations responsible for them.',
+   ex:'Platform build (engineering), clinic pilot (customer success), EHR integration (joint team).',
+   unique:'Organization-to-project ownership links with no time axis — accountability structure only. Add dates and it becomes PV-2.'},
+  {id:'PV-2', name:'Project timelines', brief:'Schedule of projects with milestones', svg:'pv2',
+   desc:'The Gantt-style view: project timelines, key milestones, and dependencies between projects.',
+   ex:'Platform build Q1–Q2, pilot from Q2, EHR integration Q3, general availability Q4.',
+   unique:'A true Gantt: bars are work underway by teams, with overlaps showing concurrency. Contrast CV-3, where an identical-looking bar means capability availability, not effort.'},
+  {id:'PV-3', name:'Project to capability mapping', brief:'Which projects deliver which capabilities', svg:'pv3',
+   desc:'Traceability from projects to the capabilities they deliver — the view that keeps spending honest.',
+   ex:'Platform build delivers C1.1 and C1.4; the pilot proves C1.2; EHR integration completes C1.3.',
+   unique:'Money (rows) against strategy (columns). A project row with no dots is spend without a capability justification — the audit finding this grid exists to surface.'}
+ ]},
+ {abbr:'StdV', gov:true, name:'Standards viewpoint', sub:'The technical and business rules the architecture obeys', models:[
+  {id:'StdV-1', name:'Standards profile', brief:'Standards that apply now', svg:'stdv1',
+   desc:'The current set of technical, operational, and business standards the architecture must comply with, and where each applies.',
+   ex:'TLS 1.2+ and AES-256; OAuth 2.0/OIDC; HL7 FHIR R4 for clinical exchange; CIS Benchmarks for hardening; SOC 2 and applicable privacy law for the program.',
+   unique:'Each row binds a normative external reference to a specific architecture element (an SV-1 interface, a subnet, a service). It designs nothing — it cites, which is why every entry needs a version number.',
+   table:[['Area','Standard','Application'],['Transport security','TLS 1.2+','All external and internal APIs'],['Data at rest','AES-256, managed keys','Object store and database'],['Identity','OAuth 2.0 / OIDC','All authentication'],['Clinical exchange','HL7 FHIR R4','Referrals to partner EHR'],['Hardening','CIS Benchmarks','Hosts, containers, accounts'],['Assurance / privacy','SOC 2; HIPAA/GDPR as applicable','Operating program']]},
+  {id:'StdV-2', name:'Standards forecast', brief:'Expected changes to the standards profile', svg:'stdv2',
+   desc:'Anticipated changes to applicable standards within the planning horizon, so the design can absorb them cheaply.',
+   ex:'TLS 1.3-only endpoints, post-quantum cipher defaults, FHIR R5 adoption, evolving privacy statutes.',
+   unique:'StdV-1 projected onto a time axis: bars are expected standard transitions, not work or capability. Each bar should map to a design decision that keeps the change cheap.'}
+ ]}
+];
+
+function render(){
+  var root=document.getElementById('vps'); var html='';
+  DATA.forEach(function(vp,vi){
+    html+='<div class="vp'+(vp.gov?' gov':'')+'" id="vp'+vi+'">';
+    html+='<div class="vp-head" onclick="toggleVp('+vi+')"><span class="vp-abbr">'+vp.abbr+'</span><div><div class="vp-title">'+vp.name+'</div><div class="vp-sub">'+vp.sub+'</div></div><span class="vp-count">'+vp.models.length+' models</span><span class="chev"></span></div>';
+    html+='<div class="vp-body">';
+    vp.models.forEach(function(m,mi){
+      html+='<div class="model" id="m'+vi+'_'+mi+'">';
+      html+='<div class="model-head" onclick="toggleModel('+vi+','+mi+')"><span class="model-id">'+m.id+'</span><div><span class="model-name">'+m.name+'</span><div class="model-brief">'+m.brief+'</div></div></div>';
+      html+='<div class="model-detail"><p>'+m.desc+'</p>';
+      html+='<div class="example"><b>MotionFit example:</b> '+m.ex+'</div>';
+      html+='<div class="unique"><b>What makes it this view:</b> '+m.unique+'</div>';
+      if(m.table){
+        html+='<table class="mini"><tr>'; m.table[0].forEach(function(h){html+='<th>'+h+'</th>';}); html+='</tr>';
+        m.table.slice(1).forEach(function(r){ html+='<tr>'; r.forEach(function(c){html+='<td>'+c+'</td>';}); html+='</tr>'; });
+        html+='</table>';
+      }
+      if(m.svg && VIZ[m.svg]){ html+='<div class="viz">'+VIZ[m.svg]()+'</div>'; }
+      html+='</div></div>';
+    });
+    html+='</div></div>';
+  });
+  root.innerHTML=html;
+}
+function toggleVp(i){ document.getElementById('vp'+i).classList.toggle('open'); }
+function toggleModel(v,m){ document.getElementById('m'+v+'_'+m).classList.toggle('open'); }
+function toggleAll(open){ document.querySelectorAll('.vp').forEach(function(el){ el.classList.toggle('open', open); }); }
+render();
+</script>
+</body>
+</html>
