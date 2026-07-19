@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MatBook — Grappling & MMA Prediction League (Validation Phase)</title>
+<style>
+  :root{
+    --petrol:#1b4965; --teal:#2a9d8f; --teal-soft:#e6f4f2; --petrol-soft:#eaf1f5;
+    --ink:#22333b; --muted:#5f7480; --line:#dde6ea; --bg:#f6f9fa; --card:#ffffff; --zebra:#f7fafb;
+    --red:#a4322a; --red-soft:#fdecea; --amber:#9a6a12; --amber-soft:#fff4e0;
+    --star:#c9922a;
+    --card-shadow:0 2px 6px rgba(27,73,101,.08), 0 8px 24px rgba(27,73,101,.07);
+  }
+  body[data-theme="dark"]{
+    --petrol:#8fc1e3; --teal:#3db4a5; --teal-soft:#173d3a; --petrol-soft:#1d3a50;
+    --ink:#e6eef4; --muted:#93a9b8; --line:#2a4459; --bg:#0f1d28; --card:#16293a; --zebra:#132433;
+    --red:#e08a82; --red-soft:#3a1f1d; --amber:#d9b25e; --amber-soft:#33290f;
+    --card-shadow:0 2px 6px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.3);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+  .topbar{background:var(--card);color:var(--ink);padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);box-shadow:var(--card-shadow);
+    position:sticky;top:0;z-index:40;border-radius:0 0 14px 14px}
+  .logo{font-size:1.25rem;font-weight:800;letter-spacing:.3px;color:var(--petrol)}
+  .logo span{color:var(--teal)}
+  .topbar .tag{font-size:.72rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--petrol-soft)}
+  .topbar .right{margin-left:auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .wallet{background:var(--teal-soft);border:1px solid var(--line);border-radius:10px;padding:6px 14px;font-size:.85rem;color:var(--ink)}
+  .wallet b{color:var(--star);font-variant-numeric:tabular-nums}
+  .btn{font:inherit;font-size:.82rem;font-weight:600;padding:7px 14px;border-radius:8px;border:1px solid var(--petrol);background:var(--card);color:var(--ink);cursor:pointer}
+  .btn:hover{background:var(--petrol-soft)}
+  .btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+  .btn.primary:hover{background:#238a7e}
+  .btn.ghost{background:var(--card);border-color:var(--petrol);color:var(--petrol)}
+  .btn.ghost:hover{background:var(--petrol-soft)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .wrap{max-width:1220px;margin:0 auto;padding:20px 18px 50px}
+  details.notice{background:var(--amber-soft);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:.76rem;color:var(--amber);margin-bottom:16px}
+  details.notice summary{cursor:pointer;font-weight:700}
+  details.notice .ntext{margin-top:6px}
+  .grid{display:grid;grid-template-columns:1fr 350px;gap:18px}
+  @media(max-width:940px){.grid{grid-template-columns:1fr}}
+  h2{color:var(--petrol);font-size:1.02rem;margin:4px 0 10px}
+  .tabs{display:inline-flex;border:1px solid var(--petrol);border-radius:8px;overflow:hidden;margin-bottom:12px}
+  .tabs button{font:inherit;font-size:.8rem;font-weight:600;padding:7px 16px;border:0;background:var(--card);color:var(--petrol);cursor:pointer}
+  .tabs button.active{background:#1b4965;color:#fff}
+  .event{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--card-shadow);padding:12px 14px;margin-bottom:12px}
+  .event .meta{display:flex;gap:10px;align-items:center;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;flex-wrap:wrap}
+  .sport-pill{background:var(--teal-soft);color:#1c7267;border-radius:999px;padding:2px 10px;font-weight:700}
+  .sport-pill.mma{background:var(--petrol-soft);color:var(--petrol)}
+  .settled-pill{background:var(--red-soft);color:var(--red);border-radius:999px;padding:2px 10px;font-weight:700}
+  .matchup{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .fighter{border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;background:var(--card)}
+  .fighter:hover{border-color:var(--teal)}
+  .fighter.sel{border-color:var(--teal);background:var(--teal-soft)}
+  .fighter.winner{border-color:var(--teal);background:var(--teal-soft)}
+  .fighter.loser{opacity:.55}
+  .fighter .name{font-weight:700;color:var(--petrol);font-size:.9rem}
+  .fighter .rec{font-size:.72rem;color:var(--muted)}
+  .fighter .odds{float:right;font-weight:800;color:var(--teal);font-size:1rem;font-variant-numeric:tabular-nums}
+  .pickbtn{display:inline-block;margin-top:6px;font-size:.68rem;font-weight:700;color:var(--teal);border:1px solid var(--teal);border-radius:999px;padding:2px 10px}
+  .fighter.sel .pickbtn{background:var(--teal);color:#fff}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--card-shadow);padding:14px;margin-bottom:14px}
+  .panel h3{color:var(--petrol);font-size:.92rem;margin-bottom:8px}
+  .slip-row{font-size:.82rem;margin-bottom:8px}
+  .slip-row b{color:var(--petrol)}
+  .panel input,.panel select{width:100%;font:inherit;font-size:.88rem;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin:5px 0;background:var(--card);color:var(--ink)}
+  .fee-math{background:var(--petrol-soft);border-radius:8px;padding:8px 10px;font-size:.76rem;margin:8px 0}
+  .fee-math div{display:flex;justify-content:space-between;margin:2px 0}
+  .fee-math .fee{color:var(--red);font-weight:700}
+  .fee-math .ret{color:var(--teal);font-weight:700}
+  .muted{color:var(--muted);font-size:.75rem}
+  table{width:100%;border-collapse:collapse;font-size:.78rem}
+  th{text-align:left;color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.05em;padding:4px 6px;border-bottom:1px solid var(--line)}
+  td{padding:5px 6px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+  .w{color:var(--teal);font-weight:700}.l{color:var(--red);font-weight:700}.o{color:var(--amber);font-weight:700}
+  .star{color:var(--star);font-weight:700}
+  .me td{background:var(--petrol-soft)}
+  .rowwin td{background:var(--teal-soft)!important}
+  .rowwin td:first-child{border-left:3px solid var(--teal)}
+  .rowwin td:last-child{border-right:3px solid var(--teal)}
+  .overlay{position:fixed;inset:0;background:rgba(27,73,101,.45);display:flex;align-items:center;justify-content:center;z-index:50}
+  .modal{background:var(--card);border-radius:14px;box-shadow:var(--card-shadow);padding:22px;width:min(92vw,390px)}
+  .modal h2{margin-bottom:4px}
+  .modal input{width:100%;font:inherit;font-size:.9rem;padding:9px 11px;border:1px solid var(--line);border-radius:8px;margin:6px 0;background:var(--card);color:var(--ink)}
+  .modal .err{color:var(--red);font-size:.78rem;min-height:1em;margin:4px 0}
+  .hidden{display:none!important}
+  .sliptop{position:sticky;top:66px;z-index:30;padding:10px 14px;margin-bottom:12px}
+  .sliptop-body{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .sliptop .fee-math div{display:inline-flex;margin-right:14px}
+  .pastsims{margin:6px 0 12px}
+  .pastsims summary{cursor:pointer;color:var(--muted);font-size:.78rem;font-weight:700}
+  .pastrow{display:flex;gap:10px;align-items:center;font-size:.75rem;padding:5px 10px;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:var(--card)}
+  .pastrow .win{background:var(--teal-soft);color:#1c7267;border:1px solid var(--teal);font-weight:800;border-radius:999px;padding:2px 10px;margin-left:auto}
+  body[data-theme="dark"] .pastrow .win{color:#7fd4c9}
+  .wrow{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:8px}
+  .wrow .wt{font-size:.78rem;font-weight:700;color:var(--petrol);margin-bottom:6px}
+  .wrow .wopts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .wrow label.side{display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:5px 9px;font-size:.78rem;cursor:pointer}
+  .wrow label.side:has(input:checked){border-color:var(--teal);background:var(--teal-soft)}
+  .wrow .wstake{width:80px;font:inherit;font-size:.8rem;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+  .pastrow .ttl{color:var(--muted)}
+  .starburst{position:fixed;left:50%;top:38%;z-index:95;pointer-events:none;font-size:1.7rem;animation:starfly 1.25s ease-out forwards}
+  @keyframes starfly{0%{transform:translate(0,0) scale(.6);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(340deg) scale(1.25);opacity:0}}
+  .winflash{animation:winpulse .9s ease-out 1}
+  @keyframes winpulse{0%{box-shadow:0 0 0 0 rgba(42,157,143,.55)}100%{box-shadow:0 0 0 18px rgba(42,157,143,0)}}
+  #whitewash{position:fixed;inset:0;background:#ffffff;opacity:0;pointer-events:none;transition:opacity .35s ease;z-index:90}
+  #whitewash.on{opacity:1}
+  .dashside table{font-size:.72rem}
+  .dashside th{font-size:.6rem;padding:3px 5px}
+  .dashside td{padding:4px 5px}
+  .dashside td.backing{color:var(--teal);font-weight:600;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .dashwrap{max-height:300px;overflow:auto}
+  .house{font-size:.78rem;color:var(--muted)}
+  .house b{color:var(--petrol)}
+  .admin-flag{background:#ffd479;color:#5b4408;border-radius:999px;padding:2px 10px;font-size:.7rem;font-weight:800}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">Mat<span>Book</span></div>
+  <span class="tag">VALIDATION PHASE · stars, not money · browse free, sign in only to predict</span>
+  <div class="right">
+    <div class="wallet hidden" id="walletBox">Stars <b id="balance">0 ⭐</b></div>
+    <button class="btn ghost hidden" id="claimBtn" type="button">Request +100 ⭐</button>
+    <span id="whoami" style="font-size:.82rem;color:var(--muted)"></span>
+    <span class="admin-flag hidden" id="adminFlag">ADMIN</span>
+    <button class="btn ghost" id="themeBtn" type="button" aria-label="Toggle dark mode">🌙 Dark</button>
+    <button class="btn ghost" id="authBtn" type="button">Sign in</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <details class="notice"><summary>Validation phase — stars only, no money (click for details)</summary>
+  <div class="ntext">All wagers use <b>stars (⭐)</b> — no money moves anywhere. Every new account starts with 500 ⭐. The platform tally still withholds 25% of each wager so the economics can be observed before any real-money decision (which would require gaming licenses, KYC/AML, 21+ &amp; geolocation). Sign-in is passwordless: email or phone + a 4-digit PIN. Admin contact: <b>admin@matbook.demo</b>. Test players start at 500 ⭐ with zero scores; wagers accrue only as simulation rounds run.</div></details>
+
+
+  <div class="tabs" style="margin-bottom:12px">
+    <button id="mtMarkets" class="active" type="button">Markets</button>
+    <button id="mtDash" type="button">Full dashboard</button>
+  </div>
+
+  <div class="panel sliptop" id="slipPanel">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;width:100%">
+      <button class="btn primary" id="wageOpenBtn" type="button">🎯 Wage stars on markets…</button>
+      <div id="slipEmpty" class="muted">…or pick a competitor below for a single prediction.</div>
+    </div>
+    <div id="slipBody" class="hidden sliptop-body">
+      <div class="slip-row" id="slipDesc" style="margin:0"></div>
+      <label class="muted" for="stake" style="white-space:nowrap">Stake ⭐</label>
+      <input type="number" id="stake" min="1" step="1" value="20" style="width:90px;font:inherit;font-size:.88rem;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)">
+      <div class="fee-math" id="feeMath" style="margin:0;flex:1;min-width:230px"></div>
+      <button class="btn primary" id="placeBtn" type="button">Place prediction</button>
+      <div class="muted" id="slipMsg" style="flex-basis:100%"></div>
+    </div>
+  </div>
+
+  <div class="grid" id="marketsView">
+    <div>
+      <div class="tabs">
+        <button id="tabAll" class="active" type="button">All markets</button>
+        <button id="tabBJJ" type="button">Jiu-Jitsu</button>
+        <button id="tabMMA" type="button">MMA</button>
+      </div>
+      <div id="events"></div>
+
+      <div class="panel hidden" id="adminPanel">
+        <h3>Admin — competitor roster &amp; game entry</h3>
+        <div class="two">
+          <div>
+            <b style="font-size:.82rem;color:var(--petrol)">Add competitor</b>
+            <input type="text" id="pName" placeholder="Name (e.g., Nadia 'Viper' Kole)">
+            <input type="text" id="pRec" placeholder="Record (e.g., 9-1, 6 subs)">
+            <button class="btn" id="pAdd" type="button">Add to roster</button>
+            <div class="muted" id="rosterList" style="margin-top:6px"></div>
+          </div>
+          <div>
+            <b style="font-size:.82rem;color:var(--petrol)">Create game</b>
+            <select id="gSport"><option>BJJ</option><option>MMA</option></select>
+            <input type="text" id="gTitle" placeholder="Event title (e.g., Submission Series 15 · Lightweight)">
+            <select id="gA"></select>
+            <input type="number" id="gAOdds" step="0.05" min="1.01" placeholder="Competitor A odds (e.g., 1.60)">
+            <select id="gB"></select>
+            <input type="number" id="gBOdds" step="0.05" min="1.01" placeholder="Competitor B odds (e.g., 2.40)">
+            <button class="btn primary" id="gAdd" type="button">Publish game</button>
+          </div>
+        </div>
+        <div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">
+          <b style="font-size:.82rem;color:var(--petrol)">Add player (account)</b>
+          <div class="two">
+            <input type="text" id="uContact" placeholder="Email or phone">
+            <input type="number" id="uStars" placeholder="Starting stars" value="500" min="0" max="2000">
+          </div>
+          <button class="btn" id="uAdd" type="button">Create player account</button>
+        </div>
+        <div class="muted" id="adminMsg" style="margin-top:6px"></div>
+        <button class="btn" id="reseedBtn" type="button" style="margin-top:8px">Regenerate test data (players &amp; wagers)</button>
+      </div>
+    </div>
+
+    <div>
+  <div class="panel dashside">
+        <h3>Dashboard — leaderboard</h3>
+        <div class="dashwrap"><table><thead><tr><th>#</th><th>Player</th><th>Backing</th><th>⭐</th><th>Waged</th><th>Bets</th><th>Won</th><th>Lost</th><th>Hit</th></tr></thead>
+        <tbody id="dash"><tr><td colspan="7" class="muted">No players yet — sign up to appear here.</td></tr></tbody></table></div>
+  </div>
+
+      <div class="panel">
+        <h3>My predictions <span class="muted" id="myRecord" style="font-weight:500;font-size:.72rem"></span></h3>
+        <table><thead><tr><th>Market</th><th>Pick</th><th>Stake ⭐</th><th>To win ⭐</th><th>Status</th></tr></thead>
+        <tbody id="myBets"><tr><td colspan="5" class="muted">None yet.</td></tr></tbody></table>
+      </div>
+
+      <div class="panel">
+        <h3>Platform tally</h3>
+        <div class="house">Total handle: <b id="handle">0 ⭐</b><br>
+        Platform withhold (25%): <b id="revenue">0 ⭐</b><br>
+        Paid to winners: <b id="paidOut">0 ⭐</b></div>
+        <button class="btn primary" id="settleBtn" type="button" style="margin-top:10px;width:100%">▶ Run simulation round</button>
+        <button class="btn" id="dealBtn" type="button" style="margin-top:8px;width:100%">➕ Add another round of matchups</button>
+        <button class="btn" id="cleanFreshBtn" type="button" style="margin-top:8px;width:100%">🧹 Clean all simulations &amp; start fresh</button>
+        <details style="margin-top:8px">
+          <summary class="muted" style="cursor:pointer;font-weight:600">More simulation controls</summary>
+          <button class="btn" id="autoBtn" type="button" style="margin-top:8px;width:100%">▶▶ Auto-run: OFF</button>
+          <button class="btn" id="clearBtn" type="button" style="margin-top:8px;width:100%">🧹 Clear all simulations</button>
+          <button class="btn" id="freshBtn" type="button" style="margin-top:8px;width:100%">⟲ Fresh start</button>
+        </details>
+        <div class="muted" id="roundMsg" style="margin-top:6px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dashFullView" class="hidden" style="max-width:1220px;margin:0 auto;padding:0 18px">
+  <div class="panel">
+    <h3>Full dashboard — every player, every star</h3>
+    <table>
+      <thead><tr><th>#</th><th>Player</th><th>Backing (current / last)</th><th>Stars ⭐</th><th>Total waged</th><th>Bets</th><th>Won</th><th>Lost</th><th>Hit rate</th><th>Lifetime + / −</th></tr></thead>
+      <tbody id="dashFull"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="overlay hidden" id="wageModal">
+  <div class="modal" style="width:min(94vw,560px);max-height:86vh;overflow:auto">
+    <h2>Wage your stars</h2>
+    <div class="muted">Pick a side on any market — one, several, or all. Each wager: 25% withhold, right pick returns net + 100 ⭐.</div>
+    <div id="wageList" style="margin:10px 0"></div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px">
+      <label class="muted" for="wageSecs" style="white-space:nowrap">Then simulate every</label>
+      <input type="number" id="wageSecs" min="1" max="600" value="30" style="width:70px;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)">
+      <span class="muted">sec</span>
+      <button class="btn primary" id="wagePlace" type="button" style="margin-left:auto">Place wagers &amp; start simulations</button>
+    </div>
+    <div class="err" id="wageErr"></div>
+    <button class="btn" id="wageClose" type="button" style="width:100%;margin-top:6px;border-color:var(--line);color:var(--muted)">Close</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="welcomeModal">
+  <div class="modal" style="text-align:center">
+    <h2 id="wTitle">Welcome to MatBook!</h2>
+    <div style="font-size:2rem;margin:10px 0" id="wStars">⭐</div>
+    <div id="wMsg" style="font-size:.9rem;margin-bottom:6px"></div>
+    <div class="muted" style="margin-bottom:12px">Pick a competitor on any open matchup, set your stake, and press <b>Place prediction</b>. Then run the simulation. Right pick = <b>+100 ⭐ bonus</b>. Wrong pick = your stake is gone — request more stars to keep playing.</div>
+    <button class="btn primary" id="wGo" type="button" style="width:100%">Choose your markets &amp; place wagers</button>
+  </div>
+</div>
+
+<div id="whitewash"></div>
+
+<!-- auth modal -->
+<div class="overlay hidden" id="authModal">
+  <div class="modal">
+    <h2 id="authTitle">Sign in / Sign up</h2>
+    <div class="muted">No password needed — enter your email or mobile number and we'll send a one-time PIN. New contacts get an account automatically (500 ⭐).</div>
+    <div id="authStep1">
+      <input type="text" id="authUser" placeholder="Email or phone number" autocomplete="email">
+      <div class="err" id="authErr"></div>
+      <button class="btn primary" id="authSubmit" type="button" style="width:100%">Send PIN</button>
+    </div>
+    <div id="authStep2" class="hidden">
+      <div class="muted" style="margin:6px 0">We sent a 4-digit PIN to <b id="pinEmail"></b>.</div>
+      <div class="fee-math" style="text-align:center">Demo mode — no email/SMS backend. Your PIN: <b id="demoCode" style="letter-spacing:.25em"></b><br><span class="muted">Production would deliver via SES / Twilio and never display it.</span></div>
+      <input type="text" id="authCode" placeholder="Enter 4-digit PIN" inputmode="numeric" maxlength="4" autocomplete="one-time-code">
+      <div class="err" id="codeErr"></div>
+      <button class="btn primary" id="verifyBtn" type="button" style="width:100%">Verify &amp; sign in</button>
+      <button class="btn" id="resendBtn" type="button" style="width:100%;margin-top:8px">Resend PIN</button>
+      <button class="btn" id="backBtn" type="button" style="width:100%;margin-top:8px">Back</button>
+    </div>
+    <button class="btn" id="authClose" type="button" style="width:100%;margin-top:8px;border-color:var(--line);color:var(--muted)">Close — keep browsing</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+function mulberry32(seed){return function(){let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
+const store=(()=>{try{localStorage.setItem("__t","1");localStorage.removeItem("__t");return localStorage;}
+  catch(e){const m={};return{getItem:k=>k in m?m[k]:null,setItem:(k,v)=>{m[k]=String(v);},removeItem:k=>{delete m[k];}};}})();
+const K="matbook.v3.";
+const load=(k,d)=>JSON.parse(store.getItem(K+k)||JSON.stringify(d));
+const save=(k,v)=>store.setItem(K+k,JSON.stringify(v));
+
+const FEE_RATE=0.25, START_STARS=500, CLAIM=100, CAP=2000, WIN_BONUS=100;
+const ADMIN_EMAIL="admin@matbook.demo";
+/* Set to your deployed Cloudflare Worker URL (e.g. "https://matbook-pin.yourname.workers.dev")
+   to send REAL email/SMS PINs. Empty string = demo mode (PIN shown on screen). */
+const PIN_ENDPOINT="";
+
+let ROSTER=load("roster",[
+ {name:"Rafael 'Anaconda' Souto",rec:"18-3, 12 subs"},{name:"Dmitri Kovac",rec:"14-5, 9 subs"},
+ {name:"Theo 'The Professor' Lindqvist",rec:"22-2"},{name:"Marcus Abade",rec:"16-6"},
+ {name:"Kenji Ozawa",rec:"11-1, 8 subs"},{name:"Pablo Ferreyra",rec:"13-4"},
+ {name:"Aiden 'Wolfpack' Brody",rec:"15-2"},{name:"Ilya Petrenko",rec:"13-3"},
+ {name:"Marcus 'Iron' Delgado",rec:"19-1"},{name:"Tomasz Wren",rec:"17-4"},
+ {name:"Leo Tan",rec:"10-2"},{name:"Santiago 'El Rayo' Duarte",rec:"12-3"}]);
+const SEED_EVENTS=[
+ {id:"bjj1",sport:"BJJ",title:"Submission Series 14 · Middleweight",a:{name:"Rafael 'Anaconda' Souto",rec:"18-3, 12 subs",odds:1.55},b:{name:"Dmitri Kovac",rec:"14-5, 9 subs",odds:2.60},settled:false,winner:null},
+ {id:"bjj2",sport:"BJJ",title:"Submission Series 14 · Absolute",a:{name:"Theo 'The Professor' Lindqvist",rec:"22-2",odds:1.35},b:{name:"Marcus Abade",rec:"16-6",odds:3.10},settled:false,winner:null},
+ {id:"mma1",sport:"MMA",title:"Vanguard FC 92 · Lightweight",a:{name:"Aiden 'Wolfpack' Brody",rec:"15-2",odds:1.65},b:{name:"Ilya Petrenko",rec:"13-3",odds:2.35},settled:false,winner:null},
+ {id:"mma2",sport:"MMA",title:"Vanguard FC 92 · Welterweight (Main)",a:{name:"Marcus 'Iron' Delgado",rec:"19-1",odds:1.40},b:{name:"Tomasz Wren",rec:"17-4",odds:2.95},settled:false,winner:null}];
+let EVENTS=load("events",[
+ {id:"bjj1",sport:"BJJ",title:"Submission Series 14 · Middleweight",a:{name:"Rafael 'Anaconda' Souto",rec:"18-3, 12 subs",odds:1.55},b:{name:"Dmitri Kovac",rec:"14-5, 9 subs",odds:2.60},settled:false,winner:null},
+ {id:"bjj2",sport:"BJJ",title:"Submission Series 14 · Absolute",a:{name:"Theo 'The Professor' Lindqvist",rec:"22-2",odds:1.35},b:{name:"Marcus Abade",rec:"16-6",odds:3.10},settled:false,winner:null},
+ {id:"mma1",sport:"MMA",title:"Vanguard FC 92 · Lightweight",a:{name:"Aiden 'Wolfpack' Brody",rec:"15-2",odds:1.65},b:{name:"Ilya Petrenko",rec:"13-3",odds:2.35},settled:false,winner:null},
+ {id:"mma2",sport:"MMA",title:"Vanguard FC 92 · Welterweight (Main)",a:{name:"Marcus 'Iron' Delgado",rec:"19-1",odds:1.40},b:{name:"Tomasz Wren",rec:"17-4",odds:2.95},settled:false,winner:null}]);
+let USERS=load("users",{});   // email -> {pass,balance,joined}
+let BETS=load("bets",[]);
+let HOUSE=load("house",{handle:0,revenue:0,paidOut:0});
+let session=null, filter="ALL", slip=null, seedCounter=load("seed",11);
+let LAST_WINNERS=new Set();   // players with a winning bet in the most recent settled round
+
+/* ---------- deterministic test-data generator ---------- */
+const TEST_PLAYERS=["maya.r@example.com","+15085550142","jake.t@example.com","+16175550177",
+ "sofia.m@example.com","liam.k@example.com","+15085550166","ana.p@example.com"];
+function seedTestData(){
+  const rng=mulberry32(4242);
+  // wipe test users & their bets, keep real ones
+  Object.keys(USERS).forEach(k=>{if(USERS[k].test)delete USERS[k];});
+  BETS=BETS.filter(b=>!b.test);
+  TEST_PLAYERS.forEach(c=>{
+    USERS[c]={balance:START_STARS,joined:Object.keys(USERS).length+1,test:true};
+  });
+  // every test player bets on every open market with a random stake & prob-weighted side
+  EVENTS.forEach(e=>{
+    if(e.settled)return;
+    TEST_PLAYERS.forEach(c=>{
+      if(rng()<0.25)return; // not everyone bets every card
+      const stake=Math.round(10+rng()*110);
+      const side=rng()<pA(e)?"a":"b";
+      const sd=e[side];
+      const fee=+(stake*FEE_RATE).toFixed(2),net=+(stake-fee).toFixed(2),gross=+(net+WIN_BONUS).toFixed(2);
+      if(USERS[c].balance<stake)return;
+      USERS[c].balance=+(USERS[c].balance-stake).toFixed(2);
+      HOUSE.handle=+(HOUSE.handle+stake).toFixed(2);
+      HOUSE.revenue=+(HOUSE.revenue+fee).toFixed(2);
+      BETS.push({user:c,eventId:e.id,side,pick:sd.name,market:e.title,stake,fee,net,odds:sd.odds,potential:gross,status:"OPEN",test:true});
+    });
+  });
+  save("users",USERS);save("bets",BETS);save("house",HOUSE);
+}
+
+const $=id=>document.getElementById(id);
+const stars=n=>n.toLocaleString("en-US",{maximumFractionDigits:1})+" ⭐";
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const pA=e=>{const ia=1/e.a.odds,ib=1/e.b.odds;return ia/(ia+ib);}; // implied prob, vig-normalized
+const validEmail=s=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+const isAdmin=()=>session===ADMIN_EMAIL;
+
+/* ---------- auth: passwordless — email or phone + 4-digit PIN ---------- */
+let pendingUser=null,sentCode=null;
+function setAuthMode(){$("authErr").textContent="";}
+const validPhone=v=>/^\+?[0-9(][0-9\-\s().]{6,17}$/.test(v)&&v.replace(/\D/g,"").length>=7;
+function normContact(v){
+  v=v.trim();
+  if(validEmail(v))return v.toLowerCase();
+  if(validPhone(v)){const d=v.replace(/\D/g,"");return"+"+(v.trim().startsWith("+")?d:d.length===10?"1"+d:d);}
+  return null;
+}
+function genCode(){let n;try{const a=new Uint32Array(1);crypto.getRandomValues(a);n=a[0]%10000;}
+  catch(e){n=Math.floor(Math.random()*10000);}return String(n).padStart(4,"0");}
+async function sendCode(){
+  $("codeErr").textContent="";
+  if(PIN_ENDPOINT){
+    sentCode=null; // server holds the PIN — client never sees it
+    $("demoCode").parentElement.classList.add("hidden");
+    try{
+      const r=await fetch(PIN_ENDPOINT+"/send",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({contact:pendingUser})});
+      if(!r.ok)throw new Error(await r.text());
+    }catch(e){$("codeErr").textContent="Could not send PIN: "+e.message;}
+    return;
+  }
+  sentCode=genCode();$("demoCode").textContent=sentCode;
+  $("demoCode").parentElement.classList.remove("hidden");
+}
+$("authSubmit").addEventListener("click",()=>{
+  const c=normContact($("authUser").value);
+  if(!c){$("authErr").textContent="Enter a valid email address or phone number.";return;}
+  pendingUser=c;$("pinEmail").textContent=c;
+  $("authStep1").classList.add("hidden");$("authStep2").classList.remove("hidden");
+  $("authCode").value="";sendCode();
+});
+$("resendBtn").addEventListener("click",sendCode);
+$("backBtn").addEventListener("click",()=>{pendingUser=null;sentCode=null;
+  $("authStep2").classList.add("hidden");$("authStep1").classList.remove("hidden");});
+$("verifyBtn").addEventListener("click",async()=>{
+  if(!pendingUser)return;
+  if(PIN_ENDPOINT){
+    try{
+      const r=await fetch(PIN_ENDPOINT+"/verify",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({contact:pendingUser,pin:$("authCode").value.trim()})});
+      if(!r.ok){$("codeErr").textContent="Incorrect or expired PIN.";return;}
+    }catch(e){$("codeErr").textContent="Verification failed: "+e.message;return;}
+  }else if($("authCode").value.trim()!==sentCode){$("codeErr").textContent="Incorrect PIN — check and try again.";return;}
+  let isNew=false;
+  if(!USERS[pendingUser]){
+    USERS[pendingUser]={balance:START_STARS,joined:Object.keys(USERS).length+1,test:false};
+    save("users",USERS);isNew=true;
+  }
+  session=pendingUser;pendingUser=null;sentCode=null;
+  showWelcome(isNew);
+  $("authModal").classList.add("hidden");
+  $("authStep2").classList.add("hidden");$("authStep1").classList.remove("hidden");
+  renderAll();
+  if(slip)$("slipMsg").textContent="Email confirmed — review your slip and place the prediction.";
+});
+$("authClose").addEventListener("click",()=>{pendingUser=null;sentCode=null;
+  $("authModal").classList.add("hidden");
+  $("authStep2").classList.add("hidden");$("authStep1").classList.remove("hidden");});
+$("authBtn").addEventListener("click",()=>{
+  if(session){session=null;slip=null;
+    $("wageModal").classList.add("hidden");$("welcomeModal").classList.add("hidden");
+    renderAll();}
+  else{$("authModal").classList.remove("hidden");setAuthMode();}});
+
+/* ---------- welcome screen ---------- */
+function showWelcome(isNew){
+  const u=USERS[session];
+  $("wTitle").textContent=isNew?"Welcome to MatBook!":"Welcome back!";
+  $("wStars").textContent="⭐ "+u.balance.toLocaleString()+" ⭐";
+  $("wMsg").innerHTML=isNew
+    ?`Here are <b>${START_STARS} ⭐ to start</b> — on the house.`
+    :`You're holding <b>${u.balance.toLocaleString()} ⭐</b>. Ready for the next card?`;
+  $("welcomeModal").classList.remove("hidden");
+}
+$("wGo").addEventListener("click",()=>{
+  $("welcomeModal").classList.add("hidden");
+  openWage(); // logged-in users choose their markets immediately
+});
+
+/* ---------- stars faucet ---------- */
+$("claimBtn").addEventListener("click",()=>{
+  const u=USERS[session];
+  if(u.balance>=CAP){alert("Balance cap reached ("+CAP+" ⭐) — spend some stars first.");return;}
+  u.balance=Math.min(CAP,u.balance+CLAIM);save("users",USERS);renderAll();});
+
+/* ---------- markets ---------- */
+$("tabAll").addEventListener("click",()=>{filter="ALL";setTab("tabAll");});
+$("tabBJJ").addEventListener("click",()=>{filter="BJJ";setTab("tabBJJ");});
+$("tabMMA").addEventListener("click",()=>{filter="MMA";setTab("tabMMA");});
+function setTab(id){["tabAll","tabBJJ","tabMMA"].forEach(t=>$(t).classList.toggle("active",t===id));renderEvents();}
+function renderEvents(){
+  const inCat=EVENTS.filter(e=>filter==="ALL"||e.sport===filter);
+  const openEv=inCat.filter(e=>!e.settled), doneEv=inCat.filter(e=>e.settled);
+  let html=openEv.map(e=>{
+    const sideCls=sd=>(slip&&slip.eventId===e.id&&slip.side===sd?"sel":"");
+    const pick=side=>`<span class="pickbtn">${slip&&slip.eventId===e.id&&slip.side===side?"Selected ✓":"Bet on this competitor ▸"}</span>`;
+    return `<div class="event">
+      <div class="meta"><span class="sport-pill ${e.sport==="MMA"?"mma":""}">${e.sport==="BJJ"?"Jiu-Jitsu":"MMA"}</span>
+        <span>${esc(e.title)}</span></div>
+      <div class="matchup">
+        <div class="fighter ${sideCls("a")}" data-ev="${e.id}" data-side="a" tabindex="0" role="button">
+          <span class="odds">${e.a.odds.toFixed(2)}</span><div class="name">${esc(e.a.name)}</div><div class="rec">${esc(e.a.rec)}</div>${pick("a")}</div>
+        <div class="fighter ${sideCls("b")}" data-ev="${e.id}" data-side="b" tabindex="0" role="button">
+          <span class="odds">${e.b.odds.toFixed(2)}</span><div class="name">${esc(e.b.name)}</div><div class="rec">${esc(e.b.rec)}</div>${pick("b")}</div>
+      </div></div>`;}).join("")||'<div class="muted" style="margin-bottom:10px">No open markets — press Run to deal a card.</div>';
+  if(doneEv.length){
+    html+=`<details class="pastsims"><summary>Settled simulations (${doneEv.length}) — compact history</summary>`+
+      doneEv.slice().reverse().map(e=>{
+        const wName=e[e.winner].name;
+        return `<div class="pastrow"><span class="sport-pill ${e.sport==="MMA"?"mma":""}">${e.sport==="BJJ"?"JJ":"MMA"}</span>
+          <span class="ttl">${esc(e.title)}</span><span class="win">✓ ${esc(wName)}</span></div>`;
+      }).join("")+`</details>`;
+  }
+  $("events").innerHTML=html;
+  document.querySelectorAll(".fighter[tabindex]").forEach(f=>{
+    const pick=()=>{slip={eventId:f.dataset.ev,side:f.dataset.side};renderEvents();renderSlip();};
+    f.addEventListener("click",pick);
+    f.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick();}});});
+}
+
+/* ---------- slip (25% withhold in stars) ---------- */
+function slipCalc(stake,odds){
+  const fee=+(stake*FEE_RATE).toFixed(2);
+  const net=+(stake-fee).toFixed(2);
+  const gross=+(net+WIN_BONUS).toFixed(2);   // right pick: net stake back + flat 100 ⭐ bonus
+  return{fee,net,gross};
+}
+function renderSlip(){
+  if(!slip){$("slipEmpty").classList.remove("hidden");$("slipBody").classList.add("hidden");return;}
+  const e=EVENTS.find(x=>x.id===slip.eventId);if(!e||e.settled){slip=null;renderSlip();return;}
+  const side=e[slip.side];
+  $("slipEmpty").classList.add("hidden");$("slipBody").classList.remove("hidden");
+  $("slipDesc").innerHTML=`<b>${esc(side.name)}</b> to win · ${esc(e.title)} · odds <b>${side.odds.toFixed(2)}</b>`;
+  const stake=Math.max(1,parseFloat($("stake").value)||0);
+  const c=slipCalc(stake,side.odds);
+  $("feeMath").innerHTML=`
+    <div><span>Stake</span><span>${stars(stake)}</span></div>
+    <div class="fee"><span>Platform withhold (25%)</span><span>−${stars(c.fee)}</span></div>
+    <div><span>Net stake at risk</span><span>${stars(c.net)}</span></div>
+    <div class="ret"><span>Right pick returns (net back + ${WIN_BONUS} ⭐ bonus)</span><span>${stars(c.gross)}</span></div>
+    <div><span>Wrong pick</span><span>net stake lost</span></div>`;
+  $("slipMsg").textContent=session?"":"Browse freely — sign-in with email is only needed to place a prediction.";
+}
+$("stake").addEventListener("input",renderSlip);
+function placeBet(e,sideKey,stake){
+  const side=e[sideKey];
+  const c=slipCalc(stake,side.odds);
+  USERS[session].balance=+(USERS[session].balance-stake).toFixed(2);
+  HOUSE.handle=+(HOUSE.handle+stake).toFixed(2);
+  HOUSE.revenue=+(HOUSE.revenue+c.fee).toFixed(2);
+  BETS.push({user:session,eventId:e.id,side:sideKey,pick:side.name,market:e.title,
+    stake,fee:c.fee,net:c.net,odds:side.odds,potential:c.gross,status:"OPEN"});
+}
+$("placeBtn").addEventListener("click",()=>{
+  if(!slip)return;
+  if(!session){
+    $("slipMsg").textContent="Sign in to place this prediction — your slip is saved.";
+    $("authModal").classList.remove("hidden");setAuthMode();return;}
+  const e=EVENTS.find(x=>x.id===slip.eventId);const side=e[slip.side];
+  const stake=parseFloat($("stake").value);
+  if(!(stake>=1)){$("slipMsg").textContent="Minimum stake is 1 ⭐.";return;}
+  const bal=USERS[session].balance;
+  if(stake>bal){
+    $("slipMsg").innerHTML=`Not enough stars (${stars(bal)}). <button class="btn" id="reqStars" type="button" style="padding:3px 10px;font-size:.74rem">Request +${CLAIM} ⭐</button>`;
+    $("reqStars").addEventListener("click",()=>{
+      USERS[session].balance=Math.min(CAP,+(USERS[session].balance+CLAIM).toFixed(2));
+      save("users",USERS);renderAll();renderSlip();
+      $("slipMsg").textContent=`+${CLAIM} ⭐ granted — you now have ${stars(USERS[session].balance)}.`;
+    });
+    return;}
+  placeBet(e,slip.side,stake);
+  save("users",USERS);save("house",HOUSE);save("bets",BETS);
+  slip=null;renderAll();
+});
+
+/* ---------- wage popup: multi-market wagers + timed simulations ---------- */
+function openWage(){
+  if(!session){$("authModal").classList.remove("hidden");setAuthMode();return;}
+  const open=EVENTS.filter(e=>!e.settled);
+  $("wageErr").textContent="";
+  $("wageList").innerHTML=open.length?open.map(e=>`
+    <div class="wrow" data-ev="${e.id}">
+      <div class="wt">${esc(e.title)} <span class="muted">(${e.sport})</span></div>
+      <div class="wopts">
+        <label class="side"><input type="radio" name="w_${e.id}" value="a">${esc(e.a.name)} <b style="color:var(--teal)">${e.a.odds.toFixed(2)}</b></label>
+        <label class="side"><input type="radio" name="w_${e.id}" value="b">${esc(e.b.name)} <b style="color:var(--teal)">${e.b.odds.toFixed(2)}</b></label>
+        <input type="number" class="wstake" value="20" min="1" step="1" aria-label="Stake">
+        <span class="muted">⭐</span>
+      </div>
+    </div>`).join(""):'<div class="muted">No open markets — deal a card first.</div>';
+  $("wageModal").classList.remove("hidden");
+}
+$("wageOpenBtn").addEventListener("click",openWage);
+$("wageClose").addEventListener("click",()=>$("wageModal").classList.add("hidden"));
+$("wagePlace").addEventListener("click",()=>{
+  const picks=[];
+  document.querySelectorAll("#wageList .wrow").forEach(r=>{
+    const sel=r.querySelector("input[type=radio]:checked");
+    if(!sel)return;
+    const stake=parseFloat(r.querySelector(".wstake").value);
+    if(!(stake>=1))return;
+    picks.push({eventId:r.dataset.ev,side:sel.value,stake});
+  });
+  if(!picks.length){$("wageErr").textContent="Select at least one market and side.";return;}
+  const total=picks.reduce((t,x)=>t+x.stake,0);
+  if(total>USERS[session].balance){
+    $("wageErr").textContent=`Total ${total} ⭐ exceeds your balance (${USERS[session].balance} ⭐) — lower stakes or request more stars.`;return;}
+  picks.forEach(x=>{const e=EVENTS.find(v=>v.id===x.eventId);placeBet(e,x.side,x.stake);});
+  save("users",USERS);save("house",HOUSE);save("bets",BETS);
+  const secs=Math.max(1,Math.min(600,parseInt($("wageSecs").value,10)||30));
+  autoMs=secs*1000;
+  $("wageModal").classList.add("hidden");
+  renderAll();
+  setAuto(true);
+  $("roundMsg").textContent=`${picks.length} wager(s) placed (${total} ⭐) — simulations running every ${secs}s.`;
+});
+
+/* ---------- admin: roster + games ---------- */
+function refreshAdminSelects(){
+  const opts=ROSTER.map(p=>`<option>${esc(p.name)}</option>`).join("");
+  $("gA").innerHTML=opts;$("gB").innerHTML=opts;
+  $("rosterList").textContent="Roster ("+ROSTER.length+"): "+ROSTER.map(p=>p.name.split(" ")[0]).join(", ");
+}
+$("pAdd").addEventListener("click",()=>{
+  const n=$("pName").value.trim(),r=$("pRec").value.trim();
+  if(!n){$("adminMsg").textContent="Competitor name required.";return;}
+  if(ROSTER.some(p=>p.name.toLowerCase()===n.toLowerCase())){$("adminMsg").textContent="Competitor already in roster.";return;}
+  ROSTER.push({name:n,rec:r||"—"});save("roster",ROSTER);
+  $("pName").value="";$("pRec").value="";
+  $("adminMsg").textContent=`Added ${n} to roster.`;refreshAdminSelects();
+});
+$("gAdd").addEventListener("click",()=>{
+  const sport=$("gSport").value,title=$("gTitle").value.trim();
+  const an=$("gA").value,bn=$("gB").value;
+  const ao=parseFloat($("gAOdds").value),bo=parseFloat($("gBOdds").value);
+  if(!title){$("adminMsg").textContent="Event title required.";return;}
+  if(an===bn){$("adminMsg").textContent="Pick two different competitors.";return;}
+  if(!(ao>=1.01&&bo>=1.01)){$("adminMsg").textContent="Both odds must be ≥ 1.01.";return;}
+  const pa=ROSTER.find(p=>p.name===an),pb=ROSTER.find(p=>p.name===bn);
+  EVENTS.push({id:"g"+Date.now().toString(36),sport,title,
+    a:{name:pa.name,rec:pa.rec,odds:ao},b:{name:pb.name,rec:pb.rec,odds:bo},settled:false,winner:null});
+  save("events",EVENTS);
+  $("gTitle").value="";$("gAOdds").value="";$("gBOdds").value="";
+  $("adminMsg").textContent=`Published: ${title}.`;renderEvents();
+});
+
+$("uAdd").addEventListener("click",()=>{
+  const c=normContact($("uContact").value);
+  if(!c){$("adminMsg").textContent="Enter a valid email or phone for the new player.";return;}
+  if(USERS[c]){$("adminMsg").textContent="A player with that contact already exists.";return;}
+  const st=Math.max(0,Math.min(CAP,parseFloat($("uStars").value)||START_STARS));
+  USERS[c]={balance:st,joined:Object.keys(USERS).length+1,test:false};
+  save("users",USERS);
+  $("uContact").value="";
+  $("adminMsg").textContent=`Player ${c} created with ${st} \u2b50 — they sign in passwordless with a PIN.`;
+  renderAll();
+});
+document.getElementById("reseedBtn")&&document.getElementById("reseedBtn").addEventListener("click",()=>{
+  seedTestData();$("adminMsg").textContent="Test players and wagers regenerated.";renderAll();});
+
+/* ---------- simulation rounds: every press settles the open card, deals a new one, and test players wager ---------- */
+let roundCounter=load("round",1);
+function settleOpen(rng){
+  let settled=0,myWins=0,myGain=0;
+  LAST_WINNERS=new Set();
+  EVENTS.forEach(e=>{if(!e.settled){e.winner=rng()<pA(e)?"a":"b";e.settled=true;settled++;}});
+  BETS.forEach(b=>{
+    if(b.status!=="OPEN")return;
+    const e=EVENTS.find(x=>x.id===b.eventId);
+    if(!e||!e.settled)return;
+    const u=USERS[b.user];
+    if(e.winner===b.side){b.status="WON";
+      u.balance=+(u.balance+b.potential).toFixed(2);
+      u.gained=+((u.gained||0)+(b.potential-b.stake)).toFixed(2);
+      HOUSE.paidOut=+(HOUSE.paidOut+b.potential).toFixed(2);
+      LAST_WINNERS.add(b.user);
+      if(b.user===session){myWins++;myGain=+(myGain+(b.potential-b.stake)).toFixed(2);}
+    }else{b.status="LOST";
+      u.lost=+((u.lost||0)+b.stake).toFixed(2);}
+  });
+  return{settled,myWins,myGain};
+}
+function dealNewRound(rng){
+  const idx=[...ROSTER.keys()];
+  for(let i=idx.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[idx[i],idx[j]]=[idx[j],idx[i]];}
+  const pairs=Math.min(4,Math.floor(idx.length/2));
+  const made=[];
+  for(let m=0;m<pairs;m++){
+    const pa=ROSTER[idx[2*m]],pb=ROSTER[idx[2*m+1]];
+    const edge=0.52+rng()*0.2;               // favorite win prob 52–72%
+    const vig=1.07;                           // 7% overround on quoted odds
+    const oddsA=+(1/(edge*vig)).toFixed(2);
+    const oddsB=+(1/((1-edge)*vig)).toFixed(2);
+    const sport=rng()<0.5?"BJJ":"MMA";
+    made.push({id:"r"+roundCounter+"m"+m+Date.now().toString(36),sport,
+      title:`Simulation Round ${roundCounter} · Match ${m+1}`,
+      a:{name:pa.name,rec:pa.rec,odds:Math.max(1.05,oddsA)},
+      b:{name:pb.name,rec:pb.rec,odds:Math.max(1.05,oddsB)},settled:false,winner:null});
+  }
+  // keep history tidy: retain only the last 8 settled events
+  const open=EVENTS.filter(e=>!e.settled), done=EVENTS.filter(e=>e.settled).slice(-8);
+  EVENTS=done.concat(open,made);
+  return made.length;
+}
+function testWagersOnOpen(rng){
+  let placed=0;
+  EVENTS.filter(e=>!e.settled).forEach(e=>{
+    Object.keys(USERS).filter(k=>USERS[k].test).forEach(c=>{
+      if(rng()<0.3)return;
+      const u=USERS[c];
+      if(u.balance<60)u.balance=Math.min(CAP,+(u.balance+CLAIM).toFixed(2)); // test faucet
+      const stake=Math.round(10+rng()*90);
+      if(u.balance<stake)return;
+      const side=rng()<pA(e)?"a":"b";
+      const sd=e[side];
+      const fee=+(stake*FEE_RATE).toFixed(2),net=+(stake-fee).toFixed(2),gross=+(net+WIN_BONUS).toFixed(2);
+      u.balance=+(u.balance-stake).toFixed(2);
+      HOUSE.handle=+(HOUSE.handle+stake).toFixed(2);
+      HOUSE.revenue=+(HOUSE.revenue+fee).toFixed(2);
+      BETS.push({user:c,eventId:e.id,side,pick:sd.name,market:e.title,stake,fee,net,odds:sd.odds,potential:gross,status:"OPEN",test:true});
+      placed++;
+    });
+  });
+  return placed;
+}
+function zeroTestPlayers(){
+  Object.keys(USERS).forEach(k=>{if(USERS[k].test)delete USERS[k];});
+  TEST_PLAYERS.forEach(c=>{USERS[c]={balance:START_STARS,joined:Object.keys(USERS).length+1,test:true};});
+}
+function whiteReset(){
+  setAuto(false);
+  // visual: wash the screen white, force the white theme
+  applyTheme("light");
+  const wash=$("whitewash");
+  wash.classList.add("on");
+  setTimeout(()=>wash.classList.remove("on"),450);
+  // data: clear every score and start fresh
+  EVENTS=JSON.parse(JSON.stringify(SEED_EVENTS));
+  BETS=[];
+  HOUSE={handle:0,revenue:0,paidOut:0};
+  roundCounter=1;save("round",roundCounter);
+  seedCounter=11;save("seed",seedCounter);
+  Object.keys(USERS).forEach(k=>{if(!USERS[k].test)USERS[k].balance=0;});
+  zeroTestPlayers();
+  Object.keys(USERS).forEach(k=>{if(USERS[k].test)USERS[k].balance=0;});
+  Object.values(USERS).sort((a,b)=>a.joined-b.joined).forEach((u,i)=>u.joined=i+1);
+  slip=null;
+  LAST_WINNERS=new Set();
+  $("walletBox").classList.remove("winflash");
+  document.querySelectorAll(".starburst").forEach(el=>el.remove());
+  save("users",USERS);save("events",EVENTS);save("bets",BETS);save("house",HOUSE);
+  $("roundMsg").textContent="Screen cleared — all stars and scores zeroed. Request stars to play; test players refill automatically as rounds run.";
+  renderAll();
+}
+function doFreshStart(){
+  // reset events to the original seeded card
+  EVENTS=JSON.parse(JSON.stringify(SEED_EVENTS));
+  BETS=[];
+  HOUSE={handle:0,revenue:0,paidOut:0};
+  roundCounter=1;save("round",roundCounter);
+  seedCounter=11;save("seed",seedCounter);
+  // real users keep accounts, balances reset to the starting grant; test users rebuilt by the seeder
+  Object.keys(USERS).forEach(k=>{if(USERS[k].test)delete USERS[k];else USERS[k].balance=START_STARS;});
+  // renumber join order compactly
+  Object.values(USERS).sort((a,b)=>a.joined-b.joined).forEach((u,i)=>u.joined=i+1);
+  save("users",USERS);save("events",EVENTS);save("bets",BETS);save("house",HOUSE);
+  seedTestData();
+  slip=null;
+  $("roundMsg").textContent="Fresh start: original card restored, test players re-seeded, tally zeroed.";
+  renderAll();
+}
+$("freshBtn").addEventListener("click",()=>{
+  if(!confirm("Start fresh? Everything goes white: all scores, wagers, and the tally are cleared, every account is zeroed to 0 \u2b50, and the original card returns."))return;
+  whiteReset();
+});
+$("cleanFreshBtn").addEventListener("click",()=>{
+  if(!confirm("Clean the screen and start fresh? Everything goes white: all scores, wagers, and the tally are cleared, every account is zeroed to 0 \u2b50, and the original card returns."))return;
+  whiteReset();
+});
+function runRound(){
+  const rng=mulberry32(seedCounter);seedCounter++;save("seed",seedCounter);
+  const {settled,myWins,myGain}=settleOpen(rng);
+  const dealt=dealNewRound(rng);
+  roundCounter++;save("round",roundCounter);
+  const wagers=testWagersOnOpen(rng);
+  save("events",EVENTS);save("bets",BETS);save("users",USERS);save("house",HOUSE);
+  $("roundMsg").textContent=`Round complete: settled ${settled} · dealt ${dealt} new · ${wagers} test wagers.`
+    +(myWins?` 🎉 You won ${myWins} bet${myWins>1?"s":""} (+${myGain} ⭐)!`:"")
+    +(autoTimer?" Auto-run: next round shortly…":"");
+  renderAll();
+  if(myWins)celebrate(myWins,myGain);
+}
+
+/* ---------- win celebration: chime + star burst ---------- */
+function celebrate(n,gain){
+  // sound: two-note WebAudio chime (no external files)
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    const ctx=new AC();
+    [[880,0],[1174.7,0.14],[1568,0.28]].forEach(([f,t])=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.type="sine";o.frequency.value=f;
+      g.gain.setValueAtTime(0.0001,ctx.currentTime+t);
+      g.gain.exponentialRampToValueAtTime(0.25,ctx.currentTime+t+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+t+0.5);
+      o.connect(g);g.connect(ctx.destination);
+      o.start(ctx.currentTime+t);o.stop(ctx.currentTime+t+0.55);
+    });
+  }catch(e){}
+  // stars: burst of ⭐ flying outward
+  const count=Math.min(28,10+n*6);
+  for(let i=0;i<count;i++){
+    const sp=document.createElement("span");
+    sp.className="starburst";sp.textContent="⭐";
+    const ang=Math.random()*2*Math.PI, dist=90+Math.random()*220;
+    sp.style.setProperty("--dx",Math.cos(ang)*dist+"px");
+    sp.style.setProperty("--dy",Math.sin(ang)*dist-60+"px");
+    sp.style.animationDelay=(Math.random()*0.25)+"s";
+    document.body.appendChild(sp);
+    setTimeout(()=>sp.remove(),1600);
+  }
+  const wb=$("walletBox");wb.classList.remove("winflash");void wb.offsetWidth;wb.classList.add("winflash");
+}
+$("settleBtn").addEventListener("click",runRound);
+$("dealBtn").addEventListener("click",()=>{
+  const rng=mulberry32(seedCounter);seedCounter++;save("seed",seedCounter);
+  const dealt=dealNewRound(rng);
+  roundCounter++;save("round",roundCounter);
+  const wagers=testWagersOnOpen(rng);
+  save("events",EVENTS);save("bets",BETS);save("users",USERS);save("house",HOUSE);
+  $("roundMsg").textContent=`Added ${dealt} matchup(s) — test players placed ${wagers} wagers. Nothing was settled.`;
+  renderAll();
+});
+
+/* auto-run: once a round's simulated results are added, the next simulation starts automatically */
+let autoMs=30000;
+let autoTimer=null;
+function setAuto(on){
+  if(on&&!autoTimer){
+    autoTimer=setInterval(runRound,autoMs);
+    $("autoBtn").textContent="⏸ Auto-run: ON every "+(autoMs/1000)+"s (click to stop)";
+    $("autoBtn").classList.add("primary");
+  }else if(!on&&autoTimer){
+    clearInterval(autoTimer);autoTimer=null;
+    $("autoBtn").textContent="▶▶ Auto-run: OFF";
+    $("autoBtn").classList.remove("primary");
+    $("roundMsg").textContent="Auto-run stopped.";
+  }
+}
+$("autoBtn").addEventListener("click",()=>setAuto(!autoTimer));
+
+/* clear all simulations: wipe every game (open + settled), all wagers, and the tally */
+$("clearBtn").addEventListener("click",()=>{
+  if(!confirm("Clear all simulations? Everything goes white: all scores, wagers, and the tally are cleared, every account is zeroed to 0 \u2b50, and the original card returns."))return;
+  whiteReset();
+});
+
+/* ---------- dashboard ---------- */
+function renderDash(){
+  const rows=Object.entries(USERS).map(([email,u])=>{
+    const mine=BETS.filter(b=>b.user===email);
+    const waged=mine.reduce((s,b)=>s+b.stake,0);
+    const openPicks=[...new Set(mine.filter(b=>b.status==="OPEN").map(b=>b.pick.split(" ")[0].replace(/'/g,"")))];
+    let backing="—";
+    if(openPicks.length)backing=openPicks.join(", ");
+    else if(mine.length){const last=mine[mine.length-1];backing=last.pick.split(" ")[0].replace(/'/g,"")+(last.status==="WON"?" ✓":last.status==="LOST"?" ✗":"");}
+    const wins=mine.filter(b=>b.status==="WON").length;
+    const losses=mine.filter(b=>b.status==="LOST").length;
+    const settled=mine.filter(b=>b.status!=="OPEN").length;
+    const disp=email.includes("@")?email.split("@")[0]:email.slice(0,3)+"···"+email.slice(-4);
+    return{n:u.joined,email,name:disp,backing,bal:u.balance,waged,bets:mine.length,wins,losses,
+      rate:settled?Math.round(100*wins/settled)+"%":"—"};
+  }).sort((a,b)=>b.bal-a.bal||a.n-b.n);
+  $("dashFull").innerHTML=rows.length?rows.map(r=>`<tr class="${r.email===session?"me ":""}${LAST_WINNERS.has(r.email)?"rowwin":""}">
+    <td>${r.n}</td>
+    <td>${esc(r.email.includes("@")?r.email:r.name)}${r.email===ADMIN_EMAIL?' <span class="admin-flag">ADMIN</span>':""}${USERS[r.email]&&USERS[r.email].test?' <span class="muted">(test)</span>':""}</td>
+    <td style="color:var(--teal);font-weight:600">${esc(r.backing)}</td>
+    <td class="star">${r.bal.toLocaleString()}</td>
+    <td>${r.waged.toLocaleString()}</td>
+    <td>${r.bets}</td><td class="w">${r.wins}</td><td class="l">${r.losses}</td><td>${r.rate}</td>
+    <td><span class="w">+${(USERS[r.email].gained||0).toLocaleString()}</span> / <span class="l">−${(USERS[r.email].lost||0).toLocaleString()}</span></td></tr>`).join("")
+    :'<tr><td colspan="10" class="muted">No players yet.</td></tr>';
+  $("dash").innerHTML=rows.length?rows.map(r=>`<tr class="${r.email===session?"me ":""}${LAST_WINNERS.has(r.email)?"rowwin":""}">
+    <td>${r.n}</td><td>${esc(r.name)}${r.email===ADMIN_EMAIL?' <span class="admin-flag">ADMIN</span>':""}${USERS[r.email]&&USERS[r.email].test?' <span class="muted">(test)</span>':""}</td>
+    <td class="backing">${esc(r.backing)}</td>
+    <td class="star">${r.bal.toLocaleString()}</td><td>${r.waged.toLocaleString()}</td>
+    <td>${r.bets}</td><td class="w">${r.wins}</td><td class="l">${r.losses}</td><td>${r.rate}</td></tr>`).join("")
+    :'<tr><td colspan="9" class="muted">No players yet — sign up to appear here.</td></tr>';
+}
+
+/* ---------- render ---------- */
+function renderAll(){
+  const authed=!!session;
+  $("authBtn").textContent=authed?"Sign out":"Sign in";
+  $("wageOpenBtn").textContent=authed?"🎯 Wage stars on markets…":"🔐 Sign in to start betting";
+  $("placeBtn").textContent=authed?"Place prediction":"Sign in to bet";
+  $("whoami").textContent=authed?session:"";
+  $("walletBox").classList.toggle("hidden",!authed);
+  $("claimBtn").classList.toggle("hidden",!authed);
+  $("adminFlag").classList.toggle("hidden",!isAdmin());
+  $("adminPanel").classList.toggle("hidden",!isAdmin());
+  if(isAdmin())refreshAdminSelects();
+  if(authed)$("balance").textContent=stars(USERS[session].balance);
+  renderEvents();renderSlip();renderDash();
+  const mine=BETS.filter(b=>b.user===session);
+  if(session){
+    const w_=mine.filter(b=>b.status==="WON").length,l_=mine.filter(b=>b.status==="LOST").length;
+    const u=USERS[session];
+    $("myRecord").textContent=`· ${stars(u.balance)} · record ${w_}W–${l_}L · lifetime +${(u.gained||0).toLocaleString()} / −${(u.lost||0).toLocaleString()} ⭐`;
+  }else $("myRecord").textContent="";
+  $("myBets").innerHTML=mine.length?mine.map(b=>`<tr>
+    <td>${esc(b.market)}</td><td>${esc(b.pick.split(" ")[0])} @ ${b.odds.toFixed(2)}</td>
+    <td>${b.stake}</td><td>${b.potential}</td>
+    <td class="${b.status==="WON"?"w":b.status==="LOST"?"l":"o"}">${b.status}</td></tr>`).join("")
+    :'<tr><td colspan="5" class="muted">None yet.</td></tr>';
+  $("handle").textContent=stars(HOUSE.handle);
+  $("revenue").textContent=stars(HOUSE.revenue);
+  $("paidOut").textContent=stars(HOUSE.paidOut);
+}
+if(Object.keys(USERS).length===0){zeroTestPlayers();save("users",USERS);}
+/* ---------- main tabs: markets vs full dashboard ---------- */
+function setMainTab(t){
+  $("mtMarkets").classList.toggle("active",t==="markets");
+  $("mtDash").classList.toggle("active",t==="dash");
+  $("marketsView").classList.toggle("hidden",t!=="markets");
+  $("slipPanel").classList.toggle("hidden",t!=="markets");
+  $("dashFullView").classList.toggle("hidden",t!=="dash");
+  if(t==="dash")renderDash();
+}
+$("mtMarkets").addEventListener("click",()=>setMainTab("markets"));
+$("mtDash").addEventListener("click",()=>setMainTab("dash"));
+
+/* ---------- theme toggle ---------- */
+const themeBtn=$("themeBtn");
+function applyTheme(t){
+  document.body.dataset.theme=t;
+  themeBtn.textContent=t==="dark"?"☀️ Light":"🌙 Dark";
+  save("theme",t);
+}
+themeBtn.addEventListener("click",()=>applyTheme(document.body.dataset.theme==="dark"?"light":"dark"));
+applyTheme(load("theme","light"));
+
+renderAll();
+</script>
+</body>
+</html>
