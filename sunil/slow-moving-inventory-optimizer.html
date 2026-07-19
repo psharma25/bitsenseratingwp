@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slow-Moving Inventory & Stocking-Cost Optimization</title>
+<style>
+  :root{
+    --petrol:#1b4965; --teal:#2a9d8f; --teal-soft:#e6f4f2; --petrol-soft:#eaf1f5;
+    --ink:#22333b; --muted:#5f7480; --line:#dde6ea; --bg:#ffffff;
+    --red:#a4322a; --amber:#9a6a12; --amber-soft:#fff4e0; --red-soft:#fdecea;
+    --card-shadow:0 2px 6px rgba(27,73,101,.08), 0 8px 24px rgba(27,73,101,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);padding:24px 18px 44px;line-height:1.45}
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{color:var(--petrol);font-size:1.45rem;font-weight:700}
+  h2{color:var(--petrol);font-size:1.05rem;font-weight:700;margin:22px 0 10px}
+  .subtitle{color:var(--muted);font-size:.87rem;margin-top:4px;max-width:920px}
+  .subtitle b{color:var(--petrol)}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--card-shadow);padding:12px 14px}
+  .kpi .v{color:var(--petrol);font-size:1.35rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .kpi .l{color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  .kpi.save .v{color:var(--teal)}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--card-shadow);overflow:auto;margin-bottom:8px}
+  .pad{padding:14px 16px}
+  table{width:100%;border-collapse:collapse;font-size:.79rem;min-width:1020px}
+  thead th{position:sticky;top:0;background:var(--petrol);color:#fff;text-align:left;font-weight:600;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;padding:8px 10px;cursor:pointer;user-select:none;white-space:nowrap}
+  thead th:hover{background:#245a7c}
+  thead th .arrow{margin-left:5px;font-size:.64rem;opacity:.45}
+  thead th[aria-sort] .arrow{opacity:1;color:#7fd4c9}
+  thead th.no-sort{cursor:default}
+  tbody td{padding:6px 10px;border-top:1px solid var(--line);vertical-align:top;font-variant-numeric:tabular-nums}
+  tbody tr:nth-child(even){background:#f7fafb}
+  tbody tr:hover{background:var(--teal-soft)}
+  td.mat{font-weight:600;color:var(--petrol);white-space:nowrap}
+  td.desc{color:var(--muted);font-size:.75rem}
+  td.num{text-align:right;white-space:nowrap}
+  td.age-danger{color:var(--red);font-weight:700}
+  td.age-warn{color:var(--amber);font-weight:600}
+  .pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.68rem;font-weight:600;white-space:nowrap}
+  .pill.obsolete{background:var(--red-soft);color:var(--red)}
+  .pill.liquidate{background:var(--amber-soft);color:var(--amber)}
+  .pill.mto{background:var(--petrol-soft);color:var(--petrol)}
+  .pill.reduce{background:var(--teal-soft);color:#1c7267}
+  .delta-down{color:var(--teal);font-weight:600}
+  .zero{color:var(--red);font-weight:700}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:10px 0}
+  .controls label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:2px}
+  .controls select,.controls input{font:inherit;font-size:.85rem;padding:6px 9px;border:1px solid var(--line);border-radius:8px;min-width:150px}
+  .count-pill{margin-left:auto;background:var(--teal-soft);color:var(--petrol);border-radius:999px;padding:5px 12px;font-size:.77rem;font-weight:600}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:860px){.grid2{grid-template-columns:1fr}}
+  .method{font-size:.84rem}
+  .method p{margin-bottom:8px}
+  .formula{background:var(--petrol-soft);border-left:3px solid var(--teal);border-radius:6px;padding:8px 12px;font-family:Consolas,Menlo,monospace;font-size:.8rem;margin:8px 0;color:var(--petrol)}
+  .worked{background:var(--teal-soft);border-radius:8px;padding:10px 12px;font-size:.8rem;margin-top:8px}
+  .worked b{color:var(--petrol)}
+
+  .vendor{border-top:3px solid var(--teal)}
+  .vendor h3{color:var(--petrol);font-size:.95rem;margin-bottom:6px}
+  .vendor .tagline{color:var(--teal);font-size:.76rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+  .vendor ul{margin:0 0 8px 18px;font-size:.82rem}
+  .vendor li{margin-bottom:5px}
+  .vendor .note{font-size:.74rem;color:var(--muted)}
+
+  .playbook ol{margin:0 0 4px 20px;font-size:.85rem}
+  .playbook li{margin-bottom:7px}
+  .playbook b{color:var(--petrol)}
+
+  footer{margin-top:14px;font-size:.74rem;color:var(--muted);max-width:980px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Slow-Moving &amp; Non-Moving Inventory — Stocking-Cost Optimization</h1>
+    <p class="subtitle">Materials with <b>no consumption for 12+ months</b>, how long they've been sitting, and recalculated safety stock (SS) and reorder points (ROP). Demonstration dataset — replace with your ERP extract (SAP: <b>MC46</b> slow-moving items, <b>MC50</b> dead stock, <b>MB5B</b> stock on posting date). Carrying cost assumed at <b>22%</b> of unit value per year (capital + warehouse + insurance + obsolescence).</p>
+  </header>
+
+  <div class="cards" id="kpis"></div>
+
+  <h2>Non-moving materials register (no issues ≥ 12 months)</h2>
+  <div class="controls">
+    <div><label for="fCat">Category</label><select id="fCat"><option value="">All categories</option></select></div>
+    <div><label for="fAct">Recommended action</label><select id="fAct"><option value="">All actions</option></select></div>
+    <div><label for="q">Search</label><input type="search" id="q" placeholder="Material, description…"></div>
+    <span class="count-pill" id="count"></span>
+  </div>
+  <div class="card">
+    <table id="tbl">
+      <thead><tr>
+        <th data-key="mat">Material<span class="arrow">▲</span></th>
+        <th data-key="cat">Category<span class="arrow">▲</span></th>
+        <th data-key="lastIssue">Last issue<span class="arrow">▲</span></th>
+        <th data-key="months" data-num="1">Idle (months)<span class="arrow">▲</span></th>
+        <th data-key="qty" data-num="1">On hand<span class="arrow">▲</span></th>
+        <th data-key="value" data-num="1">Stock value<span class="arrow">▲</span></th>
+        <th data-key="hold" data-num="1">Holding cost/yr<span class="arrow">▲</span></th>
+        <th data-key="ssOld" data-num="1">SS now → new<span class="arrow">▲</span></th>
+        <th data-key="ropOld" data-num="1">ROP now → new<span class="arrow">▲</span></th>
+        <th data-key="action">Action<span class="arrow">▲</span></th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+
+  <h2>How SS and ROP are readjusted</h2>
+  <div class="grid2">
+    <div class="card pad method">
+      <p><b style="color:var(--petrol)">The statistical baseline.</b> Safety stock exists to buffer demand variability over replenishment lead time at a chosen service level. Reorder point is average lead-time demand plus that buffer:</p>
+      <div class="formula">SS  = Z × σ<span style="font-size:.7em">d</span> × √LT</div>
+      <div class="formula">ROP = (d̄ × LT) + SS</div>
+      <p style="font-size:.78rem;color:var(--muted)">Z = service-level factor (98% → 2.05, 95% → 1.65, 90% → 1.28) · σd = std-dev of period demand · d̄ = mean period demand · LT = lead time in periods.</p>
+      <p><b style="color:var(--petrol)">The rule that matters here:</b> when trailing 12-month consumption is <b>zero</b>, both terms collapse — d̄ = 0 and σd = 0, so <b>SS = 0 and ROP = 0</b> by the math itself. Any safety stock still parameterized on these materials is a legacy setting, not a calculation. That's why the table drives most items to zero and converts genuinely-needed-but-rare items to make-to-order (MTO) or vendor consignment.</p>
+    </div>
+    <div class="card pad method">
+      <p><b style="color:var(--petrol)">Worked example — SP-4415 hydraulic seal kit:</b></p>
+      <div class="worked">
+        Old parameters (set 2022): SS = 40, ROP = 65, on-hand 58 units at $86 → <b>$4,988 locked</b>, ~$1,097/yr carrying cost.<br><br>
+        Trailing 12-month demand: <b>0 issues</b>. Machine it served was decommissioned in the 2024 line upgrade.<br><br>
+        Recalc: d̄ = 0 → SS = <b>0</b>, ROP = <b>0</b>. Action: retain 2 units as insurance spares under a separate spares policy (criticality-based, not forecast-based), <b>liquidate 56</b> via surplus broker → recover ~30¢/$, release ~$1,440 cash and ~$1,000/yr holding cost.
+      </div>
+      <p style="margin-top:8px;font-size:.8rem;color:var(--muted)">Insurance spares are the honest exception: zero-demand ≠ zero-need for single-point-of-failure parts. Gate those through an engineering criticality review — never through the forecast formula.</p>
+    </div>
+  </div>
+
+  <h2>Reducing stocking cost at scale — Celonis and Aera</h2>
+  <div class="grid2">
+    <div class="card pad vendor">
+      <h3>Celonis — find <em>why</em> excess stock keeps being created</h3>
+      <div class="tagline">Process mining · diagnosis layer</div>
+      <ul>
+        <li><b>Mines actual ERP event logs</b> (P2P, inventory movements) and reconstructs how stock really flows — not how the SOP says it flows.</li>
+        <li><b>Root-cause detection:</b> surfaces the behaviors that create dead stock — duplicate materials under different numbers, maverick buying outside contracts, orders placed despite sufficient stock, SS/ROP parameters untouched for years while demand shifted.</li>
+        <li><b>Working-capital apps</b> flag materials where days-on-hand and parameter drift diverge, and quantify the cash release available per material/plant.</li>
+        <li><b>Continuous monitoring:</b> once cleaned, alerts fire when a buyer re-creates the pattern (e.g., PO raised on a zero-consumption item).</li>
+      </ul>
+      <p class="note">Vendor case studies typically report 10–20% excess-inventory reduction from parameter cleanup and process conformance. Treat published figures as directional.</p>
+    </div>
+    <div class="card pad vendor">
+      <h3>Aera — decide and <em>execute</em> the parameter changes</h3>
+      <div class="tagline">Decision intelligence · action layer</div>
+      <ul>
+        <li><b>Aera Decision Cloud</b> continuously recalculates SS/ROP per SKU-location from live demand, variability, and lead-time data — instead of annual batch reviews.</li>
+        <li><b>Recommendations with dollar impact:</b> each proposed change ("cut SS 40 → 0 on SP-4415, release $4.9K") is scored, explained, and routed for approval.</li>
+        <li><b>Closed loop:</b> approved decisions write back to the ERP (SAP MRP views) automatically — the step most excess-stock programs never finish, which is why the same dead stock reappears every audit.</li>
+        <li><b>Learning:</b> tracks which recommendations planners accept/override and tunes future proposals accordingly.</li>
+      </ul>
+      <p class="note">Pattern to copy even without either tool: diagnose root causes (Celonis role), then automate parameter recalculation with write-back and human approval gates (Aera role). The gap between "report" and "write-back" is where most programs die.</p>
+    </div>
+  </div>
+
+  <h2>90-day action playbook</h2>
+  <div class="card pad playbook">
+    <ol>
+      <li><b>Extract &amp; verify (weeks 1–2):</b> pull 24 months of goods issues per material/plant; flag zero-consumption ≥ 12 months. Verify against open reservations and BOM usage — some "dead" stock is allocated to a project.</li>
+      <li><b>Segment (weeks 2–4):</b> insurance spares (engineering review) · project residuals (return/restock to vendor) · duplicates (merge material masters) · true dead stock (liquidate/scrap with finance write-down approval).</li>
+      <li><b>Reset parameters (weeks 4–6):</b> SS = 0 / ROP = 0 on zero-demand items; convert sporadic-demand items to MTO or lower service level (98% → 90% cuts SS by ~37% at the same σ and LT); document every change for audit.</li>
+      <li><b>Recover cash (weeks 6–12):</b> vendor buy-backs, surplus brokers, internal transfers between plants before external sale; scrap last, with write-off approvals.</li>
+      <li><b>Prevent recurrence (ongoing):</b> monthly zero-consumption report to planners, block PO creation on flagged materials without override, and parameter recalculation on a quarterly cadence — manually, or via the Celonis→Aera pattern above.</li>
+    </ol>
+  </div>
+
+  <footer>
+    Demonstration data, deterministic and editable in the DATA array. Carrying rate, service factors, and recovery rates are typical planning values — align with your finance team's actuals before presenting savings. Prepared July 2026 · PromptHalo Advisory.
+  </footer>
+</div>
+
+<script>
+"use strict";
+const CARRY=0.22;
+const DATA=[
+ {mat:"SP-4415",desc:"Hydraulic seal kit — decommissioned line",cat:"Spare parts",lastIssue:"2024-05-12",months:26,qty:58,unit:86,ssOld:40,ropOld:65,ssNew:0,ropNew:0,action:"Liquidate"},
+ {mat:"SP-7702",desc:"Conveyor bearing 6207-2RS legacy spec",cat:"Spare parts",lastIssue:"2025-03-28",months:16,qty:120,unit:14.5,ssOld:60,ropOld:95,ssNew:0,ropNew:0,action:"Liquidate"},
+ {mat:"SP-8830",desc:"PLC I/O module (superseded model)",cat:"Spare parts",lastIssue:"2023-11-02",months:32,qty:9,unit:640,ssOld:4,ropOld:6,ssNew:1,ropNew:1,action:"Insurance spare"},
+ {mat:"RM-1120",desc:"Resin grade B — reformulated out of BOM",cat:"Raw material",lastIssue:"2025-06-30",months:13,qty:2200,unit:3.1,ssOld:800,ropOld:1500,ssNew:0,ropNew:0,action:"Return to vendor"},
+ {mat:"RM-1348",desc:"Adhesive 2-part epoxy, shelf-life expired",cat:"Raw material",lastIssue:"2024-09-15",months:22,qty:340,unit:12.8,ssOld:150,ropOld:260,ssNew:0,ropNew:0,action:"Scrap"},
+ {mat:"PK-0450",desc:"Printed cartons — old brand artwork",cat:"Packaging",lastIssue:"2024-12-20",months:19,qty:14500,unit:0.42,ssOld:5000,ropOld:9000,ssNew:0,ropNew:0,action:"Scrap"},
+ {mat:"PK-0518",desc:"Labels, regulatory rev C (rev E current)",cat:"Packaging",lastIssue:"2025-01-10",months:18,qty:52000,unit:0.06,ssOld:20000,ropOld:35000,ssNew:0,ropNew:0,action:"Scrap"},
+ {mat:"FG-3301",desc:"Finished goods — discontinued SKU, EU spec",cat:"Finished goods",lastIssue:"2025-04-22",months:15,qty:410,unit:29,ssOld:200,ropOld:350,ssNew:0,ropNew:0,action:"Liquidate"},
+ {mat:"SP-5590",desc:"Pump impeller, single legacy asset",cat:"Spare parts",lastIssue:"2023-07-19",months:36,qty:6,unit:410,ssOld:3,ropOld:4,ssNew:1,ropNew:1,action:"Insurance spare"},
+ {mat:"RM-2077",desc:"Solvent drum — project residual (closed WO)",cat:"Raw material",lastIssue:"2025-02-05",months:17,qty:18,unit:210,ssOld:6,ropOld:12,ssNew:0,ropNew:0,action:"Return to vendor"},
+ {mat:"MRO-660",desc:"Filter cartridges, non-standard size",cat:"MRO",lastIssue:"2025-07-01",months:12,qty:260,unit:9.4,ssOld:100,ropOld:180,ssNew:0,ropNew:0,action:"Make-to-order"},
+ {mat:"MRO-712",desc:"V-belts assorted, mixed obsolete sizes",cat:"MRO",lastIssue:"2024-03-11",months:28,qty:190,unit:7.2,ssOld:80,ropOld:130,ssNew:0,ropNew:0,action:"Scrap"},
+ {mat:"SP-9101",desc:"Gearbox, spare for retired press",cat:"Spare parts",lastIssue:"2022-10-30",months:44,qty:1,unit:8200,ssOld:1,ropOld:1,ssNew:0,ropNew:0,action:"Liquidate"},
+ {mat:"PK-0333",desc:"Pallet inserts, supplier-specific legacy",cat:"Packaging",lastIssue:"2025-05-18",months:14,qty:3100,unit:0.85,ssOld:1200,ropOld:2000,ssNew:0,ropNew:0,action:"Return to vendor"},
+ {mat:"FG-2988",desc:"Finished goods — customer-cancelled order",cat:"Finished goods",lastIssue:"2024-08-25",months:23,qty:96,unit:74,ssOld:0,ropOld:0,ssNew:0,ropNew:0,action:"Liquidate"},
+ {mat:"MRO-801",desc:"Safety gloves, discontinued model",cat:"MRO",lastIssue:"2025-06-10",months:13,qty:480,unit:4.1,ssOld:200,ropOld:320,ssNew:0,ropNew:0,action:"Make-to-order"}
+];
+DATA.forEach(d=>{d.value=+(d.qty*d.unit).toFixed(2);d.hold=+(d.value*CARRY).toFixed(2);});
+
+const fmt=n=>"$"+n.toLocaleString("en-US",{maximumFractionDigits:0});
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const actClass={"Liquidate":"liquidate","Scrap":"obsolete","Insurance spare":"mto","Return to vendor":"reduce","Make-to-order":"mto"};
+
+// KPIs
+const totVal=DATA.reduce((s,d)=>s+d.value,0);
+const totHold=DATA.reduce((s,d)=>s+d.hold,0);
+const keepVal=DATA.reduce((s,d)=>s+(d.ssNew>0?d.ssNew*d.unit:0),0);
+const releasable=totVal-keepVal;
+const avgAge=(DATA.reduce((s,d)=>s+d.months,0)/DATA.length).toFixed(1);
+document.getElementById("kpis").innerHTML=`
+  <div class="kpi"><div class="v">${DATA.length}</div><div class="l">Materials idle ≥ 12 months</div></div>
+  <div class="kpi"><div class="v">${fmt(totVal)}</div><div class="l">Stock value locked</div></div>
+  <div class="kpi"><div class="v">${fmt(totHold)}/yr</div><div class="l">Annual holding cost (22%)</div></div>
+  <div class="kpi"><div class="v">${avgAge} mo</div><div class="l">Average idle age</div></div>
+  <div class="kpi save"><div class="v">${fmt(releasable)}</div><div class="l">Releasable after reset (before recovery %)</div></div>`;
+
+const fCat=document.getElementById("fCat"),fAct=document.getElementById("fAct"),q=document.getElementById("q");
+[...new Set(DATA.map(d=>d.cat))].sort().forEach(c=>fCat.insertAdjacentHTML("beforeend",`<option>${c}</option>`));
+[...new Set(DATA.map(d=>d.action))].sort().forEach(a=>fAct.insertAdjacentHTML("beforeend",`<option>${a}</option>`));
+
+let sortKey="months",sortDir=-1,sortNum=true;
+function render(){
+  const term=q.value.trim().toLowerCase();
+  let rows=DATA.filter(d=>
+    (!fCat.value||d.cat===fCat.value)&&(!fAct.value||d.action===fAct.value)&&
+    (!term||(d.mat+" "+d.desc+" "+d.cat+" "+d.action).toLowerCase().includes(term)));
+  rows.sort((a,b)=>{
+    let c=sortNum?a[sortKey]-b[sortKey]:String(a[sortKey]).localeCompare(String(b[sortKey]));
+    if(c===0)c=b.months-a.months;return c*sortDir;});
+  document.getElementById("rows").innerHTML=rows.map(d=>`<tr>
+    <td class="mat">${esc(d.mat)}<div class="desc">${esc(d.desc)}</div></td>
+    <td>${esc(d.cat)}</td>
+    <td>${esc(d.lastIssue)}</td>
+    <td class="num ${d.months>=24?"age-danger":d.months>=18?"age-warn":""}">${d.months}</td>
+    <td class="num">${d.qty.toLocaleString()}</td>
+    <td class="num">${fmt(d.value)}</td>
+    <td class="num">${fmt(d.hold)}</td>
+    <td class="num">${d.ssOld.toLocaleString()} → <span class="${d.ssNew===0?"zero":"delta-down"}">${d.ssNew}</span></td>
+    <td class="num">${d.ropOld.toLocaleString()} → <span class="${d.ropNew===0?"zero":"delta-down"}">${d.ropNew}</span></td>
+    <td><span class="pill ${actClass[d.action]}">${esc(d.action)}</span></td></tr>`).join("");
+  const v=rows.reduce((s,d)=>s+d.value,0);
+  document.getElementById("count").textContent=`${rows.length} of ${DATA.length} materials · ${fmt(v)} shown`;
+}
+document.querySelectorAll("thead th[data-key]").forEach(th=>{
+  th.tabIndex=0;
+  const act=()=>{const k=th.dataset.key;
+    if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1;sortNum=!!th.dataset.num;}
+    document.querySelectorAll("thead th").forEach(h=>{h.removeAttribute("aria-sort");const a=h.querySelector(".arrow");if(a)a.textContent="▲";});
+    th.setAttribute("aria-sort",sortDir===1?"ascending":"descending");
+    th.querySelector(".arrow").textContent=sortDir===1?"▲":"▼";render();};
+  th.addEventListener("click",act);
+  th.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();act();}});
+});
+[fCat,fAct,q].forEach(el=>el.addEventListener("input",render));
+render();
+</script>
+</body>
+</html>
