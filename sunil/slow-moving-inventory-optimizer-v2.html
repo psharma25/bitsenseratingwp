@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Slow-Moving Inventory & Stocking-Cost Optimization</title>
+<style>
+  :root{
+    --petrol:#1b4965; --teal:#2a9d8f; --teal-soft:#e6f4f2; --petrol-soft:#eaf1f5;
+    --ink:#22333b; --muted:#5f7480; --line:#dde6ea; --bg:#ffffff;
+    --red:#a4322a; --amber:#9a6a12; --amber-soft:#fff4e0; --red-soft:#fdecea;
+    --card-shadow:0 2px 6px rgba(27,73,101,.08), 0 8px 24px rgba(27,73,101,.07);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI","Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink);padding:24px 18px 44px;line-height:1.45}
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{color:var(--petrol);font-size:1.4rem;font-weight:700}
+  h2{color:var(--petrol);font-size:1rem;font-weight:700}
+  .subtitle{color:var(--muted);font-size:.85rem;margin-top:4px;max-width:920px}
+  .subtitle b{color:var(--petrol)}
+
+  .company-bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0 6px}
+  .company-badge{background:var(--petrol);color:#fff;border-radius:999px;padding:6px 16px;font-size:.85rem;font-weight:700}
+  .company-badge span{color:#7fd4c9;font-weight:500;font-size:.75rem;margin-right:6px}
+  .company-bar select{font:inherit;font-size:.85rem;padding:6px 9px;border:1px solid var(--line);border-radius:8px}
+  .btn{font:inherit;font-size:.8rem;font-weight:600;padding:7px 12px;border-radius:8px;border:1px solid var(--petrol);background:#fff;color:var(--petrol);cursor:pointer}
+  .btn:hover{background:var(--petrol-soft)}
+  .seg{display:inline-flex;border:1px solid var(--petrol);border-radius:8px;overflow:hidden}
+  .seg button{font:inherit;font-size:.78rem;font-weight:600;padding:6px 12px;border:0;background:#fff;color:var(--petrol);cursor:pointer}
+  .seg button.active{background:var(--petrol);color:#fff}
+
+  details.upload{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--card-shadow);padding:10px 14px;margin:10px 0}
+  details.upload summary{cursor:pointer;color:var(--petrol);font-weight:700;font-size:.88rem}
+  details.upload .inner{margin-top:10px;font-size:.82rem}
+  details.upload input[type="text"]{font:inherit;font-size:.85rem;padding:7px 10px;border:1px solid var(--line);border-radius:8px;min-width:240px}
+  details.upload textarea{width:100%;min-height:88px;font-family:Consolas,Menlo,monospace;font-size:.75rem;padding:8px;border:1px solid var(--line);border-radius:8px;margin-top:8px}
+  .upload-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px}
+  .spec{background:var(--petrol-soft);border-radius:8px;padding:8px 12px;font-family:Consolas,Menlo,monospace;font-size:.72rem;color:var(--petrol);margin-top:8px;overflow:auto;white-space:nowrap}
+  .upload-msg{font-size:.78rem;margin-top:6px;font-weight:600}
+  .upload-msg.ok{color:var(--teal)} .upload-msg.err{color:var(--red)}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:14px 0}
+  .kpi{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--card-shadow);padding:11px 13px}
+  .kpi .v{color:var(--petrol);font-size:1.3rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .kpi .l{color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+  .kpi.save .v{color:var(--teal)}
+
+  .controls{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin:10px 0}
+  .controls label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:2px}
+  .controls select,.controls input{font:inherit;font-size:.85rem;padding:6px 9px;border:1px solid var(--line);border-radius:8px;min-width:140px}
+  .count-pill{margin-left:auto;background:var(--teal-soft);color:var(--petrol);border-radius:999px;padding:5px 12px;font-size:.77rem;font-weight:600}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--card-shadow);overflow:auto;margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;font-size:.78rem}
+  table.detailed{min-width:1020px}
+  table.compactv{min-width:640px}
+  thead th{position:sticky;top:0;background:var(--petrol);color:#fff;text-align:left;font-weight:600;font-size:.67rem;letter-spacing:.05em;text-transform:uppercase;padding:7px 10px;cursor:pointer;user-select:none;white-space:nowrap}
+  thead th:hover{background:#245a7c}
+  thead th .arrow{margin-left:5px;font-size:.62rem;opacity:.45}
+  thead th[aria-sort] .arrow{opacity:1;color:#7fd4c9}
+  tbody td{padding:5px 10px;border-top:1px solid var(--line);vertical-align:top;font-variant-numeric:tabular-nums}
+  tbody tr.row{cursor:pointer}
+  tbody tr.row:nth-child(4n+3){background:#f7fafb}
+  tbody tr.row:hover{background:var(--teal-soft)}
+  td.mat{font-weight:600;color:var(--petrol);white-space:nowrap}
+  td.mat .chev{display:inline-block;width:1em;color:var(--teal);font-size:.7rem;transition:transform .15s ease}
+  tr.row.open td.mat .chev{transform:rotate(90deg)}
+  td.desc-inline{color:var(--muted);font-size:.72rem;font-weight:400}
+  td.num{text-align:right;white-space:nowrap}
+  td.age-danger{color:var(--red);font-weight:700}
+  td.age-warn{color:var(--amber);font-weight:600}
+  .pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.66rem;font-weight:600;white-space:nowrap}
+  .pill.obsolete{background:var(--red-soft);color:var(--red)}
+  .pill.liquidate{background:var(--amber-soft);color:var(--amber)}
+  .pill.mto{background:var(--petrol-soft);color:var(--petrol)}
+  .pill.reduce{background:var(--teal-soft);color:#1c7267}
+  .zero{color:var(--red);font-weight:700}
+  .delta-down{color:var(--teal);font-weight:600}
+
+  tr.rowdetail td{background:#f4f9f8;border-top:1px dashed var(--line);padding:10px 16px 12px 28px}
+  .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 22px;font-size:.76rem}
+  .dgrid .dt{color:var(--muted);text-transform:uppercase;font-size:.63rem;letter-spacing:.06em;margin-bottom:2px}
+  .dgrid .dd{color:var(--ink)}
+  .dgrid .dd b{color:var(--petrol)}
+  .dgrid .dd .pos{color:var(--teal);font-weight:700}
+  .dgrid .dd .neg{color:var(--red);font-weight:700}
+  .dgrid .formula-mini{font-family:Consolas,Menlo,monospace;font-size:.72rem;color:var(--petrol);background:var(--petrol-soft);border-radius:5px;padding:4px 8px;display:inline-block;margin-top:3px}
+
+  details.sect{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--card-shadow);margin:14px 0;padding:10px 16px}
+  details.sect>summary{cursor:pointer;list-style-position:inside}
+  details.sect>summary h2{display:inline}
+  details.sect .inner{margin-top:12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:860px){.grid2{grid-template-columns:1fr}}
+  .method{font-size:.84rem}
+  .method p{margin-bottom:8px}
+  .subcard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .formula{background:var(--petrol-soft);border-left:3px solid var(--teal);border-radius:6px;padding:8px 12px;font-family:Consolas,Menlo,monospace;font-size:.8rem;margin:8px 0;color:var(--petrol)}
+  .worked{background:var(--teal-soft);border-radius:8px;padding:10px 12px;font-size:.8rem;margin-top:8px}
+  .worked b{color:var(--petrol)}
+  .vendor{border-top:3px solid var(--teal)}
+  .vendor h3{color:var(--petrol);font-size:.92rem;margin-bottom:5px}
+  .vendor .tagline{color:var(--teal);font-size:.74rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+  .vendor ul{margin:0 0 8px 18px;font-size:.81rem}
+  .vendor li{margin-bottom:5px}
+  .vendor .note{font-size:.73rem;color:var(--muted)}
+  .playbook ol{margin:0 0 4px 20px;font-size:.84rem}
+  .playbook li{margin-bottom:7px}
+  .playbook b{color:var(--petrol)}
+  footer{margin-top:14px;font-size:.73rem;color:var(--muted);max-width:980px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Slow-Moving &amp; Non-Moving Inventory — Stocking-Cost Optimization</h1>
+    <p class="subtitle">Materials with <b>no consumption for 12+ months</b>, recalculated safety stock (SS) and reorder points (ROP), and disposition guidance. Upload your own material master extract below (SAP: <b>MC46</b>, <b>MC50</b>, <b>MB5B</b>). Carrying cost assumed <b>22%</b>/yr. Click any row for full detail.</p>
+  </header>
+
+  <div class="company-bar">
+    <div class="company-badge" id="companyBadge"><span>DATA SHOWN:</span><b id="companyName"></b></div>
+    <select id="companySel" aria-label="Select company dataset"></select>
+    <span class="seg" role="tablist">
+      <button id="vCompact" type="button">Compact</button>
+      <button id="vTable" class="active" type="button">Table</button>
+    </span>
+  </div>
+
+  <details class="upload" id="uploadPanel">
+    <summary>Upload new material master data — create a table for a new company</summary>
+    <div class="inner">
+      <div class="upload-row">
+        <div><label style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:2px">Company name</label>
+        <input type="text" id="newCompany" placeholder="e.g., Acme Devices LLC"></div>
+        <div><label style="font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:2px">CSV file</label>
+        <input type="file" id="csvFile" accept=".csv,text/csv"></div>
+      </div>
+      <div class="spec">material,description,category,last_issue(YYYY-MM-DD),qty_on_hand,unit_cost,ss_current,rop_current[,idle_months]</div>
+      <div style="font-size:.76rem;color:var(--muted);margin-top:6px">Or paste CSV rows (header optional) and click Ingest. <code>idle_months</code> is computed from <code>last_issue</code> when omitted. SS/ROP recommendations and dispositions are derived by the deterministic rules documented in each row's detail panel.</div>
+      <textarea id="csvPaste" placeholder="RM-9001,Widget bracket,Spare parts,2025-04-01,120,14.20,60,90"></textarea>
+      <div class="upload-row">
+        <button class="btn" id="ingestBtn" type="button">Ingest → create company table</button>
+        <button class="btn" id="sampleBtn" type="button">Load sample rows into paste box</button>
+      </div>
+      <div class="upload-msg" id="uploadMsg"></div>
+    </div>
+  </details>
+
+  <div class="cards" id="kpis"></div>
+
+  <div class="controls">
+    <div><label for="fCat">Category</label><select id="fCat"><option value="">All categories</option></select></div>
+    <div><label for="fAct">Action</label><select id="fAct"><option value="">All actions</option></select></div>
+    <div><label for="q">Search</label><input type="search" id="q" placeholder="Material, description…"></div>
+    <span class="count-pill" id="count"></span>
+  </div>
+  <div class="card">
+    <table id="tbl" class="detailed"><thead id="thead"></thead><tbody id="rows"></tbody></table>
+  </div>
+
+  <details class="sect">
+    <summary><h2>How SS and ROP are readjusted</h2></summary>
+    <div class="inner grid2">
+      <div class="subcard method">
+        <p><b style="color:var(--petrol)">The statistical baseline.</b> Safety stock buffers demand variability over lead time at a chosen service level; reorder point is average lead-time demand plus that buffer:</p>
+        <div class="formula">SS  = Z × σd × √LT</div>
+        <div class="formula">ROP = (d̄ × LT) + SS</div>
+        <p style="font-size:.78rem;color:var(--muted)">Z: 98% → 2.05 · 95% → 1.65 · 90% → 1.28 · σd = std-dev of period demand · d̄ = mean demand · LT = lead time.</p>
+        <p><b style="color:var(--petrol)">The rule that matters:</b> with zero trailing 12-month consumption, d̄ = 0 and σd = 0 — so <b>SS = 0 and ROP = 0 by the math itself</b>. Remaining safety stock on these materials is a legacy setting, not a calculation.</p>
+      </div>
+      <div class="subcard method">
+        <p><b style="color:var(--petrol)">Worked example — SP-4415 hydraulic seal kit:</b></p>
+        <div class="worked">
+          Old (set 2022): SS 40 / ROP 65 · 58 on hand at $86 → <b>$4,988 locked</b>, ~$1,097/yr carrying.<br><br>
+          Trailing 12-month demand: <b>0</b> — machine decommissioned in the 2024 line upgrade.<br><br>
+          Recalc: d̄ = 0 → SS <b>0</b>, ROP <b>0</b>. Keep 2 insurance spares under criticality policy; <b>liquidate 56</b> → recover ~30¢/$, release ~$1,440 cash + ~$1,000/yr.
+        </div>
+        <p style="margin-top:8px;font-size:.79rem;color:var(--muted)">Insurance spares are the honest exception: zero-demand ≠ zero-need for single-point-of-failure parts. Gate via engineering criticality review, never the forecast formula.</p>
+      </div>
+    </div>
+  </details>
+
+  <details class="sect">
+    <summary><h2>Reducing stocking cost at scale — Celonis and Aera</h2></summary>
+    <div class="inner grid2">
+      <div class="subcard vendor">
+        <h3>Celonis — find <em>why</em> excess stock keeps being created</h3>
+        <div class="tagline">Process mining · diagnosis layer</div>
+        <ul>
+          <li><b>Mines actual ERP event logs</b> (P2P, inventory movements) — how stock really flows, not how the SOP says.</li>
+          <li><b>Root causes:</b> duplicate material numbers, maverick buying, POs raised despite stock, SS/ROP untouched for years.</li>
+          <li><b>Working-capital apps</b> quantify cash release per material/plant where days-on-hand and parameters diverge.</li>
+          <li><b>Continuous monitoring:</b> alerts when a buyer re-creates the dead-stock pattern.</li>
+        </ul>
+        <p class="note">Vendor cases typically report 10–20% excess-inventory reduction; treat published figures as directional.</p>
+      </div>
+      <div class="subcard vendor">
+        <h3>Aera — decide and <em>execute</em> the parameter changes</h3>
+        <div class="tagline">Decision intelligence · action layer</div>
+        <ul>
+          <li><b>Aera Decision Cloud</b> recalculates SS/ROP per SKU-location continuously from live demand and lead times.</li>
+          <li><b>Dollar-scored recommendations</b> with rationale, routed for approval.</li>
+          <li><b>Closed loop:</b> approved changes write back to ERP MRP views automatically — the step most programs never finish.</li>
+          <li><b>Learns</b> from planner accept/override decisions.</li>
+        </ul>
+        <p class="note">Pattern to copy even without either tool: diagnose root causes, automate recalculation, gate with human approval, write back.</p>
+      </div>
+    </div>
+  </details>
+
+  <details class="sect">
+    <summary><h2>90-day action playbook</h2></summary>
+    <div class="inner subcard playbook">
+      <ol>
+        <li><b>Extract &amp; verify (wks 1–2):</b> 24 months of goods issues per material/plant; flag zero-consumption ≥ 12 months; verify against open reservations and BOM usage.</li>
+        <li><b>Segment (wks 2–4):</b> insurance spares (engineering review) · project residuals (return/restock) · duplicates (merge masters) · true dead stock (liquidate/scrap with finance approval).</li>
+        <li><b>Reset parameters (wks 4–6):</b> SS/ROP = 0 on zero-demand; MTO or 98% → 90% service level on sporadic (~37% SS cut); document every change.</li>
+        <li><b>Recover cash (wks 6–12):</b> internal transfers → vendor buy-backs → surplus brokers → scrap last, with write-off approvals.</li>
+        <li><b>Prevent recurrence:</b> monthly zero-consumption report, PO block on flagged materials, quarterly recalculation — manually or via the Celonis → Aera pattern.</li>
+      </ol>
+    </div>
+  </details>
+
+  <footer id="foot"></footer>
+</div>
+
+<script>
+"use strict";
+const CARRY=0.22, TODAY=new Date("2026-07-18");
+const RECOVERY={"Liquidate":0.30,"Return to vendor":0.70,"Scrap":0,"Insurance spare":null,"Make-to-order":null};
+const actClass={"Liquidate":"liquidate","Scrap":"obsolete","Insurance spare":"mto","Return to vendor":"reduce","Make-to-order":"mto"};
+const store=(()=>{try{localStorage.setItem("__t","1");localStorage.removeItem("__t");return localStorage;}
+  catch(e){const m={};return{getItem:k=>k in m?m[k]:null,setItem:(k,v)=>{m[k]=String(v);},removeItem:k=>{delete m[k];}};}})();
+const CO_KEY="promptHalo.invOptimizer.companies.v1";
+
+const DEMO=[
+ {mat:"SP-4415",desc:"Hydraulic seal kit — decommissioned line",cat:"Spare parts",lastIssue:"2024-05-12",qty:58,unit:86,ssOld:40,ropOld:65,ssNew:0,ropNew:0,action:"Liquidate",reason:"Serving machine decommissioned in 2024 line upgrade"},
+ {mat:"SP-7702",desc:"Conveyor bearing 6207-2RS legacy spec",cat:"Spare parts",lastIssue:"2025-03-28",qty:120,unit:14.5,ssOld:60,ropOld:95,ssNew:0,ropNew:0,action:"Liquidate",reason:"Superseded by current bearing spec; no installed base remains"},
+ {mat:"SP-8830",desc:"PLC I/O module (superseded model)",cat:"Spare parts",lastIssue:"2023-11-02",qty:9,unit:640,ssOld:4,ropOld:6,ssNew:1,ropNew:1,action:"Insurance spare",reason:"One legacy controller still in service — single point of failure"},
+ {mat:"RM-1120",desc:"Resin grade B — reformulated out of BOM",cat:"Raw material",lastIssue:"2025-06-30",qty:2200,unit:3.1,ssOld:800,ropOld:1500,ssNew:0,ropNew:0,action:"Return to vendor",reason:"Formulation change removed material from all active BOMs"},
+ {mat:"RM-1348",desc:"Adhesive 2-part epoxy, shelf-life expired",cat:"Raw material",lastIssue:"2024-09-15",qty:340,unit:12.8,ssOld:150,ropOld:260,ssNew:0,ropNew:0,action:"Scrap",reason:"Shelf life expired — unusable and unsellable"},
+ {mat:"PK-0450",desc:"Printed cartons — old brand artwork",cat:"Packaging",lastIssue:"2024-12-20",qty:14500,unit:0.42,ssOld:5000,ropOld:9000,ssNew:0,ropNew:0,action:"Scrap",reason:"Rebrand made artwork obsolete; no secondary market"},
+ {mat:"PK-0518",desc:"Labels, regulatory rev C (rev E current)",cat:"Packaging",lastIssue:"2025-01-10",qty:52000,unit:0.06,ssOld:20000,ropOld:35000,ssNew:0,ropNew:0,action:"Scrap",reason:"Regulatory revision — use would be a compliance defect"},
+ {mat:"FG-3301",desc:"Finished goods — discontinued SKU, EU spec",cat:"Finished goods",lastIssue:"2025-04-22",qty:410,unit:29,ssOld:200,ropOld:350,ssNew:0,ropNew:0,action:"Liquidate",reason:"SKU discontinued; EU-spec units sellable via discount channel"},
+ {mat:"SP-5590",desc:"Pump impeller, single legacy asset",cat:"Spare parts",lastIssue:"2023-07-19",qty:6,unit:410,ssOld:3,ropOld:4,ssNew:1,ropNew:1,action:"Insurance spare",reason:"Critical spare for single legacy pump — criticality review keeps 1"},
+ {mat:"RM-2077",desc:"Solvent drum — project residual (closed WO)",cat:"Raw material",lastIssue:"2025-02-05",qty:18,unit:210,ssOld:6,ropOld:12,ssNew:0,ropNew:0,action:"Return to vendor",reason:"Residual from closed work order; vendor accepts sealed drums"},
+ {mat:"MRO-660",desc:"Filter cartridges, non-standard size",cat:"MRO",lastIssue:"2025-07-01",qty:260,unit:9.4,ssOld:100,ropOld:180,ssNew:0,ropNew:0,action:"Make-to-order",reason:"Rare but plausible future need — order on demand"},
+ {mat:"MRO-712",desc:"V-belts assorted, mixed obsolete sizes",cat:"MRO",lastIssue:"2024-03-11",qty:190,unit:7.2,ssOld:80,ropOld:130,ssNew:0,ropNew:0,action:"Scrap",reason:"Sizes no longer match any installed equipment"},
+ {mat:"SP-9101",desc:"Gearbox, spare for retired press",cat:"Spare parts",lastIssue:"2022-10-30",qty:1,unit:8200,ssOld:1,ropOld:1,ssNew:0,ropNew:0,action:"Liquidate",reason:"Press retired and sold; broker market exists for gearbox"},
+ {mat:"PK-0333",desc:"Pallet inserts, supplier-specific legacy",cat:"Packaging",lastIssue:"2025-05-18",qty:3100,unit:0.85,ssOld:1200,ropOld:2000,ssNew:0,ropNew:0,action:"Return to vendor",reason:"Supplier switched; prior supplier accepts return at 70%"},
+ {mat:"FG-2988",desc:"Finished goods — customer-cancelled order",cat:"Finished goods",lastIssue:"2024-08-25",qty:96,unit:74,ssOld:0,ropOld:0,ssNew:0,ropNew:0,action:"Liquidate",reason:"Custom order cancelled; discountable to alternate buyers"},
+ {mat:"MRO-801",desc:"Safety gloves, discontinued model",cat:"MRO",lastIssue:"2025-06-10",qty:480,unit:4.1,ssOld:200,ropOld:320,ssNew:0,ropNew:0,action:"Make-to-order",reason:"Replacement model on contract; draw down remaining stock"}
+];
+
+function monthsIdle(dateStr){
+  const d=new Date(dateStr); if(isNaN(d))return null;
+  return Math.max(0,Math.round((TODAY-d)/(1000*60*60*24*30.44)));
+}
+function enrich(rows){
+  rows.forEach(d=>{
+    if(d.months==null)d.months=monthsIdle(d.lastIssue)??0;
+    d.value=+(d.qty*d.unit).toFixed(2);
+    d.hold=+(d.value*CARRY).toFixed(2);
+  });
+  return rows;
+}
+function recommend(d){
+  // deterministic rules, documented in row detail
+  const t=(d.desc||"").toLowerCase();
+  if(/expired|shelf|regulatory|rev |artwork|obsolete size/.test(t)){d.action="Scrap";}
+  else if(d.unit>=300&&d.qty<=10){d.action="Insurance spare";d.ssNew=1;d.ropNew=1;}
+  else if(d.cat==="Raw material"||d.cat==="Packaging"){d.action="Return to vendor";}
+  else if(d.cat==="MRO"){d.action="Make-to-order";}
+  else{d.action="Liquidate";}
+  if(d.ssNew==null){d.ssNew=0;d.ropNew=0;}
+  if(!d.reason)d.reason="Rule-derived from category, unit value, and description keywords — review before execution";
+  return d;
+}
+
+let companies=JSON.parse(store.getItem(CO_KEY)||"null")||{};
+companies["Demo Manufacturing Co. (sample data)"]=enrich(DEMO.map(x=>({...x})));
+let currentCo="Demo Manufacturing Co. (sample data)";
+let view="table"; // 'table' | 'compact'
+let sortKey="months",sortDir=-1,sortNum=true;
+const openRows=new Set();
+
+const fmt=n=>"$"+n.toLocaleString("en-US",{maximumFractionDigits:0});
+const esc=s=>String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+function data(){return companies[currentCo]||[];}
+
+function renderCompanySel(){
+  const sel=document.getElementById("companySel");
+  sel.innerHTML=Object.keys(companies).map(c=>`<option ${c===currentCo?"selected":""}>${esc(c)}</option>`).join("");
+  document.getElementById("companyName").textContent=currentCo;
+  document.getElementById("foot").textContent=
+    `Dataset: ${currentCo} · ${data().length} materials · Recommendations are deterministic rules (never model-generated); carrying rate 22%, recovery rates 30% liquidation / 70% vendor return are planning assumptions — align with finance. Prepared July 2026 · PromptHalo Advisory.`;
+}
+function renderKPIs(){
+  const D=data();
+  const totVal=D.reduce((s,d)=>s+d.value,0), totHold=D.reduce((s,d)=>s+d.hold,0);
+  const keepVal=D.reduce((s,d)=>s+(d.ssNew>0?d.ssNew*d.unit:0),0);
+  const avgAge=D.length?(D.reduce((s,d)=>s+d.months,0)/D.length).toFixed(1):"0";
+  document.getElementById("kpis").innerHTML=`
+    <div class="kpi"><div class="v">${D.length}</div><div class="l">Materials idle ≥ 12 mo</div></div>
+    <div class="kpi"><div class="v">${fmt(totVal)}</div><div class="l">Stock value locked</div></div>
+    <div class="kpi"><div class="v">${fmt(totHold)}/yr</div><div class="l">Holding cost (22%)</div></div>
+    <div class="kpi"><div class="v">${avgAge} mo</div><div class="l">Average idle age</div></div>
+    <div class="kpi save"><div class="v">${fmt(totVal-keepVal)}</div><div class="l">Releasable after reset</div></div>`;
+}
+function renderFilters(){
+  const D=data(),fCat=document.getElementById("fCat"),fAct=document.getElementById("fAct");
+  const keep=[fCat.value,fAct.value];
+  fCat.innerHTML='<option value="">All categories</option>'+[...new Set(D.map(d=>d.cat))].sort().map(c=>`<option>${esc(c)}</option>`).join("");
+  fAct.innerHTML='<option value="">All actions</option>'+[...new Set(D.map(d=>d.action))].sort().map(a=>`<option>${esc(a)}</option>`).join("");
+  fCat.value=keep[0];fAct.value=keep[1];
+}
+function headHTML(){
+  if(view==="table")return `<tr>
+    <th data-key="mat">Material<span class="arrow">▲</span></th>
+    <th data-key="cat">Category<span class="arrow">▲</span></th>
+    <th data-key="lastIssue">Last issue<span class="arrow">▲</span></th>
+    <th data-key="months" data-num="1">Idle (mo)<span class="arrow">▲</span></th>
+    <th data-key="qty" data-num="1">On hand<span class="arrow">▲</span></th>
+    <th data-key="value" data-num="1">Value<span class="arrow">▲</span></th>
+    <th data-key="hold" data-num="1">Hold/yr<span class="arrow">▲</span></th>
+    <th data-key="ssOld" data-num="1">SS →<span class="arrow">▲</span></th>
+    <th data-key="ropOld" data-num="1">ROP →<span class="arrow">▲</span></th>
+    <th data-key="action">Action<span class="arrow">▲</span></th></tr>`;
+  return `<tr>
+    <th data-key="mat">Material<span class="arrow">▲</span></th>
+    <th data-key="months" data-num="1">Idle (mo)<span class="arrow">▲</span></th>
+    <th data-key="value" data-num="1">Value<span class="arrow">▲</span></th>
+    <th data-key="action">Action<span class="arrow">▲</span></th></tr>`;
+}
+function detailHTML(d,cols){
+  const rec=RECOVERY[d.action];
+  const keepCash=d.ssNew>0?d.ssNew*d.unit:0;
+  const disposable=d.value-keepCash;
+  const recovered=rec==null?null:disposable*rec;
+  let dispText;
+  if(d.action==="Insurance spare")dispText=`Keep <b>${d.ssNew}</b> unit(s) (${fmt(keepCash)}) under criticality policy; disposition remaining ${d.qty-d.ssNew} via broker.`;
+  else if(d.action==="Make-to-order")dispText=`No disposal — convert to MTO and let on-hand stock draw down naturally; block replenishment.`;
+  else if(rec===0)dispText=`Scrap with finance write-down approval: <span class="neg">−${fmt(disposable)}</span> book impact; frees space and stops ${fmt(d.hold)}/yr carrying.`;
+  else dispText=`${d.action} at ~${Math.round(rec*100)}¢/$: est. recovery <span class="pos">${fmt(recovered)}</span> of ${fmt(disposable)}; remainder is write-down.`;
+  return `<tr class="rowdetail"><td colspan="${cols}"><div class="dgrid">
+    <div><div class="dt">Description &amp; context</div><div class="dd">${esc(d.desc)}. <i>${esc(d.reason)}.</i></div></div>
+    <div><div class="dt">Valuation</div><div class="dd">${d.qty.toLocaleString()} units × $${d.unit.toLocaleString(undefined,{minimumFractionDigits:2})} = <b>${fmt(d.value)}</b> locked · carrying ${fmt(d.hold)}/yr at 22%</div></div>
+    <div><div class="dt">Idle history</div><div class="dd">Last goods issue <b>${esc(d.lastIssue)}</b> → <b>${d.months} months</b> without consumption (as of 2026-07-18)</div></div>
+    <div><div class="dt">Parameter recalculation</div><div class="dd">Trailing 12-mo demand = 0 → d̄ = 0, σd = 0<br>
+      <span class="formula-mini">SS = Z·σd·√LT = 0 · ROP = d̄·LT + SS = 0</span><br>
+      ${d.ssOld.toLocaleString()} → <b>${d.ssNew}</b> SS · ${d.ropOld.toLocaleString()} → <b>${d.ropNew}</b> ROP${d.ssNew>0?" <i>(insurance-spare override via engineering criticality review)</i>":""}</div></div>
+    <div><div class="dt">Disposition &amp; cash effect</div><div class="dd">${dispText}</div></div>
+    <div><div class="dt">Recurrence control</div><div class="dd">Add to monthly zero-consumption report; block new POs on this material without planner override.</div></div>
+  </div></td></tr>`;
+}
+function render(){
+  const term=document.getElementById("q").value.trim().toLowerCase();
+  const fCat=document.getElementById("fCat").value,fAct=document.getElementById("fAct").value;
+  document.getElementById("thead").innerHTML=headHTML();
+  const tbl=document.getElementById("tbl");
+  tbl.className=view==="table"?"detailed":"compactv";
+  let rows=data().filter(d=>(!fCat||d.cat===fCat)&&(!fAct||d.action===fAct)&&
+    (!term||(d.mat+" "+d.desc+" "+d.cat+" "+d.action).toLowerCase().includes(term)));
+  rows.sort((a,b)=>{let c=sortNum?a[sortKey]-b[sortKey]:String(a[sortKey]).localeCompare(String(b[sortKey]));
+    if(c===0)c=b.months-a.months;return c*sortDir;});
+  const cols=view==="table"?10:4;
+  document.getElementById("rows").innerHTML=rows.map(d=>{
+    const open=openRows.has(d.mat);
+    const ageCls=d.months>=24?"age-danger":d.months>=18?"age-warn":"";
+    let tds;
+    if(view==="table")tds=`
+      <td class="mat"><span class="chev">▶</span>${esc(d.mat)}<div class="desc-inline">${esc(d.desc)}</div></td>
+      <td>${esc(d.cat)}</td><td>${esc(d.lastIssue)}</td>
+      <td class="num ${ageCls}">${d.months}</td>
+      <td class="num">${d.qty.toLocaleString()}</td>
+      <td class="num">${fmt(d.value)}</td><td class="num">${fmt(d.hold)}</td>
+      <td class="num">${d.ssOld.toLocaleString()} → <span class="${d.ssNew===0?"zero":"delta-down"}">${d.ssNew}</span></td>
+      <td class="num">${d.ropOld.toLocaleString()} → <span class="${d.ropNew===0?"zero":"delta-down"}">${d.ropNew}</span></td>
+      <td><span class="pill ${actClass[d.action]}">${esc(d.action)}</span></td>`;
+    else tds=`
+      <td class="mat"><span class="chev">▶</span>${esc(d.mat)}</td>
+      <td class="num ${ageCls}">${d.months}</td>
+      <td class="num">${fmt(d.value)}</td>
+      <td><span class="pill ${actClass[d.action]}">${esc(d.action)}</span></td>`;
+    return `<tr class="row ${open?"open":""}" data-mat="${esc(d.mat)}" tabindex="0" role="button" aria-expanded="${open}">${tds}</tr>`
+      +(open?detailHTML(d,cols):"");
+  }).join("");
+  const v=rows.reduce((s,d)=>s+d.value,0);
+  document.getElementById("count").textContent=`${rows.length} of ${data().length} materials · ${fmt(v)} shown`;
+  document.querySelectorAll("tr.row").forEach(tr=>{
+    const t=()=>{const m=tr.dataset.mat;openRows.has(m)?openRows.delete(m):openRows.add(m);render();};
+    tr.addEventListener("click",t);
+    tr.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();t();}});
+  });
+  document.querySelectorAll("thead th[data-key]").forEach(th=>{
+    th.tabIndex=0;
+    const act=()=>{const k=th.dataset.key;
+      if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1;sortNum=!!th.dataset.num;}
+      render();
+      const active=document.querySelector(`thead th[data-key="${k}"]`);
+      if(active){active.setAttribute("aria-sort",sortDir===1?"ascending":"descending");
+        active.querySelector(".arrow").textContent=sortDir===1?"▲":"▼";}};
+    th.addEventListener("click",act);
+    th.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();act();}});
+  });
+}
+function renderAll(){renderCompanySel();renderKPIs();renderFilters();render();}
+
+/* ---------- CSV ingest ---------- */
+function parseCSV(text){
+  const rows=[];let cur=[],val="",inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQ){if(c==='"'){if(text[i+1]==='"'){val+='"';i++;}else inQ=false;}else val+=c;}
+    else if(c==='"')inQ=true;
+    else if(c===","){cur.push(val);val="";}
+    else if(c==="\n"||c==="\r"){if(val!==""||cur.length){cur.push(val);rows.push(cur);cur=[];val="";}}
+    else val+=c;
+  }
+  if(val!==""||cur.length){cur.push(val);rows.push(cur);}
+  return rows.filter(r=>r.some(c=>c.trim()!==""));
+}
+function ingest(name,text){
+  const msg=document.getElementById("uploadMsg");
+  if(!name){msg.className="upload-msg err";msg.textContent="Enter a company name.";return false;}
+  let rows=parseCSV(text);
+  if(!rows.length){msg.className="upload-msg err";msg.textContent="No rows found.";return false;}
+  if(/material/i.test(rows[0][0]))rows=rows.slice(1); // header
+  const out=[];const errs=[];
+  rows.forEach((r,i)=>{
+    if(r.length<8){errs.push(`row ${i+1}: expected ≥8 columns, got ${r.length}`);return;}
+    const d={mat:r[0].trim(),desc:r[1].trim(),cat:r[2].trim()||"Uncategorized",lastIssue:r[3].trim(),
+      qty:parseFloat(r[4]),unit:parseFloat(r[5]),ssOld:parseFloat(r[6])||0,ropOld:parseFloat(r[7])||0,
+      months:r[8]!==undefined&&r[8].trim()!==""?parseFloat(r[8]):null,ssNew:null,ropNew:null};
+    if(!d.mat||isNaN(d.qty)||isNaN(d.unit)){errs.push(`row ${i+1}: bad material/qty/unit`);return;}
+    if(d.months==null){const m=monthsIdle(d.lastIssue);
+      if(m==null){errs.push(`row ${i+1}: bad last_issue date`);return;}d.months=m;}
+    recommend(d);out.push(d);
+  });
+  if(!out.length){msg.className="upload-msg err";msg.textContent="No valid rows. "+errs.slice(0,3).join("; ");return false;}
+  enrich(out);
+  companies[name]=out;currentCo=name;openRows.clear();
+  try{const save={...companies};delete save["Demo Manufacturing Co. (sample data)"];
+    store.setItem(CO_KEY,JSON.stringify(save));}catch(e){}
+  msg.className="upload-msg ok";
+  msg.textContent=`Created table for “${name}”: ${out.length} materials ingested${errs.length?`, ${errs.length} row(s) skipped`:""}.`;
+  renderAll();
+  return true;
+}
+document.getElementById("ingestBtn").addEventListener("click",()=>{
+  const name=document.getElementById("newCompany").value.trim();
+  const f=document.getElementById("csvFile").files[0];
+  const pasted=document.getElementById("csvPaste").value.trim();
+  if(f){const r=new FileReader();r.onload=()=>ingest(name,r.result);r.readAsText(f);}
+  else if(pasted)ingest(name,pasted);
+  else{const msg=document.getElementById("uploadMsg");msg.className="upload-msg err";msg.textContent="Choose a CSV file or paste rows.";}
+});
+document.getElementById("sampleBtn").addEventListener("click",()=>{
+  document.getElementById("csvPaste").value=
+`material,description,category,last_issue,qty_on_hand,unit_cost,ss_current,rop_current
+AC-100,Sensor housing legacy rev,Spare parts,2025-02-14,44,120,20,32
+AC-215,Solvent shelf-life expired,Raw material,2024-11-03,80,18.5,40,60
+AC-330,Cartons old artwork,Packaging,2025-05-20,9000,0.35,3000,5000
+AC-410,Spare drive unit,Spare parts,2024-01-25,3,950,2,3
+AC-505,Gasket assortment,MRO,2025-06-15,600,2.2,250,400`;
+});
+document.getElementById("companySel").addEventListener("input",e=>{currentCo=e.target.value;openRows.clear();renderAll();});
+document.getElementById("vCompact").addEventListener("click",()=>{view="compact";
+  document.getElementById("vCompact").classList.add("active");document.getElementById("vTable").classList.remove("active");render();});
+document.getElementById("vTable").addEventListener("click",()=>{view="table";
+  document.getElementById("vTable").classList.add("active");document.getElementById("vCompact").classList.remove("active");render();});
+["fCat","fAct","q"].forEach(id=>document.getElementById(id).addEventListener("input",render));
+renderAll();
+</script>
+</body>
+</html>
