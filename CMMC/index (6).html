@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CMMC CCP Exam Prep &mdash; Study Guide &amp; Practice Exams</title>
+<style>
+:root{
+  --ink:#12222c;
+  --ink-soft:#4a5c66;
+  --ink-faint:#7d8c94;
+  --petrol:#1b4965;
+  --petrol-dark:#123449;
+  --petrol-tint:#e8f0f5;
+  --sky:#5fa8d3;
+  --line:#dfe6ea;
+  --bg:#f5f8f9;
+  --card:#ffffff;
+  --good:#1f7a4d;
+  --good-bg:#e9f5ee;
+  --bad:#a32b2b;
+  --bad-bg:#fbecec;
+  --warn:#8a6100;
+  --warn-bg:#fdf4e0;
+  --radius:6px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+header.masthead{
+  background:var(--petrol);
+  color:#fff;
+  padding:22px 28px 0;
+}
+.masthead-inner{max-width:1080px;margin:0 auto}
+.masthead h1{
+  margin:0 0 2px;
+  font-size:20px;
+  font-weight:650;
+  letter-spacing:-0.01em;
+}
+.masthead p{
+  margin:0 0 16px;
+  font-size:13px;
+  color:#c3d8e5;
+}
+.tabs{display:flex;gap:2px}
+.tab{
+  appearance:none;
+  border:0;
+  background:rgba(255,255,255,.10);
+  color:#d8e7f0;
+  font:inherit;
+  font-size:14px;
+  font-weight:550;
+  padding:10px 20px;
+  border-radius:var(--radius) var(--radius) 0 0;
+  cursor:pointer;
+}
+.tab:hover{background:rgba(255,255,255,.18);color:#fff}
+.tab.active{background:var(--bg);color:var(--petrol)}
+.tab:focus-visible{outline:2px solid #fff;outline-offset:-3px}
+main{max-width:1080px;margin:0 auto;padding:26px 28px 80px}
+.panel[hidden]{display:none}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:22px 24px;
+  margin:0 0 18px;
+}
+h2{font-size:17px;font-weight:650;margin:0 0 4px;letter-spacing:-0.01em}
+h3{font-size:14px;font-weight:650;margin:22px 0 8px;color:var(--petrol)}
+h3:first-child{margin-top:0}
+.sub{color:var(--ink-faint);font-size:13px;margin:0 0 18px}
+p{margin:0 0 10px}
+a{color:var(--petrol);text-decoration:underline;text-underline-offset:2px}
+code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12.5px;
+  background:var(--petrol-tint);
+  padding:1px 5px;
+  border-radius:3px;
+  color:var(--petrol-dark);
+}
+table{border-collapse:collapse;width:100%;margin:0 0 14px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--petrol-tint);font-weight:600;color:var(--petrol-dark)}
+ul,ol{margin:0 0 12px;padding-left:20px}
+li{margin:0 0 5px}
+.eyebrow{
+  font-size:11px;
+  font-weight:650;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:var(--sky);
+  margin:0 0 6px;
+}
+.callout{
+  border-left:3px solid var(--sky);
+  background:var(--petrol-tint);
+  padding:12px 16px;
+  border-radius:0 var(--radius) var(--radius) 0;
+  margin:0 0 14px;
+  font-size:13.5px;
+}
+.callout strong{color:var(--petrol-dark)}
+.weightbar{display:flex;height:26px;border-radius:4px;overflow:hidden;margin:6px 0 14px;border:1px solid var(--line)}
+.weightbar span{
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:600;color:#fff;
+}
+.step{display:flex;gap:14px;margin:0 0 18px}
+.step-num{
+  flex:0 0 26px;height:26px;border-radius:50%;
+  background:var(--petrol);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:650;margin-top:1px;
+}
+.step-body{flex:1}
+.step-body h4{margin:0 0 4px;font-size:14px;font-weight:650}
+.step-body p{margin:0 0 6px;font-size:13.5px;color:var(--ink-soft)}
+label.check{
+  display:flex;gap:9px;align-items:flex-start;
+  padding:6px 8px;border-radius:4px;cursor:pointer;font-size:13.5px;
+}
+label.check:hover{background:var(--petrol-tint)}
+label.check input{margin:3px 0 0;accent-color:var(--petrol);flex:0 0 auto}
+label.check.done span{color:var(--ink-faint);text-decoration:line-through}
+.weekhdr{
+  display:flex;justify-content:space-between;align-items:baseline;
+  border-bottom:1px solid var(--line);padding-bottom:6px;margin:20px 0 6px;
+}
+.weekhdr strong{font-size:14px;color:var(--petrol-dark)}
+.weekhdr em{font-style:normal;font-size:12px;color:var(--ink-faint)}
+button.btn{
+  appearance:none;font:inherit;font-size:13.5px;font-weight:600;
+  border-radius:var(--radius);padding:9px 18px;cursor:pointer;
+  border:1px solid var(--petrol);background:var(--petrol);color:#fff;
+}
+button.btn:hover{background:var(--petrol-dark);border-color:var(--petrol-dark)}
+button.btn.ghost{background:#fff;color:var(--petrol)}
+button.btn.ghost:hover{background:var(--petrol-tint)}
+button.btn:disabled{opacity:.45;cursor:not-allowed}
+button.btn:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+select{
+  font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--line);
+  border-radius:var(--radius);background:#fff;color:var(--ink);
+}
+.scorestrip{
+  display:flex;flex-wrap:wrap;gap:22px;align-items:center;
+  border-top:1px solid var(--line);margin-top:16px;padding-top:14px;
+}
+.stat{display:flex;flex-direction:column}
+.stat b{font-size:19px;font-weight:650;line-height:1.2;color:var(--petrol-dark)}
+.stat small{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-faint)}
+.progress{height:5px;background:var(--line);border-radius:3px;overflow:hidden;margin:14px 0 0}
+.progress i{display:block;height:100%;background:var(--sky);width:0;transition:width .2s}
+.qmeta{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin:0 0 10px}
+.qmeta .dom{font-size:11px;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--sky)}
+.qmeta .idx{font-size:12px;color:var(--ink-faint)}
+.qtext{font-size:15px;line-height:1.6;margin:0 0 16px;white-space:pre-wrap}
+.opts{display:flex;flex-direction:column;gap:8px;margin:0 0 16px}
+.opt{
+  display:flex;gap:11px;align-items:flex-start;
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:11px 14px;cursor:pointer;background:#fff;font-size:14px;line-height:1.5;
+}
+.opt:hover{border-color:var(--sky);background:#fbfdfe}
+.opt input{margin:3px 0 0;accent-color:var(--petrol);flex:0 0 auto}
+.opt .ltr{font-weight:650;color:var(--petrol);flex:0 0 auto}
+.opt.locked{cursor:default}
+.opt.locked:hover{border-color:var(--line);background:#fff}
+.opt.correct{border-color:var(--good);background:var(--good-bg)}
+.opt.correct:hover{border-color:var(--good);background:var(--good-bg)}
+.opt.chosen-wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt.chosen-wrong:hover{border-color:var(--bad);background:var(--bad-bg)}
+.verdict{border-radius:var(--radius);padding:14px 16px;margin:0 0 16px;font-size:13.5px}
+.verdict.ok{background:var(--good-bg);border-left:3px solid var(--good)}
+.verdict.no{background:var(--bad-bg);border-left:3px solid var(--bad)}
+.verdict h5{margin:0 0 6px;font-size:13.5px;font-weight:700}
+.verdict.ok h5{color:var(--good)}
+.verdict.no h5{color:var(--bad)}
+.verdict p{margin:0 0 8px}
+.verdict .src{font-size:12px;color:var(--ink-faint);margin:0}
+.nav{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.resultgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0 18px}
+.resultcell{border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+.resultcell b{display:block;font-size:18px;color:var(--petrol-dark)}
+.resultcell small{font-size:11.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.06em}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:7px}
+.bar i{display:block;height:100%;background:var(--sky)}
+.bar i.low{background:var(--bad)}
+.bar i.mid{background:#c98a17}
+.bar i.high{background:var(--good)}
+.missed{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;margin:0 0 12px}
+.missed .q{font-weight:600;margin:0 0 8px;font-size:14px}
+.missed .line{font-size:13.5px;margin:0 0 6px}
+.missed .line b{font-weight:650}
+.tag{
+  display:inline-block;font-size:10.5px;font-weight:650;letter-spacing:.05em;
+  text-transform:uppercase;padding:2px 7px;border-radius:3px;
+  background:var(--petrol-tint);color:var(--petrol-dark);margin:0 0 8px;
+}
+.history{font-size:13px;color:var(--ink-soft)}
+.history table{margin-top:8px}
+.empty{color:var(--ink-faint);font-size:13.5px;font-style:italic}
+footer.foot{
+  max-width:1080px;margin:0 auto;padding:0 28px 40px;
+  font-size:12px;color:var(--ink-faint);
+}
+.mrow{padding:9px 0;border-bottom:1px solid var(--line)}
+.mrow:last-child{border-bottom:0}
+.mrow .top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.mrow .lbl{font-size:13.5px}
+.mrow .cnt{font-size:12.5px;color:var(--ink-faint);white-space:nowrap}
+.mrow .bar{margin-top:6px}
+.mrow.total{border-top:2px solid var(--petrol);border-bottom:0;margin-top:6px;padding-top:11px}
+.mrow.total .lbl{font-weight:650;color:var(--petrol-dark)}
+.mrow.done .lbl::after{content:" \2713";color:var(--good);font-weight:700}
+#pool-note{font-size:13px}
+#focus-wrap{font-size:13.5px}
+@media (max-width:640px){
+  header.masthead{padding:18px 16px 0}
+  main{padding:18px 16px 60px}
+  .card{padding:18px 16px}
+  .tab{padding:9px 13px;font-size:13px}
+}
+@media print{.tabs,button.btn{display:none}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <h1>CMMC Certified Professional (CCP) &mdash; Exam Prep</h1>
+    <p>Blueprint-weighted study plan and practice exams. Reflects the ISACA/CAICO transition and 32 CFR Part 170 as of July 2026.</p>
+    <div class="tabs" role="tablist">
+      <button class="tab active" role="tab" id="tab-guide" aria-controls="panel-guide" aria-selected="true" data-panel="guide">Study guide</button>
+      <button class="tab" role="tab" id="tab-exam" aria-controls="panel-exam" aria-selected="false" data-panel="exam">Practice exams</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ TAB 1: STUDY GUIDE ============ -->
+<section class="panel" id="panel-guide" role="tabpanel" aria-labelledby="tab-guide">
+
+  <div class="card">
+    <p class="eyebrow">Start here</p>
+    <h2>What changed in 2026</h2>
+    <p class="sub">Anything you read from 2024&ndash;2025 about registering through the Cyber AB is out of date.</p>
+    <p>ISACA became the CMMC Assessor &amp; Instructor Certification Organization (CAICO) on 1 April 2026. Training oversight, the exam, and the certification itself now run through ISACA. The Cyber AB remains the accreditation body for organizations (C3PAOs, ATPs) and still runs the Tier 3 background investigations. The old $200 Cyber AB registration and CPN number path is gone.</p>
+    <div class="callout"><strong>Practical effect:</strong> you buy the exam in MyISACA, sit it at PSI, and apply to ISACA for the credential. You still take mandatory training from an Approved Training Provider listed on the CyberAB Marketplace.</div>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">Logistics</p>
+    <h2>Registration, step by step</h2>
+    <p class="sub">Tick these off as you go &mdash; progress is saved in this browser.</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <h4>Complete mandatory CCP training with an ATP</h4>
+        <p>Required before you can be certified. Find providers in the CyberAB Marketplace catalog. Typically 30&ndash;40 contact hours, delivered as a 4&ndash;5 day bootcamp or 8&ndash;10 evening sessions. Budget roughly $2,000&ndash;$4,000. Training from a non-authorized source does not count.</p>
+        <label class="check" data-k="reg1"><input type="checkbox"><span>ATP selected and training booked</span></label>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <h4>Buy the exam in MyISACA</h4>
+        <p>US$575 member / US$760 non-member. Membership costs roughly $135 plus chapter dues, so joining first is cheaper than not. Registration is continuous &mdash; no fixed windows. Eligibility runs six months from the date you register, and the fee must be paid in full before you can schedule. Make sure your ISACA account name exactly matches your government photo ID.</p>
+        <label class="check" data-k="reg2"><input type="checkbox"><span>ISACA account created, name matches ID, exam purchased</span></label>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <h4>Schedule with PSI</h4>
+        <p>Computer-based at a PSI test center or remotely proctored. You can book as early as 48 hours after payment; appointments only open 90 days out. Reschedule free at any point in your eligibility window if you do it at least 48 hours before the appointment. Run the PSI system compatibility check first if you plan to test remotely.</p>
+        <label class="check" data-k="reg3"><input type="checkbox"><span>Exam date booked</span></label>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <h4>Sit the exam</h4>
+        <p>170 questions across six domains. ISACA reports scaled scores; check the current Exam Candidate Guide for the passing scale rather than relying on the old Cyber AB threshold.</p>
+        <label class="check" data-k="reg4"><input type="checkbox"><span>Exam passed</span></label>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <h4>Apply for the certification</h4>
+        <p>Passing is only one component. You also submit an application demonstrating experience, pay a US$200 application processing fee, agree to the Code of Professional Ethics and CPE policy, and obtain a positively adjudicated DoW Tier 3 background investigation. ISACA validates your experience and hands off to the Cyber AB to start the investigation. You have five years from the exam date to apply.</p>
+        <label class="check" data-k="reg5"><input type="checkbox"><span>Application submitted and fee paid</span></label>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <h4>Get listed and stay current</h4>
+        <p>A CyberAB Marketplace listing requires an active credential plus completed Delta Training. Maintenance is 20 CPE minimum per year and 120 over three years; at least 90 must relate to the certification, two of which must cover CMMC rules specifically. CPEs that satisfy another ISACA certification can be applied to both.</p>
+        <label class="check" data-k="reg6"><input type="checkbox"><span>Delta Training done, Marketplace listing live</span></label>
+      </div>
+    </div>
+
+    <h3>Cost summary</h3>
+    <table>
+      <tr><th>Item</th><th>Amount</th><th>Paid to</th></tr>
+      <tr><td>ATP training</td><td>~$2,000&ndash;$4,000</td><td>Approved Training Provider</td></tr>
+      <tr><td>Exam registration</td><td>$575 member / $760 non-member</td><td>ISACA</td></tr>
+      <tr><td>ISACA membership (optional, pays for itself)</td><td>~$135 + chapter dues</td><td>ISACA</td></tr>
+      <tr><td>Application processing</td><td>$200</td><td>ISACA</td></tr>
+      <tr><td>Annual maintenance</td><td>Set by ISACA; lower than the old model</td><td>ISACA</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">Blueprint</p>
+    <h2>Where the 170 questions come from</h2>
+    <p class="sub">Domains 4 and 5 are 60% of the exam. Weight your study time accordingly.</p>
+    <div class="weightbar">
+      <span style="width:5%;background:#8fb8cc">5</span>
+      <span style="width:5%;background:#6ea3bf">5</span>
+      <span style="width:15%;background:#4f8fb3">15</span>
+      <span style="width:35%;background:#1b4965">35</span>
+      <span style="width:25%;background:#2d6484">25</span>
+      <span style="width:15%;background:#4f8fb3">15</span>
+    </div>
+    <table>
+      <tr><th style="width:60px">Weight</th><th>Domain</th><th>What it actually tests</th></tr>
+      <tr><td>5%</td><td>1 &mdash; CMMC Ecosystem</td><td>Who does what: DoW, Cyber AB, CAICO, C3PAO, ATP, RPO, DIBCAC, OSA/OSC</td></tr>
+      <tr><td>5%</td><td>2 &mdash; Code of Professional Conduct</td><td>Confidentiality, objectivity, proper use of methods, professional conduct</td></tr>
+      <tr><td>15%</td><td>3 &mdash; Governance and Source Documents</td><td>FCI vs CUI, 32 CFR 170, DFARS clause chain, NIST source docs</td></tr>
+      <tr><td>35%</td><td>4 &mdash; Model Construct and Implementation Evaluation</td><td>Applying source docs to practices, assessment criteria, evidence adequacy and sufficiency. L1 practices guaranteed to appear.</td></tr>
+      <tr><td>25%</td><td>5 &mdash; CMMC Assessment Process (CAP)</td><td>Four phases, CCP role boundaries, planning, conducting, reporting, POA&amp;M closeout</td></tr>
+      <tr><td>15%</td><td>6 &mdash; Scoping</td><td>Asset categories and their treatment, FCI scope at Level 1</td></tr>
+    </table>
+    <div class="callout"><strong>The single biggest trap for experienced practitioners:</strong> this is a document-recall exam, not a judgment exam. Where "what a good CISO would do" diverges from "what the rule and the CAP say," the rule wins. Answer from the document.</div>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">Sources</p>
+    <h2>What to read, in priority order</h2>
+
+    <h3>Tier 1 &mdash; know these cold</h3>
+    <label class="check" data-k="src1"><input type="checkbox"><span><b>32 CFR Part 170</b> &mdash; the CMMC Program rule. Focus on 170.4 (definitions), 170.14 (ecosystem), 170.15&ndash;170.18 (level requirements and assessment types), 170.19 (scoping), 170.21 (POA&amp;M), 170.24 (scoring).</span></label>
+    <label class="check" data-k="src2"><input type="checkbox"><span><b>CMMC Assessment Guide &mdash; Level 1</b> (every practice, every objective)</span></label>
+    <label class="check" data-k="src3"><input type="checkbox"><span><b>CMMC Assessment Guide &mdash; Level 2</b></span></label>
+    <label class="check" data-k="src4"><input type="checkbox"><span><b>CMMC Scoping Guide &mdash; Level 1 and Level 2.</b> Asset categories are the highest-yield content on the whole exam.</span></label>
+    <label class="check" data-k="src5"><input type="checkbox"><span><b>CMMC Assessment Process (CAP)</b> &mdash; four phases, roles, evidence rules</span></label>
+    <label class="check" data-k="src6"><input type="checkbox"><span><b>NIST SP 800-171 Rev 2</b> &mdash; 110 requirements, 14 families. CMMC is pinned to Rev 2, not Rev 3. Answer from Rev 2.</span></label>
+    <label class="check" data-k="src7"><input type="checkbox"><span><b>NIST SP 800-171A</b> &mdash; assessment objectives and the examine / interview / test methods</span></label>
+
+    <h3>Tier 2 &mdash; know the shape and the specifics that get tested</h3>
+    <label class="check" data-k="src8"><input type="checkbox"><span><b>FAR 52.204-21</b> &mdash; the 15 basic safeguarding requirements that are CMMC Level 1</span></label>
+    <label class="check" data-k="src9"><input type="checkbox"><span><b>DFARS 252.204-7012, -7019, -7020, -7021</b> and the 48 CFR CMMC acquisition rule effective 10 Nov 2025</span></label>
+    <label class="check" data-k="src10"><input type="checkbox"><span><b>32 CFR Part 2002</b>, <b>DoDI 5200.48</b>, and the <b>NARA CUI Registry</b></span></label>
+    <label class="check" data-k="src11"><input type="checkbox"><span><b>CMMC Code of Professional Conduct</b> &mdash; short document, 5% of the exam, free points</span></label>
+    <label class="check" data-k="src12"><input type="checkbox"><span><b>NIST SP 800-172 / 800-172A</b> at awareness level (Level 3 context)</span></label>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">Plan</p>
+    <h2>Six-week study schedule</h2>
+    <p class="sub">Roughly 8&ndash;10 hours per week. Slot the ATP bootcamp into weeks 1&ndash;2, or take it before week 3 if it is a block course.</p>
+
+    <div class="weekhdr"><strong>Week 1 &mdash; Ecosystem, ethics, and the shape of the rule</strong><em>Domains 1, 2</em></div>
+    <label class="check" data-k="w1a"><input type="checkbox"><span>Read 32 CFR 170.4 definitions and 170.14 end to end. Definitions are tested verbatim.</span></label>
+    <label class="check" data-k="w1b"><input type="checkbox"><span>Read the Code of Professional Conduct in full. It is short.</span></label>
+    <label class="check" data-k="w1c"><input type="checkbox"><span><b>Deliverable:</b> draw the ecosystem from memory &mdash; DoW &rarr; Cyber AB &rarr; CAICO (ISACA) &rarr; C3PAO / ATP / RPO &rarr; OSA. Add DIBCAC, SPRS, and CMMC eMASS and label what flows to each.</span></label>
+
+    <div class="weekhdr"><strong>Week 2 &mdash; FCI, CUI, and the clause chain</strong><em>Domain 3</em></div>
+    <label class="check" data-k="w2a"><input type="checkbox"><span>Memorize the FCI definition, including both exclusions, and the CUI definition. Learn CUI Basic vs CUI Specified.</span></label>
+    <label class="check" data-k="w2b"><input type="checkbox"><span>Work the clause chain: FAR 52.204-21, DFARS -7012, -7019, -7020, -7021.</span></label>
+    <label class="check" data-k="w2c"><input type="checkbox"><span><b>Deliverable:</b> one-page table &mdash; each clause, what it obligates, who it binds, what it triggers.</span></label>
+
+    <div class="weekhdr"><strong>Week 3 &mdash; Scoping</strong><em>Domain 6, 15%</em></div>
+    <label class="check" data-k="w3a"><input type="checkbox"><span>Read both Scoping Guides. Build the asset category table from memory, including the documentation obligation for each.</span></label>
+    <label class="check" data-k="w3b"><input type="checkbox"><span>Learn the five Specialized Asset types and the fact that Level 1 treats them completely differently from Level 2.</span></label>
+    <label class="check" data-k="w3c"><input type="checkbox"><span><b>Deliverable:</b> categorize 30 sample assets from a real client environment. Grade yourself against 32 CFR 170.19 Table 3.</span></label>
+
+    <div class="weekhdr"><strong>Week 4 &mdash; Practices and evidence</strong><em>Domain 4, 35%</em></div>
+    <label class="check" data-k="w4a"><input type="checkbox"><span>All 15 Level 1 requirements, verbatim, with their identifiers. These are guaranteed exam content.</span></label>
+    <label class="check" data-k="w4b"><input type="checkbox"><span>800-171A determination statements: for a practice to be MET, every objective must be satisfied.</span></label>
+    <label class="check" data-k="w4c"><input type="checkbox"><span>Drill adequacy vs sufficiency until the distinction is automatic.</span></label>
+    <label class="check" data-k="w4d"><input type="checkbox"><span>Learn scoring (5/3/1), the 88 threshold, and the POA&amp;M eligibility rules cold.</span></label>
+    <label class="check" data-k="w4e"><input type="checkbox"><span><b>Deliverable:</b> for 20 practices, write the objectives and name evidence that would be both adequate and sufficient.</span></label>
+
+    <div class="weekhdr"><strong>Week 5 &mdash; The assessment process</strong><em>Domain 5, 25%</em></div>
+    <label class="check" data-k="w5a"><input type="checkbox"><span>Walk the CAP phase by phase and step by step. Know what happens where.</span></label>
+    <label class="check" data-k="w5b"><input type="checkbox"><span>Mark every point where the CCP role stops and the CCA or Lead CCA role begins.</span></label>
+    <label class="check" data-k="w5c"><input type="checkbox"><span><b>Deliverable:</b> a phase flowchart annotated with what you, as a CCP, are and are not permitted to do at each step.</span></label>
+
+    <div class="weekhdr"><strong>Week 6 &mdash; Test conditions</strong><em>All domains</em></div>
+    <label class="check" data-k="w6a"><input type="checkbox"><span>Two full-length timed practice exams in this tool. Aim for 80%+ before you sit the real thing.</span></label>
+    <label class="check" data-k="w6b"><input type="checkbox"><span>Rework every missed question back to its source document. Do not just reread the explanation.</span></label>
+    <label class="check" data-k="w6c"><input type="checkbox"><span>Final pass on definitions, asset categories, POA&amp;M rules, and the CAP phases the day before.</span></label>
+  </div>
+
+  <div class="card">
+    <p class="eyebrow">Cheat sheet</p>
+    <h2>High-yield facts</h2>
+
+    <h3>Level 2 asset categories (32 CFR 170.19(c)(1) Table 3)</h3>
+    <table>
+      <tr><th>Category</th><th>Definition</th><th>Treatment</th></tr>
+      <tr><td>CUI Asset</td><td>Processes, stores, or transmits CUI</td><td>Assessed against all applicable Level 2 requirements. Document in inventory, SSP, network diagram.</td></tr>
+      <tr><td>Security Protection Asset</td><td>Provides security functions or capabilities to the assessment scope, regardless of whether it handles CUI (a SIEM, for example)</td><td>Assessed against the requirements relevant to the protections it provides. Document in inventory, SSP, network diagram.</td></tr>
+      <tr><td>Contractor Risk Managed Asset</td><td><em>Can</em>, but is not intended to, process/store/transmit CUI, and is managed under the risk-based policy</td><td>In scope. Not assessed against all requirements &mdash; assessor performs a limited check for deficiencies. If the risk-based management is not evident, the assessor may assess it fully.</td></tr>
+      <tr><td>Specialized Asset</td><td>GFE, IoT, IIoT, Operational Technology, Restricted Information Systems, Test Equipment</td><td>Part of the assessment scope. Documented in inventory, SSP, and network diagram and managed per the risk-based policy. <b>Not assessed against the other CMMC requirements.</b></td></tr>
+      <tr><td>Out-of-Scope Asset</td><td>Cannot process/store/transmit CUI; physically or logically separated</td><td>No documentation requirement.</td></tr>
+    </table>
+    <div class="callout"><strong>Level 1 is different.</strong> At Level 1 there are no asset categories. Assets are simply in scope or out of scope depending on whether they process, store, or transmit FCI &mdash; and Specialized Assets are <em>not</em> part of the Level 1 scope and carry no documentation requirement at all. Mixing up the L1 and L2 treatment of Specialized Assets is one of the most reliable ways to lose points.</div>
+
+    <h3>Scoring and POA&amp;M (32 CFR 170.21, 170.24)</h3>
+    <ul>
+      <li>Level 2 maximum score is 110. Unmet requirements deduct 5, 3, or 1 point.</li>
+      <li>Conditional Level 2 requires score &divide; 110 &ge; 0.8, so a minimum of <b>88</b>.</li>
+      <li>Only 1-point requirements may go on a POA&amp;M. One exception: <code>SC.L2-3.13.11</code> (CUI encryption) may be included if encryption is employed but not FIPS-validated, at a 3-point cost.</li>
+      <li>Six specific 1-point requirements are named in 170.21 as ineligible regardless: <code>AC.L2-3.1.20</code>, <code>AC.L2-3.1.22</code>, <code>CA.L2-3.12.4</code>, <code>PE.L2-3.10.3</code>, <code>PE.L2-3.10.4</code>, <code>PE.L2-3.10.5</code>.</li>
+      <li>Consequence: every 3-point and 5-point requirement must be MET at assessment. Roughly 63 of the 110 cannot be deferred.</li>
+      <li>POA&amp;M closeout must happen within <b>180 days</b> of the Conditional CMMC Status Date, or the status expires. For a certification assessment, an authorized C3PAO performs the closeout.</li>
+      <li><b>Level 1 permits no POA&amp;M at all.</b> All 15 requirements must be MET.</li>
+    </ul>
+
+    <h3>Levels and who assesses</h3>
+    <table>
+      <tr><th>Level</th><th>Requirements</th><th>Assessed by</th><th>Cadence</th></tr>
+      <tr><td>Level 1 (Self)</td><td>15, from FAR 52.204-21</td><td>The OSA itself</td><td>Annual self-assessment + annual affirmation</td></tr>
+      <tr><td>Level 2 (Self)</td><td>110, NIST SP 800-171 Rev 2</td><td>The OSA itself</td><td>Every 3 years + annual affirmation</td></tr>
+      <tr><td>Level 2 (C3PAO)</td><td>110, NIST SP 800-171 Rev 2</td><td>Authorized C3PAO</td><td>Every 3 years + annual affirmation</td></tr>
+      <tr><td>Level 3 (DIBCAC)</td><td>24 selected from NIST SP 800-172</td><td>DIBCAC. Requires Final Level 2 (C3PAO) first.</td><td>Every 3 years + annual affirmation</td></tr>
+    </table>
+
+    <h3>The four CAP phases</h3>
+    <ol>
+      <li><b>Plan and Prepare Assessment</b> &mdash; conflict of interest checks, contracting, scope verification, readiness review, assessment plan, evidence agreements, team selection.</li>
+      <li><b>Conduct Assessment</b> &mdash; collect and examine evidence, score practices, daily checkpoints with the OSC, generate preliminary findings, deliver the closeout briefing.</li>
+      <li><b>Report Assessment Results</b> &mdash; final findings, quality assurance review, package delivery to the OSC, upload to CMMC eMASS and SPRS, records retention.</li>
+      <li><b>Remediation of Outstanding Assessment Issues</b> &mdash; the POA&amp;M closeout assessment inside the 180-day window.</li>
+    </ol>
+
+    <h3>Your role boundary as a CCP</h3>
+    <ul>
+      <li>You may serve as an Assessment Team Member on a Level 2 certification assessment and verify Level 1 practices.</li>
+      <li>You may not make final determinations. That authority belongs to the CCA or Lead CCA.</li>
+      <li>Participation on assessment teams requires a favorable Tier 3 determination.</li>
+      <li>You may advise, consult, and support readiness work for organizations seeking certification &mdash; but not for an organization you are also assessing.</li>
+    </ul>
+
+    <h3>Evidence vocabulary</h3>
+    <ul>
+      <li><b>Adequacy</b> &mdash; does this evidence actually address the assessment objective?</li>
+      <li><b>Sufficiency</b> &mdash; is there enough of it, across enough of the in-scope population, to support the finding?</li>
+      <li><b>Methods</b> &mdash; examine (artifacts), interview (people), test (mechanisms). Findings should be corroborated across methods.</li>
+      <li><b>Findings</b> &mdash; MET, NOT MET, or NOT APPLICABLE. There is no partial credit at the objective level.</li>
+      <li><b>Enduring Exception</b> &mdash; a special circumstance where remediation is not feasible; documented in the SSP, no POA&amp;M required.</li>
+      <li><b>Temporary Deficiency</b> &mdash; a correctable condition tracked in an operational plan of action. This is not the same thing as a CMMC POA&amp;M and is not subject to the 180-day clock.</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ============ TAB 2: EXAMS ============ -->
+<section class="panel" id="panel-exam" role="tabpanel" aria-labelledby="tab-exam" hidden>
+
+  <div class="card">
+    <p class="eyebrow">Practice exams</p>
+    <h2>Drill the whole blueprint or one domain at a time</h2>
+    <p class="sub">Each trial draws questions you have not yet mastered. Get one right and it retires from the pool; get it wrong and it comes back next time. Keep going until nothing is left.</p>
+    <div class="toolbar">
+      <label for="dom" style="font-size:13.5px;font-weight:600">Scope</label>
+      <select id="dom">
+        <option value="all" selected>All domains &mdash; blueprint weighted</option>
+        <option value="1">Domain 1 &mdash; CMMC Ecosystem</option>
+        <option value="2">Domain 2 &mdash; Code of Professional Conduct</option>
+        <option value="3">Domain 3 &mdash; Governance and Source Documents</option>
+        <option value="4">Domain 4 &mdash; Model Construct and Implementation Evaluation</option>
+        <option value="5">Domain 5 &mdash; CMMC Assessment Process</option>
+        <option value="6">Domain 6 &mdash; Scoping</option>
+      </select>
+      <label for="len" style="font-size:13.5px;font-weight:600">Length</label>
+      <select id="len">
+        <option value="10">10 questions</option>
+        <option value="20" selected>20 questions</option>
+        <option value="40">40 questions</option>
+        <option value="60">60 questions</option>
+        <option value="all">Everything left in this scope</option>
+      </select>
+      <button class="btn" id="btn-new">Start trial</button>
+      <button class="btn ghost" id="btn-abandon" hidden>End trial and score it</button>
+    </div>
+    <label class="check" id="focus-wrap" style="margin-top:10px;padding-left:0">
+      <input type="checkbox" id="focus" checked>
+      <span>Only serve questions I have not mastered yet</span>
+    </label>
+    <div id="pool-note" class="callout" style="margin-top:12px"></div>
+    <div class="scorestrip" id="strip" hidden>
+      <div class="stat"><b id="s-pos">0/0</b><small>Question</small></div>
+      <div class="stat"><b id="s-right">0</b><small>Correct</small></div>
+      <div class="stat"><b id="s-wrong">0</b><small>Wrong</small></div>
+      <div class="stat"><b id="s-pct">&mdash;</b><small>Running score</small></div>
+    </div>
+    <div class="progress" id="prog" hidden><i></i></div>
+  </div>
+
+  <div class="card" id="qcard" hidden>
+    <div class="qmeta">
+      <span class="dom" id="q-dom"></span>
+      <span class="idx" id="q-idx"></span>
+    </div>
+    <p class="qtext" id="q-text"></p>
+    <div class="opts" id="q-opts"></div>
+    <div id="q-verdict"></div>
+    <div class="nav">
+      <button class="btn" id="btn-submit" disabled>Submit answer</button>
+      <button class="btn" id="btn-next" hidden>Next question</button>
+    </div>
+  </div>
+
+  <div class="card" id="results" hidden></div>
+
+  <div class="card" id="masterycard">
+    <p class="eyebrow">Progress</p>
+    <h2>Mastery by domain</h2>
+    <p class="sub">A question counts as mastered once you answer it correctly. Miss a mastered question later and it goes straight back into the pool.</p>
+    <div id="mastery"></div>
+    <div class="nav" style="margin-top:14px">
+      <button class="btn ghost" id="btn-reset-domain">Reset the selected domain</button>
+      <button class="btn ghost" id="btn-reset-all">Reset everything</button>
+    </div>
+  </div>
+
+  <div class="card" id="histcard">
+    <p class="eyebrow">Your record</p>
+    <h2>Trial history</h2>
+    <div class="history" id="hist"></div>
+  </div>
+
+</section>
+
+</main>
+
+<footer class="foot">
+  Practice questions are written against 32 CFR Part 170, FAR 52.204-21, the DFARS safeguarding clauses, the CMMC Assessment and Scoping Guides, the CAP, and NIST SP 800-171 Rev 2 / 800-171A. They are study aids, not actual exam items. Verify current program details against ISACA and DoD CIO before relying on them. Progress is stored in this browser only.
+</footer>
+<script>
+var BANK_A = [
+
+/* ===================== DOMAIN 1 — CMMC ECOSYSTEM ===================== */
+{d:1,q:"Which organization accredits and authorizes CMMC Third-Party Assessor Organizations (C3PAOs)?",
+o:["The Cyber AB","ISACA, in its role as the CAICO","DIBCAC","The DoD CIO"],a:0,
+e:"The Cyber AB is the accreditation body for organizations in the ecosystem — it accredits C3PAOs and authorizes ATPs. ISACA, as CAICO, credentials individuals (CCP, CCA, LCCA, CCI). DIBCAC is a government assessment organization, not an accreditor. DoD CIO owns the model and guidance documents.",
+s:"32 CFR 170.14; Cyber AB / CAICO roles"},
+
+{d:1,q:"As of 2026, which organization administers the training oversight, examination, and certification of individual CMMC credential holders?",
+o:["The Cyber AB","The Defense Contract Management Agency","ISACA, as the CMMC Assessor and Instructor Certification Organization","The National Institute of Standards and Technology"],a:2,
+e:"ISACA became the CAICO with the full transition of services completed by 1 April 2026. It runs the CCP, CCA, LCCA, and CCI credentials. The Cyber AB remains the accreditation body for organizations and continues to run the Tier 3 background investigations.",
+s:"ISACA CAICO announcement; 32 CFR 170.9"},
+
+{d:1,q:"Which entity conducts CMMC Level 3 certification assessments?",
+o:["An authorized C3PAO","DIBCAC","The Cyber AB","Any Lead CCA operating independently"],a:1,
+e:"Level 3 certification assessments are performed by the Defense Industrial Base Cybersecurity Assessment Center (DIBCAC), a government organization. C3PAOs perform Level 2 certification assessments. An OSC must first hold a Final Level 2 (C3PAO) status before pursuing Level 3.",
+s:"32 CFR 170.18"},
+
+{d:1,q:"An organization wants to help defense suppliers prepare for CMMC but does not want to perform certification assessments. Which ecosystem role fits?",
+o:["C3PAO","Registered Provider Organization (RPO)","Approved Training Provider (ATP)","DIBCAC subcontractor"],a:1,
+e:"An RPO provides consulting and readiness support to organizations seeking certification. It does not perform certification assessments. A C3PAO performs assessments; an ATP delivers CMMC training.",
+s:"32 CFR 170.4; Cyber AB ecosystem roles"},
+
+{d:1,q:"What is the correct distinction between an OSA and an OSC?",
+o:["OSA is any organization seeking assessment at any level; OSC specifically refers to an organization seeking a certification assessment","OSA applies only to Level 1; OSC applies only to Level 3","They are interchangeable terms with no defined difference","OSA refers to the assessor organization and OSC to the contractor"],a:0,
+e:"Organization Seeking Assessment (OSA) is the general term covering self-assessments and certification assessments. Organization Seeking Certification (OSC) is the subset undergoing a certification assessment by a C3PAO or DIBCAC. The rule uses OSA broadly and OSC where certification specifically applies.",
+s:"32 CFR 170.4 definitions"},
+
+{d:1,q:"Which organization publishes the CMMC Assessment Guides and Scoping Guides?",
+o:["The Cyber AB","ISACA","DoD CIO","NIST"],a:2,
+e:"The DoD CIO publishes the CMMC model documentation, Assessment Guides, Scoping Guides, and the CMMC Assessment Process. NIST publishes SP 800-171 and 800-172, which CMMC incorporates but does not author.",
+s:"32 CFR Part 170 Appendix A"},
+
+{d:1,q:"Where are CMMC assessment results and annual affirmations recorded?",
+o:["Only in the C3PAO internal records system","In the Supplier Performance Risk System (SPRS), with certification assessment results flowing through CMMC eMASS","In the NARA CUI Registry","In the Cyber AB Marketplace profile"],a:1,
+e:"CMMC statuses and affirmations are reflected in SPRS. Certification assessment results are entered into CMMC eMASS and flow to SPRS. Contracting officers check SPRS to verify eligibility for award.",
+s:"32 CFR 170.20; DFARS 252.204-7019/-7020"},
+
+{d:1,q:"A CCP wants to be visible to DIB contractors seeking readiness help. What is required for a CyberAB Marketplace listing?",
+o:["Passing the CCP exam only","An active CMMC credential plus completed Delta Training","Employment by an authorized C3PAO","A Lead CCA sponsor"],a:1,
+e:"Marketplace listing requires an active credential (CCP, CCA, or LCCA) plus completed Delta Training, which updates credential holders on rule and process changes since the training materials they were certified against.",
+s:"ISACA CCP certification page; Cyber AB Marketplace"},
+
+{d:1,q:"Which statement about Approved Training Providers is accurate?",
+o:["Any training vendor may prepare candidates for the CCP exam and satisfy the training requirement","CCP training must come from an ATP; training from a non-authorized source does not satisfy the requirement","ATP training is optional if the candidate holds CISSP","ATPs are accredited by NIST"],a:1,
+e:"Mandatory CCP training must be delivered by an Approved Training Provider using approved materials. Other study aids are fine as supplements, but only ATP training satisfies the certification prerequisite. No other certification waives it.",
+s:"ISACA CCP certification requirements"},
+
+{d:1,q:"Who determines the CMMC level required for a specific contract?",
+o:["The C3PAO, based on assessment findings","The contractor, based on its own risk assessment","The Department, through the requirement stated in the solicitation and contract","The Cyber AB, based on the contractor Marketplace registration"],a:2,
+e:"The required CMMC status is a government acquisition decision reflected in the solicitation and the contract clause. Neither the contractor nor the assessor selects the level; the assessor assesses against the level the contractor requests consistent with its contract obligations.",
+s:"32 CFR 170.5; 48 CFR CMMC acquisition rule"},
+
+/* ===================== DOMAIN 2 — CODE OF PROFESSIONAL CONDUCT ===================== */
+{d:2,q:"Which set best describes the guiding principles of the CMMC Code of Professional Conduct?",
+o:["Confidentiality, objectivity, proper use of methods, and professional conduct","Availability, integrity, confidentiality, and non-repudiation","Independence, materiality, sampling, and documentation","Least privilege, separation of duties, need to know, and defense in depth"],a:0,
+e:"The CoPC is built on confidentiality, objectivity (including the handling of conflicts of interest), proper use of methods, and professional conduct. The other options describe security principles or general audit concepts, not the CoPC.",
+s:"CMMC Code of Professional Conduct"},
+
+{d:2,q:"A CCP performed six months of paid readiness consulting for a manufacturer. The manufacturer now schedules a Level 2 certification assessment and asks the CCP to serve on the assessment team. What should the CCP do?",
+o:["Accept, since the prior work makes the CCP more efficient","Accept, provided the CCP does not assess the practices they personally implemented","Decline, because assessing an organization the CCP advised is a conflict of interest","Accept if the OSC signs a written waiver"],a:2,
+e:"Objectivity requires that assessors not assess their own work or an organization they have advised. This is a conflict of interest and cannot be cured by partial recusal or a client waiver. Conflict of interest checks occur in Phase 1 of the CAP precisely to catch this.",
+s:"CoPC objectivity; CAP Phase 1"},
+
+{d:2,q:"During an assessment, an OSC employee privately tells a CCP that the company back-dated several documents. What is the appropriate response?",
+o:["Ignore it, since only the Lead Assessor evaluates evidence integrity","Raise the concern through the assessment team and the established process, and treat the evidence accordingly","Confront the OSC executive team immediately and independently","Complete the assessment and report the issue to the contracting officer afterwards"],a:1,
+e:"Professional conduct and proper use of methods require raising evidence integrity concerns through the assessment team and the defined process rather than acting unilaterally or staying silent. The CCP does not make the final determination, but must surface the issue.",
+s:"CoPC professional conduct; CAP evidence handling"},
+
+{d:2,q:"An OSC offers the assessment team an expensive dinner and gift baskets at the end of a successful assessment. What does the CoPC require?",
+o:["Acceptance is fine once the assessment is complete","Acceptance is fine if disclosed to the C3PAO afterwards","Decline, because accepting items of value creates an appearance of impropriety and compromises objectivity","Accept, but only items below a de minimis value set by the OSC"],a:2,
+e:"Accepting gifts, gratuities, or favors from an assessed organization compromises objectivity or at least its appearance. Completion of the assessment does not resolve it; assessments recur and the relationship continues.",
+s:"CoPC objectivity and professional conduct"},
+
+{d:2,q:"A CCP wants to use redacted screenshots from a recent client assessment in a public conference talk. Is that permitted?",
+o:["Yes, redaction resolves the confidentiality obligation","Yes, if the client is not named","No — assessment information is confidential and may not be disclosed without appropriate authorization","Yes, provided the C3PAO approves"],a:2,
+e:"Confidentiality covers information obtained during an assessment. Redaction or omitting the client name does not by itself release the obligation. Disclosure requires appropriate authorization from the OSC and consistency with the C3PAO agreements.",
+s:"CoPC confidentiality"},
+
+{d:2,q:"An assessment is running behind schedule. The team lead suggests skipping the test method for several practices and relying on interviews alone to finish on time. How should a CCP regard this?",
+o:["Acceptable, since interviews are a recognized assessment method","Acceptable if the OSC agrees to the change","A violation of proper use of methods; the defined process and evidence requirements govern regardless of schedule pressure","Acceptable if documented in the assessment report as a limitation"],a:2,
+e:"Proper use of methods requires following the CMMC Assessment Process and the evidence expectations in the assessment guides. Schedule pressure and client agreement do not authorize departing from the method, and disclosing a shortcut does not cure it.",
+s:"CoPC proper use of methods; CAP"},
+
+{d:2,q:"A CCP becomes aware that another credential holder is falsifying assessment findings. What is the expected action?",
+o:["Nothing, unless the CCP was directly involved","Report the conduct through the established ethics reporting process","Warn the individual privately and take no further action","Notify the OSC only"],a:1,
+e:"Credential holders have an affirmative obligation to report ethics violations through the established process. Silence, or a private word alone, does not satisfy it.",
+s:"CMMC Code of Professional Conduct"},
+
+{d:2,q:"Which statement is an improper representation for an individual who holds a CCP?",
+o:["Describing themselves as a CMMC Certified Professional","Stating that they can support an OSC preparing for a Level 2 assessment","Advertising that their consulting firm is CMMC certified and can certify clients","Stating that they may participate on a Level 2 assessment team under a CCA"],a:2,
+e:"Individuals hold credentials; organizations are accredited or authorized. Only a C3PAO can perform a certification assessment, and no consultant can certify a client. Claiming that a firm is CMMC certified and can certify clients misrepresents both the credential and the ecosystem.",
+s:"CoPC professional conduct; 32 CFR 170.14"},
+
+{d:2,q:"An OSC asks the assessment team to leave a known deficiency out of the report because it is already scheduled for remediation next quarter. The correct response is:",
+o:["Omit it, since remediation is planned","Record it accurately as a finding; whether it is eligible for a POA&M is determined by the rule, not by negotiation","Omit it if the OSC provides a signed remediation commitment","Record it only if the OSC refuses to remediate"],a:1,
+e:"Findings are recorded as assessed. Planned remediation does not change a NOT MET determination. Whether the requirement can go on a POA&M and support a Conditional status is governed by 32 CFR 170.21, not by agreement with the client.",
+s:"CoPC objectivity; 32 CFR 170.21"},
+
+/* ===================== DOMAIN 3 — GOVERNANCE AND SOURCE DOCUMENTS ===================== */
+{d:3,q:"Which of the following is NOT Federal Contract Information?",
+o:["A draft delivery schedule generated for the Government under a contract","Design notes produced to deliver a contracted product","Information the Government has published on a public website","Internal correspondence generated for the Government under a services contract"],a:2,
+e:"FCI is information not intended for public release, provided by or generated for the Government under a contract to develop or deliver a product or service. It excludes information the Government provides to the public — such as content on public websites — and simple transactional information such as that needed to process payments.",
+s:"FAR 52.204-21; 32 CFR 170.4"},
+
+{d:3,q:"Which agency is the CUI Executive Agent?",
+o:["The Department of Defense","The National Archives and Records Administration","The Office of Management and Budget","The Department of Homeland Security"],a:1,
+e:"NARA is the CUI Executive Agent and maintains the CUI Registry, which lists the approved categories and their underlying authorities. DoD implements CUI internally through DoDI 5200.48.",
+s:"32 CFR Part 2002; Executive Order 13556"},
+
+{d:3,q:"What distinguishes CUI Specified from CUI Basic?",
+o:["CUI Specified is classified information; CUI Basic is not","CUI Specified has handling or dissemination controls set out in the underlying law, regulation, or Government-wide policy that differ from the general CUI controls","CUI Basic requires encryption while CUI Specified does not","CUI Specified applies only to DoD contracts"],a:1,
+e:"CUI Basic follows the uniform baseline controls. CUI Specified is a category whose authorizing law, regulation, or Government-wide policy imposes specific handling or dissemination requirements beyond that baseline. Neither is classified information.",
+s:"32 CFR Part 2002; NARA CUI Registry"},
+
+{d:3,q:"DFARS 252.204-7012 requires a contractor to report a cyber incident to DoD within what timeframe?",
+o:["24 hours","48 hours","72 hours","5 business days"],a:2,
+e:"The clause requires rapid reporting within 72 hours of discovery via DIBNet, along with preserving and protecting affected media for at least 90 days and providing access for damage assessment.",
+s:"DFARS 252.204-7012"},
+
+{d:3,q:"Which DFARS clause requires a contractor to post a summary level score from a NIST SP 800-171 assessment in SPRS?",
+o:["252.204-7012","252.204-7019","252.204-7021","252.204-7024"],a:1,
+e:"-7019 addresses the requirement to have a current assessment score posted in SPRS as a condition of award. -7020 covers the government assessment requirements and access for DIBCAC. -7021 is the CMMC requirement clause. -7012 covers safeguarding and incident reporting.",
+s:"DFARS 252.204-7019 and -7020"},
+
+{d:3,q:"CMMC Level 1 consists of how many security requirements, and where do they come from?",
+o:["15 requirements from FAR 52.204-21","17 requirements from NIST SP 800-171","110 requirements from NIST SP 800-171","24 requirements from NIST SP 800-172"],a:0,
+e:"Under 32 CFR Part 170, Level 1 comprises the 15 basic safeguarding requirements of FAR 52.204-21. Older CMMC model documentation counted these as 17 practices, which is why 17 is such a common distractor. Answer 15 from the rule.",
+s:"32 CFR 170.14(b); FAR 52.204-21(b)(1)"},
+
+{d:3,q:"Which revision of NIST SP 800-171 does the CMMC Program currently incorporate for Level 2?",
+o:["Revision 1","Revision 2","Revision 3","Whichever revision is current at the time of assessment"],a:1,
+e:"The CMMC Program rule incorporates NIST SP 800-171 Revision 2 and its 110 requirements. Revision 3 exists but is not what CMMC assessments are conducted against under the current rule. Answer Rev 2 on the exam.",
+s:"32 CFR 170.14(c); Appendix A"},
+
+{d:3,q:"What does NIST SP 800-171A provide that SP 800-171 does not?",
+o:["The list of CUI categories","Assessment objectives and the examine, interview, and test methods used to determine whether a requirement is satisfied","Enhanced requirements for advanced persistent threats","Scoring point values for each requirement"],a:1,
+e:"800-171A decomposes each requirement into determination statements (assessment objectives) and defines the assessment methods. Point values come from the CMMC scoring methodology in 32 CFR 170.24, and enhanced APT requirements come from 800-172.",
+s:"NIST SP 800-171A"},
+
+{d:3,q:"NIST SP 800-172 is the source of the requirements for which CMMC level?",
+o:["Level 1","Level 2 self-assessment only","Level 3","All levels, as supplementary guidance"],a:2,
+e:"Level 3 uses 24 selected enhanced security requirements drawn from NIST SP 800-172, assessed by DIBCAC, and requires a Final Level 2 (C3PAO) status as a prerequisite.",
+s:"32 CFR 170.14(c)(4); 170.18"},
+
+{d:3,q:"An OSA holds only FCI and no CUI. Which CMMC status applies?",
+o:["Level 1 (Self), with annual self-assessment and annual affirmation","Level 2 (Self), because FCI is a subset of CUI","Level 2 (C3PAO), because a third party must verify FCI protection","No CMMC obligation applies to FCI"],a:0,
+e:"FCI-only environments map to Level 1, which is an annual self-assessment with an annual affirmation in SPRS. FCI is not a subset of CUI — they are distinct information types with distinct requirements.",
+s:"32 CFR 170.15"},
+
+{d:3,q:"Who submits the annual affirmation of continuing compliance, and where?",
+o:["The C3PAO, in CMMC eMASS","A designated Affirming Official of the OSA, in SPRS","The Lead CCA, in the Marketplace","The contracting officer, in the contract file"],a:1,
+e:"The OSA designates an Affirming Official — a senior representative responsible for ensuring compliance — who submits the affirmation in SPRS. The affirmation is annual even though the assessment cycle for Level 2 and Level 3 is triennial.",
+s:"32 CFR 170.22"},
+
+{d:3,q:"How long is a CMMC Level 2 certification assessment status valid, assuming affirmations are maintained?",
+o:["One year","Two years","Three years","Five years"],a:2,
+e:"CMMC statuses for Level 2 and Level 3 are valid for three years from the status date, with an affirmation submitted annually in the interim. Level 1 requires a fresh self-assessment every year.",
+s:"32 CFR 170.17; 170.22"},
+
+{d:3,q:"Which document governs the marking, handling, and decontrol of CUI within the Department of Defense?",
+o:["DFARS 252.204-7012","DoDI 5200.48","NIST SP 800-53","FAR 52.204-21"],a:1,
+e:"DoDI 5200.48 is the DoD implementation of the CUI program, covering identification, marking, handling, and decontrol. 32 CFR Part 2002 is the Government-wide rule it implements.",
+s:"DoDI 5200.48; 32 CFR Part 2002"},
+
+{d:3,q:"A document contains CUI. Which marking element identifies who designated it and the underlying authority?",
+o:["The banner marking at the top of the page","The CUI designation indicator block","The portion marking on each paragraph","The distribution statement"],a:1,
+e:"The designation indicator block identifies the controlling agency, the designator, and the authority or category. Banner markings appear at the top and bottom of each page; portion markings identify controlled portions within the document.",
+s:"DoDI 5200.48; 32 CFR Part 2002"},
+
+{d:3,q:"When did the CMMC Program rule at 32 CFR Part 170 become effective?",
+o:["10 November 2024","10 November 2025","1 April 2026","1 January 2026"],a:1,
+e:"32 CFR Part 170 took effect 10 November 2025, with the corresponding acquisition rule phasing CMMC requirements into contracts over the following three years to full implementation.",
+s:"32 CFR Part 170; 48 CFR CMMC acquisition rule"},
+
+{d:3,q:"Which statement about the DFARS 252.204-7012 flowdown is correct?",
+o:["It applies only to prime contractors","It flows down to subcontractors when performance will involve covered defense information","It flows down only to subcontracts over the simplified acquisition threshold","It never flows down; each contractor negotiates separately"],a:1,
+e:"The clause flows down to subcontractors whose performance will involve covered defense information or operationally critical support, without alteration except to identify the parties. Supply chain flowdown is a recurring exam theme.",
+s:"DFARS 252.204-7012(m)"},
+
+{d:3,q:"A cloud service provider stores CUI on behalf of an OSA. Under DFARS 252.204-7012, the CSP must meet which requirement?",
+o:["ISO 27001 certification","FedRAMP Moderate authorization or an equivalent security requirement baseline","SOC 2 Type II attestation","CMMC Level 3 status"],a:1,
+e:"The clause requires a cloud service provider that stores, processes, or transmits covered defense information to meet FedRAMP Moderate baseline requirements or equivalent. Commercial attestations such as SOC 2 or ISO 27001 do not satisfy it on their own.",
+s:"DFARS 252.204-7012(b)(2)(ii)(D)"},
+
+{d:3,q:"Which best describes the relationship between NIST SP 800-171 Rev 2 requirement families and CMMC domains at Level 2?",
+o:["CMMC Level 2 adds ten domains beyond the NIST families","CMMC Level 2 comprises the 110 requirements across the 14 NIST families with no additional requirements","CMMC Level 2 selects only the 63 most critical NIST requirements","CMMC Level 2 replaces the NIST families with maturity processes"],a:1,
+e:"Level 2 is the full set of 110 requirements across the 14 families of NIST SP 800-171 Rev 2. The earlier CMMC model added practices and maturity processes beyond NIST; the current program does not.",
+s:"32 CFR 170.14(c)(3)"}
+
+];
+var BANK_B = [
+
+/* ============ DOMAIN 4 — MODEL CONSTRUCT AND IMPLEMENTATION EVALUATION ============ */
+{d:4,q:"Under NIST SP 800-171A, what must be true for a security requirement to be scored MET?",
+o:["A majority of the assessment objectives are satisfied","Every assessment objective for that requirement is satisfied","The OSA has a documented policy covering the requirement","At least one assessment method produced supporting evidence"],a:1,
+e:"A requirement is MET only when all of its assessment objectives are satisfied. There is no partial credit at the objective level — one unsatisfied objective makes the entire requirement NOT MET.",
+s:"NIST SP 800-171A; CMMC Assessment Guide L2"},
+
+{d:4,q:"Which three assessment methods are defined for evaluating security requirements?",
+o:["Examine, interview, test","Observe, sample, verify","Inspect, inquire, reperform","Scan, audit, attest"],a:0,
+e:"The methods are examine (artifacts and documents), interview (people), and test (mechanisms and activities). The other options describe financial audit or vulnerability management vocabulary, not the 800-171A methods.",
+s:"NIST SP 800-171A"},
+
+{d:4,q:"An OSA presents a well-written access control policy that clearly addresses the objective, but interviews reveal no one follows it and testing shows the mechanism is not configured. How is the requirement scored?",
+o:["MET, because the policy is adequate","MET with an observation noted","NOT MET, because implementation is not demonstrated","NOT APPLICABLE, pending remediation"],a:2,
+e:"Documentation alone does not satisfy an objective. Where examine, interview, and test conflict, the assessment reflects what is actually implemented. A policy that is not operating is a NOT MET.",
+s:"CAP; CMMC Assessment Guide L2"},
+
+{d:4,q:"What does adequacy of evidence mean?",
+o:["That there is enough evidence across the in-scope population","That the evidence appropriately addresses the assessment objective","That the evidence is dated within the past twelve months","That the evidence has been validated by a second assessor"],a:1,
+e:"Adequacy asks whether the evidence actually addresses the objective. Sufficiency asks whether there is enough of it across the relevant population. Conflating the two is the most common error in this domain.",
+s:"CAP evidence criteria"},
+
+{d:4,q:"An OSA supports the multifactor authentication requirement with one screenshot of MFA enabled on a single administrator account, in an environment with 240 in-scope users. The evidence is best described as:",
+o:["Adequate and sufficient","Adequate but not sufficient","Sufficient but not adequate","Neither adequate nor sufficient"],a:1,
+e:"The screenshot addresses the right objective, so it is adequate in kind. One account out of 240 does not represent the in-scope population, so it is not sufficient. This adequate-but-insufficient pattern appears repeatedly on the exam.",
+s:"CAP evidence criteria"},
+
+{d:4,q:"Which is the correct set of possible findings for a security requirement?",
+o:["Pass, fail, partial","MET, NOT MET, NOT APPLICABLE","Compliant, non-compliant, compensating","Satisfied, deficient, deferred"],a:1,
+e:"Findings are MET, NOT MET, or NOT APPLICABLE. There is no partial or compensating category in CMMC scoring at the requirement level.",
+s:"CAP; CMMC Assessment Guide L2"},
+
+{d:4,q:"How many points does an unmet Level 2 requirement deduct under the CMMC scoring methodology?",
+o:["Always 1 point","1, 3, or 5 points depending on the requirement","5 points for all technical requirements and 1 for all documentation requirements","A weighted value calculated by the assessor"],a:1,
+e:"Requirements are valued at 5, 3, or 1 point. The maximum score is 110, and unmet requirements deduct their assigned value. Assessors do not assign weights themselves.",
+s:"32 CFR 170.24"},
+
+{d:4,q:"What is the minimum Level 2 assessment score that permits a Conditional CMMC Status?",
+o:["80","88","99","110"],a:1,
+e:"Conditional status requires the score divided by the total number of Level 2 requirements to be at least 0.8. With a maximum of 110, that means a minimum of 88. Final Level 2 requires the full 110, achieved at the initial assessment or at POA&M closeout.",
+s:"32 CFR 170.21(a)(2)(i)"},
+
+{d:4,q:"Which requirements are eligible to be placed on a CMMC POA&M?",
+o:["Any requirement scored NOT MET","Only 1-point requirements, with a narrow exception for CUI encryption when encryption is employed but not FIPS-validated","Any requirement other than those in the Access Control family","1-point and 3-point requirements"],a:1,
+e:"Only 1-point requirements may be deferred, with one carve-out: SC.L2-3.13.11 may be included at a 3-point cost when encryption is employed but not FIPS-validated. All other 3-point and 5-point requirements must be MET at assessment.",
+s:"32 CFR 170.21(a)(2)(ii)"},
+
+{d:4,q:"Which of the following 1-point requirements is expressly ineligible for a POA&M by name in 32 CFR 170.21?",
+o:["AU.L2-3.3.1 System Auditing","CA.L2-3.12.4 System Security Plan","CM.L2-3.4.1 System Baselining","RA.L2-3.11.2 Vulnerability Scan"],a:1,
+e:"Six 1-point requirements are named as ineligible regardless of score: AC.L2-3.1.20, AC.L2-3.1.22, CA.L2-3.12.4, PE.L2-3.10.3, PE.L2-3.10.4, and PE.L2-3.10.5. An incomplete SSP therefore blocks certification outright.",
+s:"32 CFR 170.21(a)(2)(iii)"},
+
+{d:4,q:"An OSC achieves Conditional Level 2 (C3PAO) status. What must happen next, and by when?",
+o:["All POA&M items closed within 180 days of the Conditional CMMC Status Date, confirmed by a closeout assessment performed by an authorized C3PAO","All POA&M items closed within one year, self-attested in SPRS","A new full assessment within 90 days","Nothing further until the triennial reassessment"],a:0,
+e:"The closeout must occur within 180 days of the Conditional status date. For a certification assessment, an authorized C3PAO performs the closeout assessment, which evaluates only the requirements that were NOT MET and placed on the POA&M. Missing the window causes the Conditional status to expire.",
+s:"32 CFR 170.21(b)"},
+
+{d:4,q:"May a Level 1 self-assessment use a POA&M for a requirement that is not yet implemented?",
+o:["Yes, with a 180-day closeout","Yes, if the score is at least 12 of 15","No — all 15 Level 1 requirements must be MET","Yes, but only for the physical protection requirements"],a:2,
+e:"There is no POA&M and no Conditional status at Level 1. All 15 requirements must be MET to achieve Final Level 1 (Self), followed by an affirmation in SPRS.",
+s:"32 CFR 170.15; 170.21"},
+
+{d:4,q:"Which is a CMMC Level 1 requirement?",
+o:["Employ multifactor authentication for local and network access to privileged accounts","Limit information system access to authorized users, processes acting on behalf of authorized users, and devices","Monitor, control, and protect organizational communications with cryptographic mechanisms meeting FIPS validation","Provide security awareness training on insider threat indicators"],a:1,
+e:"AC.L1-3.1.1 is a Level 1 requirement drawn from FAR 52.204-21. Multifactor authentication, FIPS-validated cryptography, and awareness training are Level 2 requirements from NIST SP 800-171.",
+s:"FAR 52.204-21(b)(1)(i); CMMC Assessment Guide L1"},
+
+{d:4,q:"An OSA posts a project update on its public website that includes information generated for the Government under a contract and not intended for public release. Which Level 1 requirement is implicated?",
+o:["AC.L1-3.1.1 Authorized Access Control","AC.L1-3.1.20 External Connections","AC.L1-3.1.22 Control Public Information","SC.L1-3.13.5 Public-Access System Separation"],a:2,
+e:"AC.L1-3.1.22 requires controlling information posted or processed on publicly accessible systems, including a review and approval process before posting. SC.L1-3.13.5 concerns architectural separation of publicly accessible components, not the content review.",
+s:"CMMC Assessment Guide L1"},
+
+{d:4,q:"Which Level 1 requirement addresses sanitizing or destroying media containing FCI before disposal or reuse?",
+o:["MP.L1-3.8.3","SI.L1-3.14.1","PE.L1-3.10.1","SC.L1-3.13.1"],a:0,
+e:"MP.L1-3.8.3 requires sanitizing or destroying system media containing FCI before disposal or release for reuse. The exam expects familiarity with the identifiers, not just the concepts.",
+s:"CMMC Assessment Guide L1"},
+
+{d:4,q:"An assessor examines an OSA whose visitor log records only the visitor name, with no escort recorded and no dates. Which Level 1 requirements are at risk?",
+o:["Only PE.L1-3.10.1","PE.L1-3.10.3 Escort Visitors and PE.L1-3.10.4 Physical Access Logs","SI.L1-3.14.1 and SI.L1-3.14.2","AC.L1-3.1.1 and IA.L1-3.5.1"],a:1,
+e:"Escorting and monitoring visitor activity is PE.L1-3.10.3; maintaining audit logs of physical access is PE.L1-3.10.4. A log that omits escort information and dates fails the objectives of both.",
+s:"CMMC Assessment Guide L1"},
+
+{d:4,q:"An OSA runs antivirus that has not received signature updates in eight months. Which Level 1 requirement is most directly NOT MET?",
+o:["SI.L1-3.14.1 Flaw Remediation","SI.L1-3.14.2 Malicious Code Protection","SI.L1-3.14.4 Update Malicious Code Protection","SC.L1-3.13.1 Boundary Protection"],a:2,
+e:"SI.L1-3.14.4 requires updating malicious code protection mechanisms when new releases are available. The protection exists, so SI.L1-3.14.2 may be arguable, but the failure to update is squarely SI.L1-3.14.4.",
+s:"CMMC Assessment Guide L1"},
+
+{d:4,q:"Which pair of Level 1 requirements distinguishes identification from authentication?",
+o:["AC.L1-3.1.1 and AC.L1-3.1.2","IA.L1-3.5.1 and IA.L1-3.5.2","PE.L1-3.10.1 and PE.L1-3.10.3","SC.L1-3.13.1 and SC.L1-3.13.5"],a:1,
+e:"IA.L1-3.5.1 requires identifying users, processes, and devices. IA.L1-3.5.2 requires authenticating or verifying those identities as a prerequisite to allowing access. Knowing which is which is a standard exam item.",
+s:"CMMC Assessment Guide L1"},
+
+{d:4,q:"An OSA states that a requirement about wireless access does not apply because it operates no wireless networks. How should this be handled?",
+o:["Scored NOT MET because the capability is absent","Scored NOT APPLICABLE, with the justification documented and verified by the assessment team","Removed from the assessment scope entirely without documentation","Placed on a POA&M until wireless is implemented"],a:1,
+e:"NOT APPLICABLE is a valid finding when the requirement genuinely cannot apply to the environment. The rationale must be documented and verified rather than accepted at face value, and it does not reduce the score.",
+s:"CAP; CMMC Assessment Guide L2"},
+
+{d:4,q:"An OSA outsources log monitoring to a managed security service provider. Who is responsible for the associated CMMC requirements?",
+o:["The MSSP, because it operates the capability","The OSA, which remains accountable and must document how the requirements are met, including the provider role","Neither, since outsourced functions fall outside the assessment scope","The C3PAO, which assesses the MSSP separately"],a:1,
+e:"Responsibility for meeting the requirements stays with the OSA. The SSP must describe how the requirements are satisfied, including what the external service provider performs, and the provider assets that deliver security functions are Security Protection Assets within scope.",
+s:"32 CFR 170.19; CMMC Scoping Guide L2"},
+
+{d:4,q:"What is the difference between an Enduring Exception and a Temporary Deficiency?",
+o:["They are the same concept under different names","An Enduring Exception is a special circumstance where remediation is not feasible and is documented in the SSP; a Temporary Deficiency is correctable and tracked in an operational plan of action","An Enduring Exception requires a POA&M; a Temporary Deficiency does not","A Temporary Deficiency permanently reduces the assessment score"],a:1,
+e:"An Enduring Exception covers a special circumstance, such as medical devices or OT that cannot be remediated, documented in the SSP with no POA&M required. A Temporary Deficiency is a correctable condition tracked in an operational plan of action, which is distinct from a CMMC POA&M and not subject to the 180-day clock.",
+s:"32 CFR 170.4 definitions"},
+
+{d:4,q:"Which statement about the operational plan of action is correct?",
+o:["It is the same document as the CMMC POA&M and is subject to the 180-day closeout","It supports the ongoing plan of action requirement between assessments and is not governed by the 180-day POA&M rule","It replaces the SSP for Level 2","It is submitted to SPRS annually"],a:1,
+e:"An operational plan of action is the OSA ongoing remediation tracking that satisfies the relevant 800-171 requirement between assessments. The CMMC POA&M is a post-assessment artifact tied to Conditional status and the 180-day closeout. The exam tests this distinction.",
+s:"32 CFR 170.4; NIST SP 800-171 Rev 2 CA family"},
+
+{d:4,q:"An assessor must evaluate a requirement in an environment where the OSA uses a virtual desktop infrastructure. What determines whether the endpoints are in scope?",
+o:["The physical location of the endpoint","Whether the endpoint is configured such that it can process, store, or transmit CUI beyond keyboard, video, and mouse traffic","Whether the endpoint is owned by the OSA","Whether the endpoint has antivirus installed"],a:1,
+e:"An endpoint hosting a VDI client configured so that nothing beyond keyboard, video, and mouse reaches it is out of scope. Ownership and location do not decide scope; the ability to process, store, or transmit does.",
+s:"32 CFR 170.19"},
+
+{d:4,q:"During an assessment, an artifact provided as evidence is dated three years before the assessment and describes a system that has since been replaced. The assessor should:",
+o:["Accept it, since documentation age is not an assessment criterion","Treat it as not addressing the current environment and seek current evidence","Score the requirement NOT APPLICABLE","Accept it if the OSA confirms nothing has changed"],a:1,
+e:"Evidence must reflect the environment being assessed. Stale artifacts describing a decommissioned system do not support a MET finding, and a verbal assurance from the OSA is not a substitute for current evidence.",
+s:"CAP evidence criteria"},
+
+{d:4,q:"How should an assessor treat evidence that is adequate and current but comes exclusively from a single method?",
+o:["Accept it without qualification, since one method is sufficient by rule","Seek corroboration through additional methods where the objective warrants it","Automatically score the requirement NOT MET","Score it MET but flag it as a limitation in the report"],a:1,
+e:"The methods are intended to work together. Where an objective can be confirmed by more than one method, corroboration strengthens the finding. Relying solely on interview statements for a technical control is the classic weak case.",
+s:"NIST SP 800-171A; CAP"},
+
+{d:4,q:"An OSA claims a requirement is met by a capability inherited from a cloud provider. What must the assessment team verify?",
+o:["Nothing, since inherited controls are out of scope","That the inheritance is documented, that the responsibility split is defined, and that the OSA-side responsibilities are implemented","Only that the provider holds a commercial certification","That the provider has its own CCP on staff"],a:1,
+e:"Inheritance does not remove the requirement. The SSP and any customer responsibility matrix must document what the provider delivers and what remains with the OSA, and the OSA-side obligations must be assessed.",
+s:"32 CFR 170.19; CMMC Assessment Guide L2"},
+
+{d:4,q:"Which is the maximum possible CMMC Level 2 assessment score, and what does it correspond to?",
+o:["100, corresponding to a percentage","110, corresponding to all 110 requirements MET","117, corresponding to weighted requirements","320, corresponding to assessment objectives"],a:1,
+e:"The maximum is 110 with all requirements MET, which is what Final Level 2 status requires. 320 is a distractor drawn from the number of assessment objectives in 800-171A, which is not the scoring basis.",
+s:"32 CFR 170.24"},
+
+{d:4,q:"An assessment finds 20 requirements NOT MET, all worth 1 point, none of them among the six named ineligible requirements. What is the outcome?",
+o:["Final Level 2, since the score exceeds 88","Conditional Level 2, with a POA&M and a 180-day closeout window","No status, because more than ten requirements are unmet","Conditional Level 1"],a:1,
+e:"The score is 90, which clears the 88 threshold, and all unmet items are POA&M eligible. That produces Conditional Level 2 status. Final status requires closing all items and reaching 110 at the closeout assessment.",
+s:"32 CFR 170.21; 170.24"},
+
+{d:4,q:"An assessment finds one 5-point requirement NOT MET and everything else MET. What is the outcome?",
+o:["Conditional Level 2, since the score of 105 is above 88","Final Level 2, because a single deficiency is immaterial","No CMMC status is awarded — a 5-point requirement cannot be placed on a POA&M","Conditional Level 2 with a 90-day closeout"],a:2,
+e:"The score of 105 clears the threshold, but eligibility for Conditional status also requires that every POA&M item be worth no more than 1 point. A 5-point deficiency, other than the FIPS carve-out for SC.L2-3.13.11, blocks the status entirely.",
+s:"32 CFR 170.21(a)(2)"},
+
+{d:4,q:"Level 3 requires how many enhanced security requirements, and what is the prerequisite?",
+o:["24 requirements from NIST SP 800-172, with a prerequisite of Final Level 2 (C3PAO)","35 requirements from NIST SP 800-53, with no prerequisite","110 requirements from NIST SP 800-171, with a prerequisite of Level 1","24 requirements from NIST SP 800-171A, with a prerequisite of Conditional Level 2"],a:0,
+e:"Level 3 adds 24 selected enhanced requirements from NIST SP 800-172, assessed by DIBCAC, and the OSC must first hold a Final Level 2 (C3PAO) status for the same scope.",
+s:"32 CFR 170.18"},
+
+/* ============ DOMAIN 5 — CMMC ASSESSMENT PROCESS ============ */
+{d:5,q:"What are the four phases of the CMMC Assessment Process, in order?",
+o:["Scope, test, report, certify","Plan and Prepare; Conduct; Report Results; Remediation of Outstanding Assessment Issues","Readiness, fieldwork, findings, appeal","Contract, evidence, scoring, submission"],a:1,
+e:"Phase 1 Plan and Prepare Assessment, Phase 2 Conduct Assessment, Phase 3 Report Assessment Results, Phase 4 Remediation of Outstanding Assessment Issues (the POA&M closeout). Knowing the phase names and their order is basic exam currency.",
+s:"CMMC Assessment Process"},
+
+{d:5,q:"In which phase are conflicts of interest identified and resolved?",
+o:["Phase 1, Plan and Prepare Assessment","Phase 2, Conduct Assessment","Phase 3, Report Assessment Results","Phase 4, Remediation"],a:0,
+e:"Conflict of interest checks are part of pre-assessment planning, alongside contracting, scope verification, team selection, and the assessment plan. Discovering a conflict during fieldwork is a process failure.",
+s:"CAP Phase 1"},
+
+{d:5,q:"Which activity belongs to Phase 1?",
+o:["Delivering the closeout briefing","Verifying the assessment scope and developing the assessment plan","Uploading final results to CMMC eMASS","Performing the POA&M closeout assessment"],a:1,
+e:"Phase 1 covers scope verification, readiness review, assessment planning and scheduling, evidence handling agreements, and team assembly. The closeout briefing is Phase 2; eMASS upload is Phase 3; POA&M closeout is Phase 4.",
+s:"CAP Phase 1"},
+
+{d:5,q:"A CCP serving as an assessment team member on a Level 2 certification assessment may:",
+o:["Make the final determination on whether a requirement is MET","Verify Level 1 practices and support the team under the supervision of a CCA","Sign the final assessment report as the responsible assessor","Determine the CMMC status of the OSC"],a:1,
+e:"With a favorable Tier 3 determination, a CCP may participate on a Level 2 assessment team and verify Level 1 practices. Final determinations and the assessment result are the responsibility of the CCA or Lead CCA.",
+s:"32 CFR 170.9; CAP roles"},
+
+{d:5,q:"During Phase 1, the readiness review indicates the OSA has no complete SSP and cannot identify its CUI data flows. What is the appropriate outcome?",
+o:["Proceed to Phase 2 and record the deficiencies as findings","Do not proceed; the OSA is not ready and the assessment should be deferred or rescheduled","Proceed but reduce the assessment scope to what is documented","Issue a Conditional status and let the OSA remediate"],a:1,
+e:"Phase 1 exists in part to determine whether the assessment can proceed. An OSA that cannot define its scope or produce an SSP is not ready. Proceeding wastes the engagement and produces a foregone result, since an incomplete SSP is itself POA&M-ineligible.",
+s:"CAP Phase 1; 32 CFR 170.21"},
+
+{d:5,q:"Which best describes the daily checkpoint during Phase 2?",
+o:["A formal scoring session held only with the Lead Assessor","A recurring status exchange with the OSC covering progress, preliminary observations, and outstanding evidence requests","A required government briefing to the contracting officer","A closed team meeting that the OSC may not attend"],a:1,
+e:"Daily checkpoints keep the OSC informed of progress, preliminary observations, and evidence still needed. They reduce surprises at the closeout briefing and give the OSC an opportunity to locate outstanding artifacts.",
+s:"CAP Phase 2"},
+
+{d:5,q:"Midway through Phase 2, the team discovers a set of servers processing CUI that were not included in the declared scope. What should happen?",
+o:["Assess them anyway without changing the assessment plan","Ignore them, since scope was fixed in Phase 1","Raise the discrepancy; the scope and plan must be addressed, which may require rescoping, rescheduling, or terminating the assessment","Record them as Out-of-Scope Assets"],a:2,
+e:"A material scope discrepancy invalidates the basis of the assessment. It must be surfaced and resolved through the process, which may mean revisiting scope, adjusting the plan, or stopping. Quietly assessing or ignoring the assets are both improper.",
+s:"CAP Phase 1 and 2"},
+
+{d:5,q:"What is delivered at the end of Phase 2?",
+o:["The final report package uploaded to eMASS","The closeout briefing presenting preliminary results and findings to the OSC","The POA&M closeout determination","The Tier 3 adjudication"],a:1,
+e:"Phase 2 concludes with the closeout briefing to the OSC covering preliminary findings and results. Final report packaging, quality review, and submission occur in Phase 3.",
+s:"CAP Phase 2"},
+
+{d:5,q:"Which activity is part of Phase 3?",
+o:["Conducting the readiness review","Quality assurance review of the assessment results and submission of results into CMMC eMASS","Assembling the assessment team","Closing POA&M items"],a:1,
+e:"Phase 3 covers finalizing findings, quality assurance, delivering the results package to the OSC, submitting results into CMMC eMASS and SPRS, and handling assessment records retention.",
+s:"CAP Phase 3"},
+
+{d:5,q:"What happens in Phase 4?",
+o:["Annual affirmation is submitted","The POA&M closeout assessment is performed on the requirements previously scored NOT MET","The next triennial assessment is scheduled","The C3PAO renews its accreditation"],a:1,
+e:"Phase 4 addresses outstanding assessment issues: the closeout assessment evaluates only the requirements that were NOT MET and placed on the POA&M, and must occur within 180 days of the Conditional status date.",
+s:"CAP Phase 4; 32 CFR 170.21(b)"},
+
+{d:5,q:"For a Level 2 certification assessment, who performs the POA&M closeout assessment?",
+o:["The OSC itself","An authorized or accredited C3PAO","DIBCAC","Any Lead CCA of the OSC choosing"],a:1,
+e:"For certification assessments, the closeout must be performed by an authorized or accredited C3PAO. For a Level 2 self-assessment, the OSA performs its own closeout in the same manner as the initial self-assessment. Level 3 closeouts go to DIBCAC.",
+s:"32 CFR 170.21(b)"},
+
+{d:5,q:"An OSC disagrees with a NOT MET finding at the closeout briefing. What is the correct handling?",
+o:["The assessor changes the finding to avoid a dispute","The OSC may present additional evidence through the defined process, and disputes follow the established adjudication path","The finding is automatically deferred to the POA&M","The assessment restarts"],a:1,
+e:"Disagreements are handled through the defined process — presenting additional evidence during the assessment where the process allows, and otherwise through the established dispute or appeal path with the C3PAO and the Cyber AB. Findings are not renegotiated informally.",
+s:"CAP; Cyber AB dispute process"},
+
+{d:5,q:"The OSC declines to provide evidence for several requirements, citing internal sensitivity. What is the consequence?",
+o:["The requirements are scored NOT APPLICABLE","The requirements cannot be verified and are scored NOT MET","The assessment proceeds and the requirements are assumed MET","The assessor may substitute their own judgment based on the OSC reputation"],a:1,
+e:"Assessors score what can be verified. Evidence that is withheld cannot support a MET finding. Sensitivity is normally managed through evidence handling arrangements agreed in Phase 1, not by omitting the requirement.",
+s:"CAP Phase 1 and 2"},
+
+{d:5,q:"Which statement about assessment records is correct?",
+o:["Records may be destroyed immediately after the results are submitted","Assessment records are retained per the retention requirements and protected as confidential OSC information","Records must be published in the Marketplace","Only the OSC retains records"],a:1,
+e:"Assessment artifacts and records are retained under the applicable retention requirements and remain confidential. Retention and protection obligations continue after the engagement ends.",
+s:"CAP Phase 3; CoPC confidentiality"},
+
+{d:5,q:"Which best describes the Lead Assessor responsibility that a CCP does not share?",
+o:["Interviewing OSC personnel","Reviewing artifacts","Making final determinations on requirement findings and the assessment result","Attending the daily checkpoint"],a:2,
+e:"CCPs interview, examine, test, and support the team. The final determination authority sits with the CCA and, for the overall result, the Lead CCA. This authority boundary is the most heavily tested concept in Domain 5.",
+s:"32 CFR 170.9; CAP roles"},
+
+{d:5,q:"What is the required prerequisite for a CCP to participate on a CMMC Level 2 certification assessment team?",
+o:["A Top Secret clearance","A favorable Tier 3 determination from the Department","Five years of assessment experience","Employment by an RPO"],a:1,
+e:"Assessment participation requires a positively adjudicated Tier 3 background investigation. This establishes eligibility to participate in CMMC assessment activities; it is not a security clearance.",
+s:"32 CFR 170.9; ISACA CMMC program guidance"},
+
+{d:5,q:"Which document defines the objectives, scope, schedule, team, logistics, and evidence handling for an engagement?",
+o:["The System Security Plan","The assessment plan developed in Phase 1","The CMMC Assessment Guide","The POA&M"],a:1,
+e:"The assessment plan is a Phase 1 deliverable covering objectives, verified scope, schedule, team composition, logistics, and evidence handling arrangements. The SSP is an OSA artifact, not an assessor deliverable.",
+s:"CAP Phase 1"},
+
+{d:5,q:"An OSC asks the assessment team to also advise on how to remediate the gaps found during the assessment. How should the team respond?",
+o:["Provide detailed remediation designs, since the team knows the environment best","Decline to provide consulting for the organization being assessed; that would compromise objectivity","Provide remediation advice only verbally","Provide advice after the report is issued but before the POA&M closeout"],a:1,
+e:"Assessing and consulting for the same organization is a conflict. The team can state findings clearly, but designing the remediation and then verifying it at closeout would mean assessing its own work.",
+s:"CoPC objectivity; CAP"},
+
+{d:5,q:"When does the 180-day POA&M clock start?",
+o:["On the date the assessment fieldwork ends","On the Conditional CMMC Status Date","On the date the OSC signs the assessment report","On the date the contracting officer is notified"],a:1,
+e:"The clock runs from the Conditional CMMC Status Date. Every POA&M item must be closed and confirmed by the closeout assessment inside that window, or the Conditional status expires.",
+s:"32 CFR 170.21(b)"},
+
+{d:5,q:"An OSA completes a Level 2 self-assessment with a score of 110 and submits an affirmation. What status results?",
+o:["Final Level 2 (Self)","Conditional Level 2 (Self)","Final Level 2 (C3PAO)","No status until a C3PAO verifies the result"],a:0,
+e:"A self-assessment with all requirements MET plus the affirmation produces Final Level 2 (Self). The (C3PAO) designation applies only where an authorized C3PAO conducted a certification assessment.",
+s:"32 CFR 170.16"},
+
+{d:5,q:"Which pairing of assessment type and cadence is correct?",
+o:["Level 1 self-assessment, every three years","Level 2 certification assessment, every three years with annual affirmation","Level 2 self-assessment, annually with no affirmation","Level 3, annually by a C3PAO"],a:1,
+e:"Level 2 and Level 3 statuses run on a three-year cycle with an annual affirmation. Level 1 is an annual self-assessment with an annual affirmation. Level 3 is assessed by DIBCAC, not a C3PAO.",
+s:"32 CFR 170.15-170.18; 170.22"},
+
+{d:5,q:"During Phase 2, evidence for a requirement previously scored MET is contradicted by later testing. What should the team do?",
+o:["Leave the earlier score in place, since it was already recorded","Revisit and adjust the finding based on the complete body of evidence before the assessment concludes","Record both findings and let the OSC choose","Defer the conflict to the closeout assessment"],a:1,
+e:"Findings are provisional until the assessment concludes. New evidence that contradicts an earlier determination must be reconciled, and the finding adjusted to reflect the full evidence set.",
+s:"CAP Phase 2"},
+
+{d:5,q:"What is the role of the C3PAO quality assurance review?",
+o:["To renegotiate findings with the OSC","To confirm that the assessment was conducted per the process and that findings are supported before results are finalized and submitted","To perform a second full assessment","To determine the contract award"],a:1,
+e:"Quality assurance confirms process adherence and evidentiary support for the findings prior to finalization and submission. It is an internal control on assessment quality, not a renegotiation with the client.",
+s:"CAP Phase 3"},
+
+{d:5,q:"An OSC undergoing a Level 2 certification assessment operates three separate enclaves. What determines how many CMMC statuses result?",
+o:["Always one status per legal entity","The defined assessment scope — a status attaches to the information systems within the assessed scope","Always one status per physical site","The number of contracts held"],a:1,
+e:"CMMC status attaches to the assessed scope, not automatically to the whole company. An organization may hold different statuses for different scoped environments, which is why scope definition in Phase 1 matters so much.",
+s:"32 CFR 170.19; 170.17"},
+
+/* ============ DOMAIN 6 — SCOPING ============ */
+{d:6,q:"Which of the following is NOT one of the Level 2 asset categories?",
+o:["Contractor Risk Managed Asset","Security Protection Asset","Federally Managed Asset","Specialized Asset"],a:2,
+e:"The Level 2 categories are CUI Assets, Security Protection Assets, Contractor Risk Managed Assets, Specialized Assets, and Out-of-Scope Assets. Federally Managed Asset is not a CMMC category.",
+s:"32 CFR 170.19(c)(1) Table 3"},
+
+{d:6,q:"Which list correctly names the Specialized Asset types?",
+o:["Government Furnished Equipment, IoT, IIoT, Operational Technology, Restricted Information Systems, Test Equipment","Servers, workstations, laptops, mobile devices, printers","Cloud services, managed services, hosted email, VPN concentrators","Legacy systems, unsupported operating systems, air-gapped systems"],a:0,
+e:"Specialized Assets are GFE, IoT devices, IIoT devices, Operational Technology, Restricted Information Systems, and Test Equipment. Ordinary endpoints and cloud services are categorized by what they do with CUI, not as Specialized Assets.",
+s:"32 CFR 170.19(c)(1) Table 3; CMMC Scoping Guide L2"},
+
+{d:6,q:"How are Specialized Assets treated in a Level 2 assessment?",
+o:["Removed from the assessment scope entirely with no documentation","Part of the assessment scope: documented in the asset inventory, SSP, and network diagram, managed per the risk-based policy, and not assessed against the other CMMC requirements","Assessed against all 110 requirements like any CUI Asset","Automatically placed on a POA&M"],a:1,
+e:"Specialized Assets remain part of the CMMC Assessment Scope. The OSA documents them in the asset inventory, addresses them in the SSP showing risk-based management, and shows them on the network diagram — but they are not assessed against the other CMMC security requirements.",
+s:"32 CFR 170.19(c)(1) Table 3; CMMC Scoping Guide L2"},
+
+{d:6,q:"How are Specialized Assets treated in a Level 1 self-assessment?",
+o:["Identically to Level 2","They are not part of the Level 1 assessment scope and carry no documentation requirement","They must be assessed against all 15 Level 1 requirements","They must be placed on an operational plan of action"],a:1,
+e:"At Level 1 there are no asset categories: assets are simply in scope or out of scope based on whether they process, store, or transmit FCI, and Specialized Assets are excluded from scope with no documentation requirement. This asymmetry with Level 2 is heavily tested.",
+s:"32 CFR 170.19(b); CMMC Scoping Guide L1"},
+
+{d:6,q:"A manufacturer runs a CNC machine controller with an unpatchable embedded operating system on a VLAN that carries CUI job files, documented in the SSP and firewalled. How is it categorized in a Level 2 assessment?",
+o:["CUI Asset, assessed against all applicable Level 2 requirements","Specialized Asset — Operational Technology, documented but not assessed against the other requirements","Out-of-Scope Asset, because it cannot meet the requirements","Security Protection Asset, because it sits behind a firewall"],a:1,
+e:"Operational Technology falls under Specialized Assets. The obligation is documentation in the inventory, SSP, and network diagram plus risk-based management, not full assessment. Treating it as a CUI Asset is the instinct that experience produces and that the rule does not support.",
+s:"32 CFR 170.19(c)(1) Table 3"},
+
+{d:6,q:"What defines a Contractor Risk Managed Asset?",
+o:["An asset that processes, stores, or transmits CUI by design","An asset that can, but is not intended to, process, store, or transmit CUI, and is managed under the OSA risk-based security policies","Any asset owned by a subcontractor","Any asset that is physically separated from the CUI environment"],a:1,
+e:"A CRMA is capable of handling CUI but is not intended to, and is managed using the risk-based information security policies, procedures, and practices. Assets that handle CUI by design are CUI Assets.",
+s:"32 CFR 170.19(c)(1) Table 3"},
+
+{d:6,q:"How does an assessor handle Contractor Risk Managed Assets?",
+o:["Assess them against all Level 2 requirements","Exclude them from scope","Perform a limited check to confirm the risk-based management, and if the assets are not managed as described, they may be assessed against the Level 2 requirements","Automatically score them NOT MET"],a:2,
+e:"CRMAs are in scope but not fully assessed. The assessor performs a limited check for deficiencies against the OSA risk-based policy. If the evidence does not support the claimed risk-based management, the assessor may assess those assets against the Level 2 requirements.",
+s:"32 CFR 170.19(c)(1) Table 3; CMMC Scoping Guide L2"},
+
+{d:6,q:"A SIEM is logically separated from the CUI environment and never processes CUI, but it collects and correlates security telemetry from the CUI enclave. How is it categorized?",
+o:["Out-of-Scope Asset, since it does not process CUI","Security Protection Asset","Contractor Risk Managed Asset","Specialized Asset"],a:1,
+e:"Security Protection Assets provide security functions or capabilities to the assessment scope regardless of whether they handle CUI. A SIEM is the canonical example, and it is assessed against the requirements relevant to the protections it provides.",
+s:"CMMC Scoping Guide L2"},
+
+{d:6,q:"What is Security Protection Data?",
+o:["Any data stored on a server inside the CUI boundary","Data stored or processed by Security Protection Assets that is used to protect the assessed environment and could aid an attacker if disclosed","Data required by the contracting officer for source selection","Backup copies of CUI"],a:1,
+e:"Security Protection Data is security-relevant information handled by Security Protection Assets — configuration data, log data, and similar — that could aid an attacker if disclosed. It is protected as part of the scope even though it is not CUI.",
+s:"CMMC Scoping Guide L2"},
+
+{d:6,q:"Which condition makes an asset Out-of-Scope for a Level 2 assessment?",
+o:["It is owned by a third party","It cannot process, store, or transmit CUI and is physically or logically separated from assets that do","It runs an unsupported operating system","It is located outside the United States"],a:1,
+e:"Out-of-Scope Assets cannot handle CUI and are physically or logically separated from in-scope assets. Ownership, patch state, and geography do not determine scope by themselves. There are no documentation requirements for out-of-scope assets.",
+s:"32 CFR 170.19(c)(1) Table 3"},
+
+{d:6,q:"Who defines the CMMC Assessment Scope, and what is the assessor role?",
+o:["The C3PAO defines it; the OSA accepts it","The OSA specifies the scope prior to assessment and documents it; the assessment team verifies it and may challenge a scope that leaves obvious gaps","The contracting officer defines it in the solicitation","The Cyber AB defines it during accreditation"],a:1,
+e:"The OSA specifies its scope before the assessment and provides documentation, including the asset inventory and network diagram. The team verifies the scope in Phase 1 and can challenge a boundary that does not hold up.",
+s:"32 CFR 170.19(c); CAP Phase 1"},
+
+{d:6,q:"Which documentation must an OSA provide for the asset categories in a Level 2 assessment?",
+o:["An asset inventory only","An asset inventory, the SSP treatment of each category, and a network diagram of the assessment scope","A network diagram only","A POA&M listing all in-scope assets"],a:1,
+e:"The OSA documents all asset categories in an asset inventory, addresses them in the SSP, and provides a network diagram of the CMMC Assessment Scope to support scoping discussions in pre-assessment activities.",
+s:"CMMC Scoping Guide L2"},
+
+{d:6,q:"What determines whether an asset is in scope for a Level 1 self-assessment?",
+o:["Whether it processes, stores, or transmits FCI","Whether it processes, stores, or transmits CUI","Whether it is connected to the internet","Whether it is listed in the SSP"],a:0,
+e:"Level 1 scope is driven entirely by FCI. Assets that process, store, or transmit FCI are in scope; those that cannot are out of scope with no documentation requirement. CUI drives Level 2 scope, not Level 1.",
+s:"32 CFR 170.19(b); CMMC Scoping Guide L1"},
+
+{d:6,q:"Beyond technology, what else falls within the CMMC Assessment Scope?",
+o:["Only networked hardware","People, technology, facilities, and external service providers that handle or protect in-scope information","Only assets owned by the OSA","Only assets located at the primary business address"],a:1,
+e:"Scope encompasses people, technology, facilities, and external service providers relevant to the protection of the in-scope information — not just hardware, and not only OSA-owned or single-site assets.",
+s:"32 CFR 170.19; CMMC Scoping Guide L2"},
+
+{d:6,q:"An OSA uses an external service provider that processes CUI on its behalf. What is the scoping consequence?",
+o:["The ESP is irrelevant to the assessment","The ESP relationship must be documented and the arrangement addressed within the assessment scope, including how requirements are met","The ESP must be excluded to keep scope small","The ESP is automatically an Out-of-Scope Asset"],a:1,
+e:"ESPs that handle CUI or provide security protections to the scope must be documented, with the SSP explaining how the requirements are satisfied and how responsibilities are divided. Outsourcing does not shrink the scope.",
+s:"32 CFR 170.19; CMMC Scoping Guide L2"},
+
+{d:6,q:"An endpoint hosts a VDI client configured so that only keyboard, video, and mouse traffic reaches it, with no local processing or storage of FCI. In a Level 1 self-assessment it is:",
+o:["In scope, because it connects to an FCI environment","Out of scope","A Specialized Asset","A Contractor Risk Managed Asset"],a:1,
+e:"The rule names this case explicitly: an endpoint hosting a VDI client configured to allow no processing, storage, or transmission of FCI beyond keyboard, video, and mouse is out of scope. There are no CRMA or Specialized categories at Level 1 in any event.",
+s:"32 CFR 170.19(b)(2)(i)"},
+
+{d:6,q:"An asset qualifies for an Enduring Exception. Where is this recorded?",
+o:["On a POA&M with a 180-day closeout","In the SSP, describing the special circumstance and how the asset is managed","In SPRS as a score deduction","In the assessment plan only"],a:1,
+e:"An Enduring Exception is documented in the SSP as a special circumstance where remediation is not feasible. It does not require a POA&M and is not subject to the 180-day closeout clock.",
+s:"32 CFR 170.4; CMMC Scoping Guide L2"}
+
+];
+(function(){
+"use strict";
+
+var BANK = BANK_A.concat(BANK_B);
+var WEIGHTS = {1:5, 2:5, 3:15, 4:35, 5:25, 6:15};
+var DOMS = [1,2,3,4,5,6];
+var DOMAIN_NAMES = {
+  1:"Domain 1 \u2014 CMMC Ecosystem",
+  2:"Domain 2 \u2014 Code of Professional Conduct",
+  3:"Domain 3 \u2014 Governance and Source Documents",
+  4:"Domain 4 \u2014 Model Construct and Implementation Evaluation",
+  5:"Domain 5 \u2014 CMMC Assessment Process",
+  6:"Domain 6 \u2014 Scoping"
+};
+var SHORT_NAMES = {
+  1:"Ecosystem", 2:"Code of Professional Conduct", 3:"Governance and source documents",
+  4:"Model construct and implementation evaluation", 5:"Assessment process (CAP)", 6:"Scoping"
+};
+var LETTERS = ["A","B","C","D"];
+var STORE_CHECKS  = "ccp.checks.v1";
+var STORE_HIST    = "ccp.history.v2";
+var STORE_MASTERY = "ccp.mastery.v1";
+
+function safe(fn){ try{ fn(); }catch(e){} }
+function scrollTop(){ safe(function(){ window.scrollTo(0,0); }); }
+function scrollTo(el){ safe(function(){ if(el && el.scrollIntoView) el.scrollIntoView({block:"start", behavior:"smooth"}); }); }
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function read(key, fallback){
+  try{ var raw = window.localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; }
+  catch(e){ return fallback; }
+}
+function write(key, val){
+  try{ window.localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+}
+
+/* ---------------- tabs ---------------- */
+var tabs = document.querySelectorAll(".tab");
+Array.prototype.forEach.call(tabs, function(t){
+  t.addEventListener("click", function(){
+    Array.prototype.forEach.call(tabs, function(o){
+      var on = (o === t);
+      o.classList.toggle("active", on);
+      o.setAttribute("aria-selected", on ? "true" : "false");
+      $("panel-" + o.dataset.panel).hidden = !on;
+    });
+    scrollTop();
+  });
+});
+
+/* ---------------- study guide checkboxes ---------------- */
+var checks = read(STORE_CHECKS, {});
+Array.prototype.forEach.call(document.querySelectorAll("#panel-guide label.check"), function(lbl){
+  var key = lbl.dataset.k;
+  var box = lbl.querySelector("input");
+  if(checks[key]){ box.checked = true; lbl.classList.add("done"); }
+  box.addEventListener("change", function(){
+    checks[key] = box.checked;
+    lbl.classList.toggle("done", box.checked);
+    write(STORE_CHECKS, checks);
+  });
+});
+
+/* ---------------- question identity and mastery ---------------- */
+function hash(str){
+  var h = 5381;
+  for(var i = 0; i < str.length; i++){ h = ((h << 5) + h + str.charCodeAt(i)) | 0; }
+  return (h >>> 0).toString(36);
+}
+var byDomain = {};
+DOMS.forEach(function(d){ byDomain[d] = []; });
+BANK.forEach(function(q){
+  q._id = "d" + q.d + "-" + hash(q.q);
+  byDomain[q.d].push(q);
+});
+
+var mastery = read(STORE_MASTERY, {});
+function rec(id){
+  if(!mastery[id]) mastery[id] = {m:false, r:0, w:0};
+  return mastery[id];
+}
+function isMastered(q){ return !!(mastery[q._id] && mastery[q._id].m); }
+function markResult(q, correct){
+  var r = rec(q._id);
+  if(correct){ r.r++; r.m = true; } else { r.w++; r.m = false; }
+}
+function domainStats(d){
+  var list = byDomain[d];
+  var done = list.filter(isMastered).length;
+  return {done: done, total: list.length, left: list.length - done};
+}
+function overallStats(){
+  var done = BANK.filter(isMastered).length;
+  return {done: done, total: BANK.length, left: BANK.length - done};
+}
+
+function shuffle(arr){
+  var a = arr.slice();
+  for(var i = a.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+/* ---------------- pool construction ---------------- */
+function selectedDomain(){ return $("dom").value; }
+function focusOnly(){ return $("focus").checked; }
+
+function candidatesFor(d){
+  var list = byDomain[d];
+  if(!focusOnly()) return list.slice();
+  return list.filter(function(q){ return !isMastered(q); });
+}
+
+function poolSize(){
+  if(selectedDomain() === "all"){
+    return DOMS.reduce(function(s,d){ return s + candidatesFor(d).length; }, 0);
+  }
+  return candidatesFor(Number(selectedDomain())).length;
+}
+
+function allocate(total, avail){
+  var exact = {}, base = {}, used = 0;
+  DOMS.forEach(function(d){
+    exact[d] = total * WEIGHTS[d] / 100;
+    base[d] = Math.min(Math.floor(exact[d]), avail[d]);
+    used += base[d];
+  });
+  var order = DOMS.slice().sort(function(a,b){
+    return (exact[b] - base[b]) - (exact[a] - base[a]);
+  });
+  var guard = 0;
+  while(used < total && guard++ < 1000){
+    var moved = false;
+    for(var i = 0; i < order.length; i++){
+      var d = order[i];
+      if(base[d] < avail[d]){ base[d]++; used++; moved = true; if(used === total) break; }
+    }
+    if(!moved) break;
+  }
+  return base;
+}
+
+function buildQuestionList(){
+  var sel = selectedDomain();
+  var lenRaw = $("len").value;
+  var avail = {}, totalAvail = 0;
+  DOMS.forEach(function(d){
+    avail[d] = (sel === "all" || Number(sel) === d) ? candidatesFor(d).length : 0;
+    totalAvail += avail[d];
+  });
+  if(totalAvail === 0) return [];
+
+  var want = (lenRaw === "all") ? totalAvail : Math.min(Number(lenRaw), totalAvail);
+  var picked = [];
+
+  if(sel === "all"){
+    var alloc = allocate(want, avail);
+    DOMS.forEach(function(d){
+      picked = picked.concat(shuffle(candidatesFor(d)).slice(0, alloc[d]));
+    });
+  } else {
+    picked = shuffle(candidatesFor(Number(sel))).slice(0, want);
+  }
+  return picked;
+}
+
+function wrapItems(list){
+  return shuffle(list).map(function(q){
+    var order = shuffle([0,1,2,3]);
+    return { q:q, order:order, correctSlot:order.indexOf(q.a), picked:null, submitted:false };
+  });
+}
+
+/* ---------------- exam state ---------------- */
+var exam = null, pos = 0, right = 0, wrong = 0, trialScope = "";
+
+var elStrip = $("strip"), elProg = $("prog"), elQcard = $("qcard"),
+    elResults = $("results"), elAbandon = $("btn-abandon"),
+    elSubmit = $("btn-submit"), elNext = $("btn-next"), elNew = $("btn-new");
+
+function refreshStrip(){
+  var answered = right + wrong;
+  $("s-pos").textContent = Math.min(pos + 1, exam.length) + "/" + exam.length;
+  $("s-right").textContent = right;
+  $("s-wrong").textContent = wrong;
+  $("s-pct").textContent = answered ? Math.round(right / answered * 100) + "%" : "\u2014";
+  elProg.querySelector("i").style.width = (answered / exam.length * 100) + "%";
+}
+
+function renderQuestion(){
+  var item = exam[pos], q = item.q;
+  var r = mastery[q._id];
+  var tail = (r && r.w > 0) ? "  \u00B7  missed before \u00D7" + r.w : "";
+  $("q-dom").textContent = DOMAIN_NAMES[q.d];
+  $("q-idx").textContent = "Question " + (pos + 1) + " of " + exam.length + tail;
+  $("q-text").textContent = q.q;
+
+  var opts = $("q-opts");
+  opts.innerHTML = "";
+  item.order.forEach(function(originalIdx, slot){
+    var lab = document.createElement("label");
+    lab.className = "opt";
+    lab.dataset.slot = String(slot);
+
+    var radio = document.createElement("input");
+    radio.type = "radio"; radio.name = "opt"; radio.value = String(slot);
+    if(item.picked === slot) radio.checked = true;
+    radio.addEventListener("change", function(){
+      item.picked = slot;
+      elSubmit.disabled = false;
+    });
+
+    var ltr = document.createElement("span");
+    ltr.className = "ltr"; ltr.textContent = LETTERS[slot] + ".";
+
+    var txt = document.createElement("span");
+    txt.textContent = q.o[originalIdx];
+
+    lab.appendChild(radio); lab.appendChild(ltr); lab.appendChild(txt);
+    opts.appendChild(lab);
+  });
+
+  $("q-verdict").innerHTML = "";
+  elSubmit.hidden = false;
+  elSubmit.disabled = (item.picked === null);
+  elNext.hidden = true;
+  refreshStrip();
+}
+
+function lockOptions(item){
+  Array.prototype.forEach.call($("q-opts").children, function(lab){
+    var slot = Number(lab.dataset.slot);
+    lab.classList.add("locked");
+    lab.querySelector("input").disabled = true;
+    if(slot === item.correctSlot) lab.classList.add("correct");
+    else if(slot === item.picked) lab.classList.add("chosen-wrong");
+  });
+}
+
+function submitAnswer(){
+  var item = exam[pos];
+  if(item.submitted || item.picked === null) return;
+  item.submitted = true;
+  var ok = (item.picked === item.correctSlot);
+  if(ok) right++; else wrong++;
+
+  var wasMastered = isMastered(item.q);
+  markResult(item.q, ok);
+  write(STORE_MASTERY, mastery);
+  lockOptions(item);
+
+  var box = document.createElement("div");
+  box.className = "verdict " + (ok ? "ok" : "no");
+
+  var h = document.createElement("h5");
+  h.textContent = ok
+    ? "Correct \u2014 " + LETTERS[item.correctSlot]
+    : "Incorrect \u2014 you chose " + LETTERS[item.picked] + ", the answer is " + LETTERS[item.correctSlot];
+  box.appendChild(h);
+
+  if(!ok){
+    var yours = document.createElement("p");
+    yours.innerHTML = "<b>Why your answer is wrong:</b> ";
+    yours.appendChild(document.createTextNode(
+      "\u201C" + item.q.o[item.order[item.picked]] + "\u201D does not hold under the source document. The reasoning below addresses this distractor directly."
+    ));
+    box.appendChild(yours);
+  }
+
+  var why = document.createElement("p");
+  why.innerHTML = "<b>" + (ok ? "Reasoning:" : "What the rule actually says:") + "</b> ";
+  why.appendChild(document.createTextNode(item.q.e));
+  box.appendChild(why);
+
+  var src = document.createElement("p");
+  src.className = "src";
+  src.textContent = "Source: " + item.q.s;
+  box.appendChild(src);
+
+  var status = document.createElement("p");
+  status.className = "src";
+  status.style.marginTop = "6px";
+  if(ok) status.textContent = wasMastered ? "Still mastered \u2014 stays out of the pool." : "Mastered \u2014 retired from the pool.";
+  else status.textContent = wasMastered ? "Un-mastered \u2014 back into the pool for the next trial." : "Stays in the pool. You will see it again.";
+  box.appendChild(status);
+
+  $("q-verdict").appendChild(box);
+
+  elSubmit.hidden = true;
+  elNext.hidden = false;
+  elNext.textContent = (pos === exam.length - 1) ? "See my results" : "Next question";
+  safe(function(){ elNext.focus(); });
+  refreshStrip();
+  renderMastery();
+}
+
+function nextQuestion(){
+  if(pos === exam.length - 1){ finish(); return; }
+  pos++;
+  renderQuestion();
+  scrollTo(elQcard);
+}
+
+function domainBreakdown(){
+  var out = {};
+  exam.forEach(function(item){
+    var d = item.q.d;
+    if(!out[d]) out[d] = {total:0, right:0, answered:0};
+    out[d].total++;
+    if(item.submitted){
+      out[d].answered++;
+      if(item.picked === item.correctSlot) out[d].right++;
+    }
+  });
+  return out;
+}
+
+function verdictLine(pct){
+  if(pct >= 85) return "Comfortably above where you want to be before test day. Keep the weak domains from slipping.";
+  if(pct >= 75) return "Passing range on a practice set, but not much margin. Push the weakest domain first.";
+  if(pct >= 60) return "You know the material broadly and are losing points on specifics. Go back to the source documents for the domains below 70%.";
+  return "Too early to sit the exam. Work the study guide sequence before drilling more questions.";
+}
+
+var lastMissed = [];
+
+function finish(){
+  var answered = right + wrong;
+  var pct = answered ? Math.round(right / answered * 100) : 0;
+  elQcard.hidden = true;
+  elSubmit.hidden = true;
+  elNext.hidden = true;
+  elAbandon.hidden = true;
+  elNew.textContent = "Start trial";
+
+  var missedItems = exam.filter(function(i){ return i.submitted && i.picked !== i.correctSlot; });
+  lastMissed = missedItems.map(function(i){ return i.q; });
+
+  var html = "";
+  html += "<p class='eyebrow'>Trial results</p>";
+  html += "<h2>" + right + " of " + answered + " correct \u2014 " + pct + "%</h2>";
+  html += "<p class='sub'>" + esc(trialScope) + ". " + verdictLine(pct) + "</p>";
+
+  var st = (selectedDomain() === "all") ? overallStats() : domainStats(Number(selectedDomain()));
+  html += "<div class='callout'>";
+  html += "<strong>" + right + " question" + (right === 1 ? "" : "s") + " retired this trial.</strong> ";
+  if(st.left === 0){
+    html += "Nothing unmastered left in the selected scope \u2014 every question there has been answered correctly at least once.";
+  } else {
+    html += st.left + " question" + (st.left === 1 ? "" : "s") + " still unmastered in the selected scope, including the " +
+            lastMissed.length + " you just missed. Start another trial and they come back.";
+  }
+  html += "</div>";
+
+  html += "<div class='resultgrid'>";
+  var bd = domainBreakdown();
+  DOMS.forEach(function(d){
+    if(!bd[d] || bd[d].answered === 0) return;
+    var p = Math.round(bd[d].right / bd[d].answered * 100);
+    var cls = p >= 80 ? "high" : (p >= 60 ? "mid" : "low");
+    html += "<div class='resultcell'>";
+    html += "<small>Domain " + d + "</small>";
+    html += "<b>" + p + "%</b>";
+    html += "<div style='font-size:12px;color:#7d8c94'>" + bd[d].right + " of " + bd[d].answered + "</div>";
+    html += "<div class='bar'><i class='" + cls + "' style='width:" + p + "%'></i></div>";
+    html += "</div>";
+  });
+  html += "</div>";
+
+  if(missedItems.length){
+    html += "<h3>Everything you got wrong (" + missedItems.length + ")</h3>";
+    missedItems.forEach(function(item){
+      var q = item.q;
+      html += "<div class='missed'>";
+      html += "<span class='tag'>Domain " + q.d + "</span>";
+      html += "<p class='q'>" + esc(q.q) + "</p>";
+      html += "<p class='line'><b>You chose:</b> " + esc(q.o[item.order[item.picked]]) + "</p>";
+      html += "<p class='line'><b>Correct answer:</b> " + esc(q.o[q.a]) + "</p>";
+      html += "<p class='line'><b>Why:</b> " + esc(q.e) + "</p>";
+      html += "<p class='line' style='color:#7d8c94;font-size:12px'>Source: " + esc(q.s) + "</p>";
+      html += "</div>";
+    });
+  } else {
+    html += "<h3>Nothing missed</h3><p>Clean sheet. Every question in this trial is now retired from the pool.</p>";
+  }
+
+  html += "<div class='nav' style='margin-top:18px'>";
+  if(missedItems.length){
+    html += "<button class='btn' id='btn-retry'>Retry just these " + missedItems.length + "</button>";
+  }
+  html += "<button class='btn" + (missedItems.length ? " ghost" : "") + "' id='btn-again'>Start another trial</button>";
+  html += "</div>";
+
+  elResults.innerHTML = html;
+  elResults.hidden = false;
+  if($("btn-retry")){
+    $("btn-retry").addEventListener("click", function(){
+      startExam(lastMissed.slice(), "Retry of missed questions");
+    });
+  }
+  $("btn-again").addEventListener("click", function(){ startExam(); });
+
+  var hist = read(STORE_HIST, []);
+  hist.unshift({ when:new Date().toISOString(), scope:trialScope, len:answered, right:right, pct:pct });
+  write(STORE_HIST, hist.slice(0, 30));
+  renderHistory();
+  renderMastery();
+  renderPoolNote();
+  scrollTo(elResults);
+}
+
+function scopeLabel(){
+  var sel = selectedDomain();
+  var base = (sel === "all") ? "All domains, blueprint weighted" : DOMAIN_NAMES[Number(sel)];
+  return base + (focusOnly() ? ", unmastered only" : ", full bank");
+}
+
+function startExam(customList, customLabel){
+  var list = customList || buildQuestionList();
+  if(!list.length){
+    renderPoolNote();
+    elQcard.hidden = true;
+    elResults.hidden = true;
+    scrollTo($("pool-note"));
+    return;
+  }
+  trialScope = customLabel || scopeLabel();
+  exam = wrapItems(list);
+  pos = 0; right = 0; wrong = 0;
+  elStrip.hidden = false;
+  elProg.hidden = false;
+  elQcard.hidden = false;
+  elResults.hidden = true;
+  elResults.innerHTML = "";
+  elAbandon.hidden = false;
+  elNew.textContent = "Discard and draw a new trial";
+  renderQuestion();
+  scrollTo(elQcard);
+}
+
+/* ---------------- progress rendering ---------------- */
+function renderMastery(){
+  var html = "";
+  DOMS.forEach(function(d){
+    var s = domainStats(d);
+    var p = Math.round(s.done / s.total * 100);
+    var cls = p >= 80 ? "high" : (p >= 40 ? "mid" : "low");
+    html += "<div class='mrow" + (s.left === 0 ? " done" : "") + "'>";
+    html += "<div class='top'><span class='lbl'>Domain " + d + " \u2014 " + SHORT_NAMES[d] + "</span>";
+    html += "<span class='cnt'>" + s.done + " / " + s.total + "</span></div>";
+    html += "<div class='bar'><i class='" + cls + "' style='width:" + p + "%'></i></div>";
+    html += "</div>";
+  });
+  var o = overallStats();
+  var op = Math.round(o.done / o.total * 100);
+  var ocls = op >= 80 ? "high" : (op >= 40 ? "mid" : "low");
+  html += "<div class='mrow total" + (o.left === 0 ? " done" : "") + "'>";
+  html += "<div class='top'><span class='lbl'>Whole bank</span><span class='cnt'>" + o.done + " / " + o.total + " \u00B7 " + op + "%</span></div>";
+  html += "<div class='bar'><i class='" + ocls + "' style='width:" + op + "%'></i></div>";
+  html += "</div>";
+  $("mastery").innerHTML = html;
+}
+
+function renderPoolNote(){
+  var sel = selectedDomain();
+  var n = poolSize();
+  var el = $("pool-note");
+  var scopeTxt = (sel === "all") ? "the full bank" : DOMAIN_NAMES[Number(sel)];
+  if(n === 0 && focusOnly()){
+    el.innerHTML = "<strong>Nothing left to draw in " + esc(scopeTxt) + ".</strong> " +
+      "Every question here has been answered correctly at least once. Uncheck the box above to run them again, " +
+      "switch domains, or reset below.";
+  } else {
+    el.innerHTML = "<strong>" + n + " question" + (n === 1 ? "" : "s") + " available</strong> in " + esc(scopeTxt) +
+      (focusOnly() ? " that you have not mastered yet." : ", ignoring mastery.");
+  }
+  elNew.disabled = (n === 0);
+}
+
+function renderHistory(){
+  var hist = read(STORE_HIST, []);
+  var el = $("hist");
+  if(!hist.length){
+    el.innerHTML = "<p class='empty'>No trials yet. Your scores will accumulate here.</p>";
+    return;
+  }
+  var best = hist.reduce(function(m,h){ return Math.max(m, h.pct); }, 0);
+  var avg = Math.round(hist.reduce(function(s,h){ return s + h.pct; }, 0) / hist.length);
+  var html = "<p>" + hist.length + " trial" + (hist.length === 1 ? "" : "s") +
+             " \u00B7 best " + best + "% \u00B7 average " + avg + "%</p>";
+  html += "<table><tr><th>Date</th><th>Scope</th><th>Asked</th><th>Correct</th><th>Score</th></tr>";
+  hist.forEach(function(h){
+    var dt = new Date(h.when);
+    html += "<tr><td>" + dt.toLocaleDateString() + " " +
+            dt.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}) + "</td>" +
+            "<td>" + esc(h.scope || "\u2014") + "</td>" +
+            "<td>" + h.len + "</td><td>" + h.right + "</td><td>" + h.pct + "%</td></tr>";
+  });
+  html += "</table>";
+  el.innerHTML = html;
+}
+
+/* ---------------- wiring ---------------- */
+elNew.addEventListener("click", function(){ startExam(); });
+elSubmit.addEventListener("click", submitAnswer);
+elNext.addEventListener("click", nextQuestion);
+elAbandon.addEventListener("click", function(){
+  if(!exam || (right + wrong) === 0) return;
+  finish();
+});
+$("dom").addEventListener("change", renderPoolNote);
+$("focus").addEventListener("change", renderPoolNote);
+
+function resetAll(){
+  mastery = {};
+  write(STORE_MASTERY, mastery);
+  renderMastery(); renderPoolNote();
+}
+$("btn-reset-domain").addEventListener("click", function(){
+  var sel = selectedDomain();
+  if(sel === "all"){ resetAll(); return; }
+  byDomain[Number(sel)].forEach(function(q){ delete mastery[q._id]; });
+  write(STORE_MASTERY, mastery);
+  renderMastery(); renderPoolNote();
+});
+$("btn-reset-all").addEventListener("click", resetAll);
+
+document.addEventListener("keydown", function(e){
+  if($("panel-exam").hidden || !exam) return;
+  if(e.key === "Enter"){
+    if(!elSubmit.hidden && !elSubmit.disabled){ e.preventDefault(); submitAnswer(); }
+    else if(!elNext.hidden){ e.preventDefault(); nextQuestion(); }
+  }
+});
+
+renderMastery();
+renderPoolNote();
+renderHistory();
+
+var note = document.createElement("p");
+note.className = "sub";
+note.style.marginTop = "12px";
+note.textContent = "Question bank: " + BANK.length + " items \u2014 " +
+  DOMS.map(function(d){ return "D" + d + " " + byDomain[d].length; }).join(" \u00B7 ");
+$("histcard").appendChild(note);
+
+})();
+</script>
+</body>
+</html>
